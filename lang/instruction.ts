@@ -432,6 +432,30 @@ function parseInstruction(bytes: Uint8Array, start: number, level: number): Pars
 		return result;
 	}
 
+	if (instructionName === "break") {
+		resultSize += parseInstructionNameResult.size;
+
+		spacesSize = parseSpaces(bytes, start);
+		resultSize += spacesSize;
+
+		if (start + resultSize < bytes.length) {
+			if (bytes[start + resultSize] !== CHAR_CODE_NEWLINE) {
+				throw new Error(`Expected newline at position ${start + resultSize}`);
+			}
+			resultSize++;
+		}
+
+		const breakInstructionNode: BreakInstructionNode = {
+			type: "instruction.break",
+		};
+
+		const result: ParseInstructionResult = {
+			size: resultSize,
+			node: breakInstructionNode,
+		};
+		return result;
+	}
+
 	if (instructionName === "#") {
 		resultSize += parseInstructionNameResult.size;
 
@@ -724,6 +748,7 @@ export type InstructionNode =
 	| ForInstructionNode
 	| WhileInstructionNode
 	| ReturnInstructionNode
+	| BreakInstructionNode
 	| CommentInstructionNode;
 
 export interface DoInstructionNode {
@@ -777,6 +802,10 @@ export interface WhileInstructionNode {
 export interface ReturnInstructionNode {
 	type: "instruction.return";
 	expressionNode: ExpressionNode;
+}
+
+export interface BreakInstructionNode {
+	type: "instruction.break";
 }
 
 export interface CommentInstructionNode {

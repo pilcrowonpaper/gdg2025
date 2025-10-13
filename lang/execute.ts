@@ -6,6 +6,15 @@ export function executeInstructions(
 	memory: Map<string, Value>,
 	externalFunctions: ExternalFunctions,
 ): Value | null {
+	const result = executeInstructionsWithBreak(instructions, memory, externalFunctions);
+	return result.returnValue;
+}
+
+export function executeInstructionsWithBreak(
+	instructions: InstructionNode[],
+	memory: Map<string, Value>,
+	externalFunctions: ExternalFunctions,
+): ExecuteInstructionResult {
 	let prevIfInstructionPassthrough = false;
 	for (const instruction of instructions) {
 		switch (instruction.type) {
@@ -103,8 +112,12 @@ export function executeInstructions(
 			}
 
 			case "instruction.return": {
-				const value = resolveExpression(instruction.expressionNode, memory, externalFunctions);
-				return value;
+				const returnValue = resolveExpression(instruction.expressionNode, memory, externalFunctions);
+				const result: ExecuteInstructionResult = {
+					break: false,
+					returnValue: returnValue,
+				};
+				return result;
 			}
 
 			case "instruction.if": {
@@ -127,9 +140,24 @@ export function executeInstructions(
 				}
 
 				if (conditionSatisfied) {
-					const returnedValue = executeInstructions(instruction.instructionNodes, memory, externalFunctions);
-					if (returnedValue !== null) {
-						return returnedValue;
+					const executeInstructionsResult = executeInstructionsWithBreak(
+						instruction.instructionNodes,
+						memory,
+						externalFunctions,
+					);
+					if (executeInstructionsResult.break) {
+						const result: ExecuteInstructionResult = {
+							break: true,
+							returnValue: null,
+						};
+						return result;
+					}
+					if (executeInstructionsResult.returnValue !== null) {
+						const result: ExecuteInstructionResult = {
+							break: false,
+							returnValue: executeInstructionsResult.returnValue,
+						};
+						return result;
 					}
 					break;
 				}
@@ -163,9 +191,24 @@ export function executeInstructions(
 				if (conditionSatisfied) {
 					prevIfInstructionPassthrough = false;
 
-					const returnedValue = executeInstructions(instruction.instructionNodes, memory, externalFunctions);
-					if (returnedValue !== null) {
-						return returnedValue;
+					const executeInstructionsResult = executeInstructionsWithBreak(
+						instruction.instructionNodes,
+						memory,
+						externalFunctions,
+					);
+					if (executeInstructionsResult.break) {
+						const result: ExecuteInstructionResult = {
+							break: true,
+							returnValue: null,
+						};
+						return result;
+					}
+					if (executeInstructionsResult.returnValue !== null) {
+						const result: ExecuteInstructionResult = {
+							break: false,
+							returnValue: executeInstructionsResult.returnValue,
+						};
+						return result;
 					}
 					break;
 				}
@@ -177,9 +220,24 @@ export function executeInstructions(
 				if (!prevIfInstructionPassthrough) {
 					break;
 				}
-				const returnedValue = executeInstructions(instruction.instructionNodes, memory, externalFunctions);
-				if (returnedValue !== null) {
-					return returnedValue;
+				const executeInstructionsResult = executeInstructionsWithBreak(
+					instruction.instructionNodes,
+					memory,
+					externalFunctions,
+				);
+				if (executeInstructionsResult.break) {
+					const result: ExecuteInstructionResult = {
+						break: true,
+						returnValue: null,
+					};
+					return result;
+				}
+				if (executeInstructionsResult.returnValue !== null) {
+					const result: ExecuteInstructionResult = {
+						break: false,
+						returnValue: executeInstructionsResult.returnValue,
+					};
+					return result;
 				}
 				break;
 			}
@@ -206,9 +264,20 @@ export function executeInstructions(
 					if (!conditionSatisfied) {
 						break;
 					}
-					const returnedValue = executeInstructions(instruction.instructionNodes, memory, externalFunctions);
-					if (returnedValue !== null) {
-						return returnedValue;
+					const executeInstructionsResult = executeInstructionsWithBreak(
+						instruction.instructionNodes,
+						memory,
+						externalFunctions,
+					);
+					if (executeInstructionsResult.break) {
+						break;
+					}
+					if (executeInstructionsResult.returnValue !== null) {
+						const result: ExecuteInstructionResult = {
+							break: false,
+							returnValue: executeInstructionsResult.returnValue,
+						};
+						return result;
 					}
 				}
 				break;
@@ -233,13 +302,32 @@ export function executeInstructions(
 					};
 					memory.set(instruction.loopVariableName, loopValue);
 
-					const returnValue = executeInstructions(instruction.instructionNodes, memory, externalFunctions);
-					if (returnValue !== null) {
-						return returnValue;
+					const executeInstructionsResult = executeInstructionsWithBreak(
+						instruction.instructionNodes,
+						memory,
+						externalFunctions,
+					);
+					if (executeInstructionsResult.break) {
+						break;
+					}
+					if (executeInstructionsResult.returnValue !== null) {
+						const result: ExecuteInstructionResult = {
+							break: false,
+							returnValue: executeInstructionsResult.returnValue,
+						};
+						return result;
 					}
 					loopCount100 += 100;
 				}
 				break;
+			}
+
+			case "instruction.break": {
+				const result: ExecuteInstructionResult = {
+					break: true,
+					returnValue: null,
+				};
+				return result;
 			}
 
 			case "instruction.comment": {
@@ -248,7 +336,16 @@ export function executeInstructions(
 		}
 	}
 
-	return null;
+	const result: ExecuteInstructionResult = {
+		break: false,
+		returnValue: null,
+	};
+	return result;
+}
+
+interface ExecuteInstructionResult {
+	break: boolean;
+	returnValue: Value | null;
 }
 
 function getValueReferenceFromInstructionTargetModifiers(
