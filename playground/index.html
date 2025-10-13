@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Language Playground</title>
+	</head>
+
+	<body style="tab-size: 4;">
+		<h1>Language playground</h1>
+		<button id="run-button">Run</button>
+		<p>Press ESC to un-focus from the editor.</p>
+		<textarea
+			id="input"
+			style="width: 100%; resize: none; font-family: monospace; white-space: pre; overflow-wrap: normal; overflow-x: scroll;"
+			rows="10"
+			autocorrect="off"
+			autocomplete="off"
+			autocapitalize="off"
+			spellcheck="false"
+		></textarea>
+		<div id="output" style="font-family: monospace;">
+			<pre id="output-text"></pre>
+		</div>
+	</body>
+	<script type="module" src="./index.ts"></script>
+</html>

@@ -1,0 +1,27 @@
+{
+	"name": "gdsc2025",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc && vite build",
+		"preview": "vite preview",
+		"check": "biome check --write game/ lang/ playground/ vite.config.ts index.html"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.2.5",
+		"typescript": "~5.9.3",
+		"vite": "npm:rolldown-vite@7.1.14"
+	},
+	"pnpm": {
+		"overrides": {
+			"vite": "npm:rolldown-vite@7.1.14"
+		}
+	},
+	"dependencies": {
+		"@oslojs/binary": "^1.0.0",
+		"@oslojs/encoding": "^1.1.0",
+		"@types/node": "^24.7.2"
+	}
+}
