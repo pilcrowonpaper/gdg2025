@@ -26,13 +26,13 @@ runButtonElement.addEventListener("click", () => {
 	const instructions = lang.parseScript(textEditorElement.value);
 	const memory: lang.Memory = new Map();
 	const externalFunctions = lang.createStandardLibrary();
-	externalFunctions.set("print", (args) => {
+	externalFunctions.set("log", (args) => {
 		const outputItems: string[] = [];
 		for (const value of args) {
 			const formattedValue = formatLangValue(value);
 			outputItems.push(formattedValue);
 		}
-		outputTextElement.innerText += `[print] ${outputItems.join(", ")}\n`;
+		outputTextElement.innerText += `[log] ${outputItems.join(", ")}\n`;
 
 		const result: lang.NullValue = {
 			type: "value.null",

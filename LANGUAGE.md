@@ -83,13 +83,13 @@ set first_message, $foo[0].message
 Use the `do` instruction to execute an expression. Prefix a function name with `@` to call it.
 
 ```
-do @print(1, 2, 3)
+do @log(1, 2, 3)
 ```
 
 Included functions:
 
 ```
-@print(value1, value2, ...)
+@log(value1, value2, ...)
 @size(list_or_object)
 @and(condition1, condition2, ...)
 @or(condition1, condition2, ...)
@@ -109,18 +109,18 @@ Use the `if` instruction to conditionally run some instructions. This instructio
 if a > 0, b > 0:
     # INTEND WITH TAB!
     # multiple instructions allowed
-    do @print("a and b are positive")
+    do @log("a and b are positive")
 elseif a > 0:
-    do @print("a is positive")
+    do @log("a is positive")
 elseif b > 0:
-    do @print("b is negative")
+    do @log("b is negative")
 else:
-    do @print("none are positive")
+    do @log("none are positive")
 
 if a > 0:
     if b > 0:
         # can be nested
-        do @print("a and b are positive")
+        do @log("a and b are positive")
 ```
 
 Use the `while` instruction to run instructions while the conditions are satisfied.
@@ -128,7 +128,7 @@ Use the `while` instruction to run instructions while the conditions are satisfi
 ```
 set i, 0
 while $i < 3:
-    do @print($i + 1)
+    do @log($i + 1)
     set i, $i + 1
 ```
 
@@ -136,6 +136,6 @@ Use the `for` instruction to run instructions multiple times. It takes a variabl
 
 ```
 for i, 0, 3:
-    # print 0, 1, 2
-    do @print($)
+    # log 0, 1, 2
+    do @log($)
 ```

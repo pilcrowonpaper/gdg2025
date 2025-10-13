@@ -86,7 +86,7 @@ export function createStandardLibrary(): Map<string, ExternalFunction> {
 		}
 		throw new Error("Not a list or object value");
 	});
-	functions.set("print", (args) => {
+	functions.set("log", (args) => {
 		console.log(...args);
 		const result: NullValue = {
 			type: "value.null",
