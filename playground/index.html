@@ -10,15 +10,21 @@
 		<h1>Language playground</h1>
 		<button id="run-button">Run</button>
 		<p>Press ESC to un-focus from the editor.</p>
-		<textarea
-			id="input"
-			style="width: 100%; resize: none; font-family: monospace; white-space: pre; overflow-wrap: normal; overflow-x: scroll;"
-			rows="10"
-			autocorrect="off"
-			autocomplete="off"
-			autocapitalize="off"
-			spellcheck="false"
-		></textarea>
+		<div style="display: flex; gap: 1rem; border: solid black 1px; padding: 1rem 0.5rem;">
+			<div
+				style="font-size: 1rem; font-family: monospace; margin: 0; text-align: right; width:4ch; color: gray;"
+				id="editor-line-count"
+			></div>
+			<textarea
+				id="editor-textarea"
+				style="width: 100%; resize: none; font-size: 1rem; font-family: monospace; white-space: pre; overflow-wrap: normal; overflow-x: scroll; margin: 0; padding: 0; border: none;"
+				autocorrect="off"
+				autocomplete="off"
+				autocapitalize="off"
+				spellcheck="false"
+				rows="10"
+			></textarea>
+		</div>
 		<div id="output" style="font-family: monospace;">
 			<pre id="output-text"></pre>
 		</div>

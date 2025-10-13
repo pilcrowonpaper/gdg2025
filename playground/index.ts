@@ -1,12 +1,14 @@
 import * as lang from "@lang";
 
+const CHAR_CODE_NEWLINE = 10;
+
 const runButtonElement = document.getElementById("run-button");
 if (!(runButtonElement instanceof HTMLButtonElement)) {
 	throw new Error("Not a button element");
 }
 
-const textEditorElement = document.getElementById("input");
-if (!(textEditorElement instanceof HTMLTextAreaElement)) {
+const textEditorTextAreaElement = document.getElementById("editor-textarea");
+if (!(textEditorTextAreaElement instanceof HTMLTextAreaElement)) {
 	throw new Error("Not a textarea element");
 }
 
@@ -17,20 +19,23 @@ if (!(outputTextElement instanceof HTMLPreElement)) {
 
 const storedScript = window.localStorage.getItem("script");
 if (storedScript !== null) {
-	textEditorElement.value = storedScript;
+	textEditorTextAreaElement.value = storedScript;
+	const lineCount = countCharacterCount(storedScript, CHAR_CODE_NEWLINE) + 1;
+	textEditorTextAreaElement.rows = lineCount;
+	updateEditorLineCountElement(lineCount);
 }
 
 runButtonElement.addEventListener("click", () => {
 	outputTextElement.innerText = "";
 
-	const instructions = lang.parseScript(textEditorElement.value);
+	const instructions = lang.parseScript(textEditorTextAreaElement.value);
 	const memory: lang.Memory = new Map();
 	const externalFunctions = lang.createStandardLibrary();
 	externalFunctions.set("log", (args) => {
 		const outputItems: string[] = [];
 		for (const value of args) {
-			const formattedValue = formatLangValue(value);
-			outputItems.push(formattedValue);
+			const stringified = lang.stringifyValue(value);
+			outputItems.push(stringified);
 		}
 		outputTextElement.innerText += `[log] ${outputItems.join(", ")}\n`;
 
@@ -58,91 +63,62 @@ runButtonElement.addEventListener("click", () => {
 	if (result === null) {
 		return;
 	}
-	const formattedResultValue = formatLangValue(result);
-	outputTextElement.innerText += `[result] ${formattedResultValue}\n`;
+	const stringifiedResultValue = lang.stringifyValue(result);
+	outputTextElement.innerText += `[result] ${stringifiedResultValue}\n`;
 });
 
-textEditorElement.addEventListener("input", () => {
-	window.localStorage.setItem("script", textEditorElement.value);
+textEditorTextAreaElement.addEventListener("input", () => {
+	const value = textEditorTextAreaElement.value;
+	window.localStorage.setItem("script", value);
+	const lineCount = countCharacterCount(value, CHAR_CODE_NEWLINE) + 1;
+	textEditorTextAreaElement.rows = lineCount;
+	updateEditorLineCountElement(lineCount);
 });
 
-textEditorElement.addEventListener("keydown", (e) => {
+textEditorTextAreaElement.addEventListener("keydown", (e) => {
 	if (e.key === "Tab") {
 		e.preventDefault();
-		const start = textEditorElement.selectionStart;
-		const end = textEditorElement.selectionEnd;
+		const start = textEditorTextAreaElement.selectionStart;
+		const end = textEditorTextAreaElement.selectionEnd;
 
-		textEditorElement.value = `${textEditorElement.value.slice(0, start)}\t${textEditorElement.value.slice(end)}`;
+		textEditorTextAreaElement.value = `${textEditorTextAreaElement.value.slice(
+			0,
+			start,
+		)}\t${textEditorTextAreaElement.value.slice(end)}`;
 
-		textEditorElement.selectionStart = start + 1;
-		textEditorElement.selectionEnd = start + 1;
+		textEditorTextAreaElement.selectionStart = start + 1;
+		textEditorTextAreaElement.selectionEnd = start + 1;
 	} else if (e.key === "Escape") {
-		textEditorElement.blur();
+		textEditorTextAreaElement.blur();
 		// TODO: focus next element
 	}
 });
 
-export function formatLangValue(value: lang.Value): string {
-	switch (value.type) {
-		case "value.number": {
-			const whole = Math.floor(Math.abs(value.value100) / 100);
-			const decimal = Math.abs(value.value100) % 100;
-			const decimalTenth = Math.floor(decimal / 10);
-			const decimalHundredth = decimal % 10;
-			if (value.value100 >= 0) {
-				return `${whole}.${decimalTenth}${decimalHundredth}`;
-			}
-			return `-${whole}.${decimalTenth}${decimalHundredth}`;
+function updateEditorLineCountElement(lineCount: number): void {
+	const textEditorLineCountElement = document.getElementById("editor-line-count");
+	if (!(textEditorLineCountElement instanceof HTMLDivElement)) {
+		throw new Error("Not a div element");
+	}
+	while (textEditorLineCountElement.childElementCount > lineCount) {
+		const lastChild = textEditorLineCountElement.lastChild;
+		if (lastChild === null) {
+			throw new Error("Expected last child to exist");
 		}
-		case "value.string": {
-			let stringContent = "";
-			for (let i = 0; i < value.string.length; i++) {
-				if (value.string[i] === "\n") {
-					stringContent += "\\n";
-				} else if (value.string[i] === "\t") {
-					stringContent += "\\t";
-				} else if (value.string[i] === '"') {
-					stringContent += '\\"';
-				} else if (value.string[i] === "\\") {
-					stringContent += "\\\\";
-				} else {
-					stringContent += value.string[i];
-				}
-			}
-			return `"${stringContent}"`;
-		}
-		case "value.true": {
-			return "true";
-		}
-		case "value.false": {
-			return "false";
-		}
-		case "value.null": {
-			return "null";
-		}
-		case "value.list": {
-			let listContent = "";
-			for (let i = 0; i < value.items.length; i++) {
-				const formattedItem = formatLangValue(value.items[i]);
-				listContent += formattedItem;
-				if (i < value.items.length - 1) {
-					listContent += ", ";
-				}
-			}
-			return `[ ${listContent} ]`;
-		}
-		case "value.object": {
-			let objectContent = "";
-			const propertyKeyValuePairs = Array.from(value.properties.entries());
-			for (let i = 0; i < propertyKeyValuePairs.length; i++) {
-				const [propertyName, propertyValue] = propertyKeyValuePairs[i];
-				const formattedPropertyValue = formatLangValue(propertyValue);
-				objectContent += `${propertyName}: ${formattedPropertyValue}`;
-				if (i < propertyKeyValuePairs.length - 1) {
-					objectContent += ", ";
-				}
-			}
-			return `{ ${objectContent} }`;
+		lastChild.remove();
+	}
+	while (textEditorLineCountElement.childElementCount < lineCount) {
+		const lineCountElement = document.createElement("div");
+		lineCountElement.innerText = `${textEditorLineCountElement.childElementCount + 1}`;
+		textEditorLineCountElement.appendChild(lineCountElement);
+	}
+}
+
+function countCharacterCount(s: string, charCode: number): number {
+	let count = 0;
+	for (let i = 0; i < s.length; i++) {
+		if (s.charCodeAt(i) === charCode) {
+			count++;
 		}
 	}
+	return count;
 }
