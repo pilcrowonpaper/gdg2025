@@ -1,7 +1,4 @@
 import * as lang from "@lang";
-import defaultCode from "./default-code?raw";
-
-const CHAR_CODE_NEWLINE = 10;
 
 const runButtonElement = document.getElementById("run-button");
 if (!(runButtonElement instanceof HTMLButtonElement)) {
@@ -16,19 +13,6 @@ if (!(textEditorTextAreaElement instanceof HTMLTextAreaElement)) {
 const outputTextElement = document.getElementById("output-text");
 if (!(outputTextElement instanceof HTMLPreElement)) {
     throw new Error("Not a pre element");
-}
-
-const storedScript = window.localStorage.getItem("script");
-if (storedScript !== null && storedScript !== "") {
-    textEditorTextAreaElement.value = storedScript;
-    const lineCount = countCharacterCount(storedScript, CHAR_CODE_NEWLINE) + 1;
-    textEditorTextAreaElement.rows = lineCount;
-    updateEditorLineCountElement(lineCount);
-} else {
-    textEditorTextAreaElement.value = defaultCode;
-    const lineCount = countCharacterCount(defaultCode, CHAR_CODE_NEWLINE) + 1;
-    textEditorTextAreaElement.rows = lineCount;
-    updateEditorLineCountElement(lineCount);
 }
 
 runButtonElement.addEventListener("click", () => {
@@ -80,6 +64,7 @@ runButtonElement.addEventListener("click", () => {
 textEditorTextAreaElement.addEventListener("input", () => {
     const value = textEditorTextAreaElement.value;
     window.localStorage.setItem("script", value);
+    const CHAR_CODE_NEWLINE = 10;
     const lineCount = countCharacterCount(value, CHAR_CODE_NEWLINE) + 1;
     textEditorTextAreaElement.rows = lineCount;
     updateEditorLineCountElement(lineCount);

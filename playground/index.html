@@ -1,33 +1,68 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Language Playground</title>
-	</head>
 
-	<body style="tab-size: 4;">
-		<h1>Language playground</h1>
-		<button id="run-button">Run</button>
-		<p>Press ESC to un-focus from the editor.</p>
-		<div style="display: flex; gap: 1rem; border: solid black 1px; padding: 1rem 0.5rem;">
-			<div
-				style="font-size: 1rem; font-family: monospace; margin: 0; text-align: right; width:4ch; color: gray;"
-				id="editor-line-count"
-			></div>
-			<textarea
-				id="editor-textarea"
-				style="width: 100%; resize: none; font-size: 1rem; font-family: monospace; white-space: pre; overflow-wrap: normal; overflow-x: scroll; margin: 0; padding: 0; border: none;"
-				autocorrect="off"
-				autocomplete="off"
-				autocapitalize="off"
-				spellcheck="false"
-				rows="10"
-			></textarea>
-		</div>
-		<div id="output" style="font-family: monospace; white-space: pre; overflow-wrap: normal; overflow-x: scroll;">
-			<pre id="output-text"></pre>
-		</div>
-	</body>
-	<script type="module" src="./index.ts"></script>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Language Playground</title>
+</head>
+
+<body style="tab-size: 4;">
+	<h1>Language playground</h1>
+	<button id="run-button">Run</button>
+	<p>Press ESC to un-focus from the editor.</p>
+	<div style="display: flex; gap: 1rem; border: solid black 1px; padding: 1rem 0.5rem;">
+		<div style="font-size: 1rem; font-family: monospace; margin: 0; text-align: right; width:4ch; color: gray;"
+			id="editor-line-count"></div>
+		<textarea id="editor-textarea"
+			style="width: 100%; resize: none; font-size: 1rem; font-family: monospace; white-space: pre; overflow-wrap: normal; overflow-x: scroll; margin: 0; padding: 0; border: none;"
+			autocorrect="off" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
+	</div>
+	<script>
+		const CHAR_CODE_NEWLINE = 10
+		const defaultScript = `do @print("Prime numbers: ")
+do @print(@format_int(2))
+
+set max, 1000
+for num, 3, $max + 1:
+	set prime_num, true
+	set max_factor, @sqrt($num)
+	for factor, 2, $max_factor + 1:
+		if $num % $factor == 0:
+			set prime_num, false
+	if $prime_num:
+		do @print(", ")
+		do @print(@format_int($num))`
+
+		const textEditorTextAreaElement = document.getElementById("editor-textarea")
+
+		const storedScript = window.localStorage.getItem("script");
+
+		let script = defaultScript
+		if (storedScript !== null && storedScript !== "") {
+			script = storedScript
+		}
+		textEditorTextAreaElement.value = script;
+
+		let lineCount = 0;
+		for (let i = 0; i < script.length; i++) {
+			if (script.charCodeAt(i) === CHAR_CODE_NEWLINE) {
+				lineCount++;
+			}
+		}
+		textEditorTextAreaElement.rows = lineCount;
+
+		const textEditorLineCountElement = document.getElementById("editor-line-count");
+		while (textEditorLineCountElement.childElementCount < lineCount) {
+			const lineCountElement = document.createElement("div");
+			lineCountElement.innerText = String(textEditorLineCountElement.childElementCount + 1);
+			textEditorLineCountElement.appendChild(lineCountElement);
+		}
+	</script>
+	<div id="output" style="font-family: monospace; white-space: pre; overflow-wrap: normal; overflow-x: scroll;">
+		<pre id="output-text"></pre>
+	</div>
+</body>
+<script type="module" src="./index.ts"></script>
+
 </html>
