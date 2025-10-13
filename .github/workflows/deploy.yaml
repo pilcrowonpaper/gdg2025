@@ -1,4 +1,4 @@
-name: "Publish"
+name: "Deploy"
 on: [push]
 
 env:
@@ -8,7 +8,7 @@ jobs:
   build-and-deploy:
     name: Build and deploy
     runs-on: ubuntu-latest
-    if: github.repository == 'faroedev/faroe.dev' && github.ref == 'refs/heads/main'
+    if: github.repository == 'pilcrowonpaper/gdsc2025' && github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
       - name: Set up Node
