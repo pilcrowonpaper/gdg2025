@@ -132,6 +132,21 @@ export function createStandardLibrary(): Map<string, ExternalFunction> {
         };
         return result;
     });
+    functions.set("trunc", (args) => {
+        if (args.length !== 1) {
+            throw new Error("Expected 1 argument");
+        }
+        const arg = args[0];
+        if (arg.type !== "value.number") {
+            throw new Error("Not a number");
+        }
+        const value100 = Math.trunc(arg.value100 / 100);
+        const result: NumberValue = {
+            type: "value.number",
+            value100: value100,
+        };
+        return result;
+    });
     return functions;
 }
 
