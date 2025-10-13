@@ -88,14 +88,16 @@ do @log(1, 2, 3)
 
 Included functions:
 
-```
-@log(value1, value2, ...)
-@size(list_or_object)
-@and(condition1, condition2, ...)
-@or(condition1, condition2, ...)
-```
+-   `size(list_or_object_value)`
+-   `and(boolean_value1, boolean_value2, ...)`
+-   `or(boolean_value1, boolean_value2, ...)`
+-   `random()`: Returns number between 0 (inclusive) and 1 (exclusive).
+-   `sqrt()`
+-   `stringify(value)`
+-   `trunc(number_value)`
+-   `format_int()`
 
-Use `#` as a comment.
+Use `#` instruction as a comment.
 
 ```
 # this is a comment
@@ -138,4 +140,12 @@ Use the `for` instruction to run instructions multiple times. It takes a variabl
 for i, 0, 3:
     # log 0, 1, 2
     do @log($)
+```
+
+Both `while` and `for` instruction supports `break` instruction to break the loop.
+
+```
+for i, 0, 3:
+    if @random() < 50:
+        break
 ```
