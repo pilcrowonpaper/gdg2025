@@ -1,4 +1,4 @@
-import type { ExternalFunction, ExternalFunctions, FalseValue, NullValue, NumberValue, TrueValue } from "./execute.js";
+import type { ExternalFunction, ExternalFunctions, FalseValue, NumberValue, TrueValue } from "./execute.js";
 
 export function createStandardLibrary(): Map<string, ExternalFunction> {
 	const functions: ExternalFunctions = new Map();
@@ -85,13 +85,6 @@ export function createStandardLibrary(): Map<string, ExternalFunction> {
 			return result;
 		}
 		throw new Error("Not a list or object value");
-	});
-	functions.set("log", (args) => {
-		console.log(...args);
-		const result: NullValue = {
-			type: "value.null",
-		};
-		return result;
 	});
 	functions.set("random", () => {
 		const rand = Math.trunc(Math.random() * 100);
