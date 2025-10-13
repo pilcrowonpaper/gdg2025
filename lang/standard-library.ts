@@ -1,4 +1,12 @@
-import type { ExternalFunction, ExternalFunctions, FalseValue, NumberValue, TrueValue } from "./execute.js";
+import type {
+	ExternalFunction,
+	ExternalFunctions,
+	FalseValue,
+	NumberValue,
+	StringValue,
+	TrueValue,
+	Value,
+} from "./execute.js";
 
 export function createStandardLibrary(): Map<string, ExternalFunction> {
 	const functions: ExternalFunctions = new Map();
@@ -90,9 +98,86 @@ export function createStandardLibrary(): Map<string, ExternalFunction> {
 		const rand = Math.trunc(Math.random() * 100);
 		const result: NumberValue = {
 			type: "value.number",
-			value100: rand * 100,
+			value100: rand,
+		};
+		return result;
+	});
+	functions.set("stringify", (args) => {
+		if (args.length !== 1) {
+			throw new Error("Expected 1 argument");
+		}
+		const arg = args[0];
+		const stringified = stringifyValue(arg);
+		const result: StringValue = {
+			type: "value.string",
+			string: stringified,
 		};
 		return result;
 	});
 	return functions;
+}
+
+export function stringifyValue(value: Value): string {
+	switch (value.type) {
+		case "value.number": {
+			const whole = Math.floor(Math.abs(value.value100) / 100);
+			const decimal = Math.abs(value.value100) % 100;
+			const decimalTenth = Math.floor(decimal / 10);
+			const decimalHundredth = decimal % 10;
+			if (value.value100 >= 0) {
+				return `${whole}.${decimalTenth}${decimalHundredth}`;
+			}
+			return `-${whole}.${decimalTenth}${decimalHundredth}`;
+		}
+		case "value.string": {
+			let stringContent = "";
+			for (let i = 0; i < value.string.length; i++) {
+				if (value.string[i] === "\n") {
+					stringContent += "\\n";
+				} else if (value.string[i] === "\t") {
+					stringContent += "\\t";
+				} else if (value.string[i] === '"') {
+					stringContent += '\\"';
+				} else if (value.string[i] === "\\") {
+					stringContent += "\\\\";
+				} else {
+					stringContent += value.string[i];
+				}
+			}
+			return `"${stringContent}"`;
+		}
+		case "value.true": {
+			return "true";
+		}
+		case "value.false": {
+			return "false";
+		}
+		case "value.null": {
+			return "null";
+		}
+		case "value.list": {
+			let listContent = "";
+			for (let i = 0; i < value.items.length; i++) {
+				const stringified = stringifyValue(value.items[i]);
+				listContent += stringified;
+				if (i < value.items.length - 1) {
+					listContent += ", ";
+				}
+			}
+			return `[ ${listContent} ]`;
+		}
+		case "value.object": {
+			let objectContent = "";
+			const propertyKeyValuePairs = Array.from(value.properties.entries());
+			for (let i = 0; i < propertyKeyValuePairs.length; i++) {
+				const [propertyName, propertyValue] = propertyKeyValuePairs[i];
+				const stringifiedPropertyValue = stringifyValue(propertyValue);
+				objectContent += `${propertyName}: ${stringifiedPropertyValue}`;
+				if (i < propertyKeyValuePairs.length - 1) {
+					objectContent += ", ";
+				}
+			}
+			return `{ ${objectContent} }`;
+		}
+	}
 }

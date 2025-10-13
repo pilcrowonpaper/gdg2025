@@ -25,4 +25,4 @@ export type {
 	WhileInstructionNode,
 } from "./instruction.js";
 export { parseScript } from "./script.js";
-export { createStandardLibrary } from "./standard-library.js";
+export { createStandardLibrary, stringifyValue } from "./standard-library.js";
