@@ -39,6 +39,21 @@ runButtonElement.addEventListener("click", () => {
 		};
 		return result;
 	});
+	externalFunctions.set("print", (args) => {
+		if (args.length !== 1) {
+			throw new Error("Expected single argument");
+		}
+		const value = args[0];
+		if (value.type !== "value.string") {
+			throw new Error("Expected string argument");
+		}
+		outputTextElement.innerText += value.string;
+
+		const result: lang.NullValue = {
+			type: "value.null",
+		};
+		return result;
+	});
 	const result = lang.executeInstructions(instructions, memory, externalFunctions);
 	if (result === null) {
 		return;
@@ -67,7 +82,7 @@ textEditorElement.addEventListener("keydown", (e) => {
 	}
 });
 
-function formatLangValue(value: lang.Value): string {
+export function formatLangValue(value: lang.Value): string {
 	switch (value.type) {
 		case "value.number": {
 			const whole = Math.floor(Math.abs(value.value100) / 100);
