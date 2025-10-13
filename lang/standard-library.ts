@@ -147,6 +147,29 @@ export function createStandardLibrary(): Map<string, ExternalFunction> {
         };
         return result;
     });
+    functions.set("format_int", (args) => {
+        if (args.length !== 1) {
+            throw new Error("Expected 1 argument");
+        }
+        const arg = args[0];
+        if (arg.type !== "value.number") {
+            throw new Error("Not a number");
+        }
+        if (arg.value100 % 100 !== 0) {
+            throw new Error("Not an integer");
+        }
+        let formatted: string;
+        if (arg.value100 > 0) {
+            formatted = `${arg.value100 / 100}`;
+        } else {
+            formatted = `-${arg.value100 / 100}`;
+        }
+        const result: StringValue = {
+            type: "value.string",
+            string: formatted,
+        };
+        return result;
+    });
     return functions;
 }
 
