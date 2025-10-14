@@ -549,16 +549,9 @@ function parseStringLiteralExpression(chars: Uint32Array, start: number): ParseS
 				};
 				return result;
 			}
-		} else if (isASCIIStringCharacter(chars[start + resultSize])) {
+		} else {
 			valueVariableChars.push(chars[start + resultSize]);
 			resultSize++;
-		} else {
-			const result: ParseErrorResult = {
-				ok: false,
-				position: start + resultSize,
-				message: "Unknown character",
-			};
-			return result;
 		}
 	}
 
@@ -1514,10 +1507,6 @@ export interface PropertyValueAccessorNode {
 export interface IndexValueAccessorNode {
 	type: "value_accessor.index";
 	indexExpressionNode: ExpressionNode;
-}
-
-function isASCIIStringCharacter(charCode: number): boolean {
-	return charCode >= 32 && charCode <= 126;
 }
 
 const CODE_POINT_EXCLAMATION_MARK = 33;

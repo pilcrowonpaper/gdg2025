@@ -4,7 +4,7 @@ export function parseSpaces(chars: Uint32Array, start: number): number {
 		if (start + size >= chars.length) {
 			break;
 		}
-		if (chars[start + size] === CHAR_SPACE) {
+		if (chars[start + size] === CHAR_POINT_SPACE) {
 			size++;
 		} else {
 			break;
@@ -13,27 +13,23 @@ export function parseSpaces(chars: Uint32Array, start: number): number {
 	return size;
 }
 
-export function isAlphabet(charCode: number): boolean {
-	return isUpperCaseAlphabet(charCode) || isLowerCaseAlphabet(charCode);
+export function isAlphabet(char: number): boolean {
+	return isUpperCaseAlphabet(char) || isLowerCaseAlphabet(char);
 }
 
-export function isASCIIStringCharacter(charCode: number): boolean {
-	return charCode >= 32 && charCode <= 126;
+export function isUpperCaseAlphabet(char: number): boolean {
+	return char >= 65 && char <= 90;
 }
 
-export function isUpperCaseAlphabet(charCode: number): boolean {
-	return charCode >= 65 && charCode <= 90;
+export function isLowerCaseAlphabet(char: number): boolean {
+	return char >= 97 && char <= 122;
 }
 
-export function isLowerCaseAlphabet(charCode: number): boolean {
-	return charCode >= 97 && charCode <= 122;
+export function isDigit(char: number): boolean {
+	return char >= 48 && char <= 57;
 }
 
-export function isDigit(charCode: number): boolean {
-	return charCode >= 48 && charCode <= 57;
-}
-
-const CHAR_SPACE = 32;
+const CHAR_POINT_SPACE = 32;
 
 export interface ParseErrorResult {
 	ok: false;
