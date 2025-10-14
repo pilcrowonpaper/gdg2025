@@ -1,10 +1,10 @@
-export function parseSpaces(bytes: Uint8Array, i: number): number {
+export function parseSpaces(chars: Uint32Array, start: number): number {
 	let size = 0;
 	while (true) {
-		if (i + size >= bytes.length) {
+		if (start + size >= chars.length) {
 			break;
 		}
-		if (bytes[i + size] === CHAR_SPACE) {
+		if (chars[start + size] === CHAR_SPACE) {
 			size++;
 		} else {
 			break;
@@ -34,3 +34,9 @@ export function isDigit(charCode: number): boolean {
 }
 
 const CHAR_SPACE = 32;
+
+export interface ParseErrorResult {
+	ok: false;
+	position: number;
+	message: string;
+}

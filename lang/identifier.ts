@@ -1,24 +1,35 @@
-import { isAlphabet, isDigit } from "./shared";
+import type { ParseErrorResult } from "./shared.js";
+import { isAlphabet, isDigit } from "./shared.js";
 
-export function parseIdentifier(bytes: Uint8Array, i: number): ParseIdentifierResult {
+export function parseIdentifier(chars: Uint32Array, start: number): ParseIdentifierResult {
 	let resultSize = 0;
 
-	if (i + resultSize >= bytes.length) {
-		throw new Error("Unexpected termination");
+	if (start + resultSize >= chars.length) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Unexpected termination",
+		};
+		return result;
 	}
-	if (!isAlphabet(bytes[i + resultSize])) {
-		throw new Error(`Expected alphabet at position ${i + resultSize}`);
+	if (!isAlphabet(chars[start + resultSize])) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Expected alphabet",
+		};
+		return result;
 	}
 	resultSize++;
 
 	while (true) {
-		if (i + resultSize >= bytes.length) {
+		if (start + resultSize >= chars.length) {
 			break;
 		}
 		if (
-			isAlphabet(bytes[i + resultSize]) ||
-			isDigit(bytes[i + resultSize]) ||
-			bytes[i + resultSize] === CHAR_CODE_UNDERSCORE
+			isAlphabet(chars[start + resultSize]) ||
+			isDigit(chars[start + resultSize]) ||
+			chars[start + resultSize] === CODE_POINT_UNDERSCORE
 		) {
 			resultSize++;
 		} else {
@@ -26,18 +37,22 @@ export function parseIdentifier(bytes: Uint8Array, i: number): ParseIdentifierRe
 		}
 	}
 
-	const identifier = new TextDecoder().decode(bytes.slice(i, i + resultSize));
+	const identifier = String.fromCharCode(...Array.from(chars.slice(start, start + resultSize)));
 
 	const result: ParseIdentifierResult = {
+		ok: true,
 		size: resultSize,
 		identifier: identifier,
 	};
 	return result;
 }
 
-export interface ParseIdentifierResult {
-	size: number;
+export type ParseIdentifierResult = ParseIdentifierSuccessResult | ParseErrorResult;
+
+export interface ParseIdentifierSuccessResult {
+	ok: true;
 	identifier: string;
+	size: number;
 }
 
-const CHAR_CODE_UNDERSCORE = 95;
+const CODE_POINT_UNDERSCORE = 95;

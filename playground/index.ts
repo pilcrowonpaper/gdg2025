@@ -54,11 +54,14 @@ runButtonElement.addEventListener("click", () => {
 	outputTextElement.innerText = "";
 	executionTimeElement.innerText = "";
 
-	const instructions = lang.parseScript(textEditorTextAreaElement.value);
+	const parseScriptResult = lang.parseScript(textEditorTextAreaElement.value);
+	if (!parseScriptResult.ok) {
+		throw new Error(`${parseScriptResult.message} (position ${parseScriptResult.position})`);
+	}
 	const memory: lang.Memory = new Map();
 
 	const start = performance.now();
-	const result = lang.executeInstructions(instructions, memory, externalFunctions);
+	const result = lang.executeInstructions(parseScriptResult.instructions, memory, externalFunctions);
 	executionTimeElement.innerText = `Execution time: ${Math.trunc(performance.now() - start)}ms`;
 	if (result === null) {
 		return;

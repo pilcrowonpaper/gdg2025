@@ -24,5 +24,7 @@ export type {
 	SetInstructionNode,
 	WhileInstructionNode,
 } from "./instruction.js";
+export type { ParseScriptResult, ParseScriptSuccessResult } from "./script.js";
 export { parseScript } from "./script.js";
+export type { ParseErrorResult } from "./shared.js";
 export { createStandardLibrary, stringifyValue } from "./standard-library.js";

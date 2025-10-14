@@ -1,117 +1,162 @@
 import { parseIdentifier } from "./identifier.js";
+import type { ParseErrorResult } from "./shared.js";
 import { isAlphabet, isDigit, parseSpaces } from "./shared.js";
 
-export function parseExpression(bytes: Uint8Array, start: number): ParseExpressionElementResult {
+export function parseExpression(chars: Uint32Array, start: number): ParseExpressionResult {
 	let resultSize = 0;
 
 	const operators: Operator[] = [];
 	const expressionNodes: ExpressionNode[] = [];
 
 	while (true) {
-		const parseElementResult = parseExpressionUnit(bytes, start + resultSize);
+		const parseElementResult = parseExpressionUnit(chars, start + resultSize);
+		if (!parseElementResult.ok) {
+			return parseElementResult;
+		}
 		expressionNodes.push(parseElementResult.node);
 		resultSize += parseElementResult.size;
 
-		const spacesSize = parseSpaces(bytes, start + resultSize);
+		const spacesSize = parseSpaces(chars, start + resultSize);
 		resultSize += spacesSize;
 
-		if (start + resultSize >= bytes.length) {
+		if (start + resultSize >= chars.length) {
 			break;
 		}
 
-		if (bytes[start + resultSize] === CHAR_CODE_PLUS) {
+		if (chars[start + resultSize] === CODE_POINT_PLUS) {
 			operators.push("add");
 			resultSize++;
 			continue;
 		}
 
-		if (bytes[start + resultSize] === CHAR_CODE_HYPHEN) {
+		if (chars[start + resultSize] === CODE_POINT_HYPHEN) {
 			operators.push("minus");
 			resultSize++;
 			continue;
 		}
 
-		if (bytes[start + resultSize] === CHAR_CODE_ASTERISK) {
+		if (chars[start + resultSize] === CODE_POINT_ASTERISK) {
 			operators.push("multiply");
 			resultSize++;
 			continue;
 		}
 
-		if (bytes[start + resultSize] === CHAR_CODE_SLASH) {
+		if (chars[start + resultSize] === CODE_POINT_SLASH) {
 			operators.push("divide");
 			resultSize++;
 			continue;
 		}
 
-		if (bytes[start + resultSize] === CHAR_CODE_PERCENT) {
+		if (chars[start + resultSize] === CODE_POINT_PERCENT) {
 			operators.push("remainder");
 			resultSize++;
 			continue;
 		}
 
-		if (bytes[start + resultSize] === CHAR_CODE_EQUAL) {
-			if (start + resultSize >= bytes.length) {
-				throw new Error("Unexpected termination");
+		if (chars[start + resultSize] === CODE_POINT_EQUAL) {
+			if (start + resultSize >= chars.length) {
+				const result: ParseErrorResult = {
+					ok: false,
+					position: start + resultSize,
+					message: "Unexpected termination",
+				};
+				return result;
 			}
-			if (bytes[start + resultSize + 1] === CHAR_CODE_EQUAL) {
+			if (chars[start + resultSize + 1] === CODE_POINT_EQUAL) {
 				operators.push("equal");
 				resultSize += 2;
 				continue;
 			}
-			throw new Error(`Unexpected character at position ${start + resultSize}`);
+			const result: ParseErrorResult = {
+				ok: false,
+				position: start + resultSize,
+				message: "Unexpected character",
+			};
+			return result;
 		}
 
-		if (bytes[start + resultSize] === CHAR_CODE_EXCLAMATION_MARK) {
-			if (start + resultSize >= bytes.length) {
-				throw new Error("Unexpected termination");
+		if (chars[start + resultSize] === CODE_POINT_EXCLAMATION_MARK) {
+			if (start + resultSize >= chars.length) {
+				const result: ParseErrorResult = {
+					ok: false,
+					position: start + resultSize,
+					message: "Unexpected termination",
+				};
+				return result;
 			}
-			if (bytes[start + resultSize + 1] === CHAR_CODE_EQUAL) {
+			if (chars[start + resultSize + 1] === CODE_POINT_EQUAL) {
 				operators.push("not_equal");
 				resultSize += 2;
 				continue;
 			}
-			throw new Error(`Unexpected character at position ${start + resultSize}`);
+			const result: ParseErrorResult = {
+				ok: false,
+				position: start + resultSize,
+				message: "Unexpected character",
+			};
+			return result;
 		}
 
-		if (bytes[start + resultSize] === CHAR_CODE_OPENING_ANGLE_BRACKET) {
-			if (start + resultSize + 1 >= bytes.length) {
-				throw new Error("Unexpected termination");
+		if (chars[start + resultSize] === CODE_POINT_OPENING_ANGLE_BRACKET) {
+			if (start + resultSize + 1 >= chars.length) {
+				const result: ParseErrorResult = {
+					ok: false,
+					position: start + resultSize,
+					message: "Unexpected termination",
+				};
+				return result;
 			}
-			if (bytes[start + resultSize + 1] === CHAR_CODE_OPENING_ANGLE_BRACKET) {
+			if (chars[start + resultSize + 1] === CODE_POINT_OPENING_ANGLE_BRACKET) {
 				operators.push("less_than");
 				resultSize += 2;
 				continue;
 			}
-			if (bytes[start + resultSize + 1] === CHAR_CODE_EQUAL) {
+			if (chars[start + resultSize + 1] === CODE_POINT_EQUAL) {
 				operators.push("less_than_or_equal");
 				resultSize += 2;
 				continue;
 			}
-			throw new Error(`Unexpected character at position ${start + resultSize + 1}`);
+			const result: ParseErrorResult = {
+				ok: false,
+				position: start + resultSize,
+				message: "Unexpected character",
+			};
+			return result;
 		}
 
-		if (bytes[start + resultSize + 1] === CHAR_CODE_CLOSING_ANGLE_BRACKET) {
-			if (start + resultSize + 1 >= bytes.length) {
-				throw new Error("Unexpected termination");
+		if (chars[start + resultSize + 1] === CODE_POINT_CLOSING_ANGLE_BRACKET) {
+			if (start + resultSize + 1 >= chars.length) {
+				const result: ParseErrorResult = {
+					ok: false,
+					position: start + resultSize,
+					message: "Unexpected termination",
+				};
+				return result;
 			}
-			if (bytes[start + resultSize + 1] === CHAR_CODE_CLOSING_ANGLE_BRACKET) {
+			if (chars[start + resultSize + 1] === CODE_POINT_CLOSING_ANGLE_BRACKET) {
 				operators.push("greater_than");
 				resultSize += 2;
 				continue;
 			}
-			if (bytes[start + resultSize + 1] === CHAR_CODE_EQUAL) {
+			if (chars[start + resultSize + 1] === CODE_POINT_EQUAL) {
 				operators.push("greater_than_or_equal");
 				resultSize += 2;
 				continue;
 			}
-			throw new Error(`Unexpected character at position ${start + resultSize + 1}`);
+			const result: ParseErrorResult = {
+				ok: false,
+				position: start + resultSize,
+				message: "Unexpected character",
+			};
+			return result;
 		}
 
 		break;
 	}
 
 	if (operators.length === 0) {
-		const result: ParseExpressionResult = {
+		const result: ParseExpressionSuccessResult = {
+			ok: true,
 			size: resultSize,
 			node: expressionNodes[0],
 		};
@@ -250,7 +295,8 @@ export function parseExpression(bytes: Uint8Array, start: number): ParseExpressi
 		expressionNodes.splice(highestPriorityIndex, 2, combinedNode);
 	}
 
-	const result: ParseExpressionResult = {
+	const result: ParseExpressionSuccessResult = {
+		ok: true,
 		size: resultSize,
 		node: expressionNodes[0],
 	};
@@ -270,245 +316,323 @@ type Operator =
 	| "greater_than"
 	| "greater_than_or_equal";
 
-export interface ParseExpressionResult {
+export type ParseExpressionResult = ParseExpressionSuccessResult | ParseErrorResult;
+
+export interface ParseExpressionSuccessResult {
+	ok: true;
 	size: number;
 	node: ExpressionNode;
 }
 
-export function parseExpressionUnit(bytes: Uint8Array, start: number): ParseExpressionElementResult {
+export function parseExpressionUnit(chars: Uint32Array, start: number): ParseExpressionUnitResult {
 	let resultSize = 0;
 
-	const spacesSize = parseSpaces(bytes, start + resultSize);
+	const spacesSize = parseSpaces(chars, start + resultSize);
 	resultSize += spacesSize;
 
-	if (resultSize + start >= bytes.length) {
-		throw new Error("Unexpected termination");
+	if (resultSize + start >= chars.length) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: resultSize + start,
+			message: "Unexpected termination",
+		};
+		return result;
 	}
 
-	if (bytes[start + resultSize] === CHAR_CODE_DOUBLE_QUOTES) {
-		const parseExpressionResult = parseStringLiteralExpression(bytes, start + resultSize);
+	if (chars[start + resultSize] === CODE_POINT_DOUBLE_QUOTES) {
+		const parseExpressionResult = parseStringLiteralExpression(chars, start + resultSize);
+		if (!parseExpressionResult.ok) {
+			return parseExpressionResult;
+		}
 		const expressionNode = parseExpressionResult.node;
 		resultSize += parseExpressionResult.size;
 
-		const result: ParseExpressionElementResult = {
+		const result: ParseExpressionUnitSuccessResult = {
+			ok: true,
 			size: resultSize,
 			node: expressionNode,
 		};
 		return result;
 	}
 
-	if (bytes[start + resultSize] === CHAR_CODE_HYPHEN || isDigit(bytes[start + resultSize])) {
-		const parseExpressionResult = parseNumberLiteralExpression(bytes, start + resultSize);
+	if (chars[start + resultSize] === CODE_POINT_HYPHEN || isDigit(chars[start + resultSize])) {
+		const parseExpressionResult = parseNumberLiteralExpression(chars, start + resultSize);
+		if (!parseExpressionResult.ok) {
+			return parseExpressionResult;
+		}
 		const expressionNode = parseExpressionResult.node;
 		resultSize += parseExpressionResult.size;
 
-		const result: ParseExpressionElementResult = {
+		const result: ParseExpressionUnitSuccessResult = {
+			ok: true,
 			size: resultSize,
 			node: expressionNode,
 		};
 		return result;
 	}
 
-	if (bytes[start + resultSize] === CHAR_CODE_OPENING_BRACKET) {
-		const parseListLiteralExpressionResult = parseListLiteralExpression(bytes, start + resultSize);
+	if (chars[start + resultSize] === CODE_POINT_OPENING_BRACKET) {
+		const parseListLiteralExpressionResult = parseListLiteralExpression(chars, start + resultSize);
+		if (!parseListLiteralExpressionResult.ok) {
+			return parseListLiteralExpressionResult;
+		}
 		const expressionNode = parseListLiteralExpressionResult.node;
 		resultSize += parseListLiteralExpressionResult.size;
 
-		const result: ParseExpressionElementResult = {
+		const result: ParseExpressionUnitSuccessResult = {
+			ok: true,
 			size: resultSize,
 			node: expressionNode,
 		};
 		return result;
 	}
 
-	if (bytes[start + resultSize] === CHAR_CODE_OPENING_BRACE) {
-		const parseObjectLiteralExpressionResult = parseObjectLiteralExpression(bytes, start + resultSize);
+	if (chars[start + resultSize] === CODE_POINT_OPENING_BRACE) {
+		const parseObjectLiteralExpressionResult = parseObjectLiteralExpression(chars, start + resultSize);
+		if (!parseObjectLiteralExpressionResult.ok) {
+			return parseObjectLiteralExpressionResult;
+		}
 		const expressionNode = parseObjectLiteralExpressionResult.node;
 		resultSize += parseObjectLiteralExpressionResult.size;
 
-		const result: ParseExpressionElementResult = {
+		const result: ParseExpressionUnitSuccessResult = {
+			ok: true,
 			size: resultSize,
 			node: expressionNode,
 		};
 		return result;
 	}
 
-	if (bytes[start + resultSize] === CHAR_CODE_AT_SIGN) {
-		const parseFunctionCallExpressionResult = parseFunctionCallExpression(bytes, start + resultSize);
+	if (chars[start + resultSize] === CODE_POINT_AT_SIGN) {
+		const parseFunctionCallExpressionResult = parseFunctionCallExpression(chars, start + resultSize);
+		if (!parseFunctionCallExpressionResult.ok) {
+			return parseFunctionCallExpressionResult;
+		}
 		const functionCallExpressionNode = parseFunctionCallExpressionResult.node;
 		resultSize += parseFunctionCallExpressionResult.size;
 
-		const result: ParseExpressionElementResult = {
+		const result: ParseExpressionUnitSuccessResult = {
+			ok: true,
 			size: resultSize,
 			node: functionCallExpressionNode,
 		};
 		return result;
 	}
 
-	if (bytes[start + resultSize] === CHAR_CODE_DOLLAR_SIGN) {
-		const parseVariableExpressionResult = parseVariableExpression(bytes, start + resultSize);
+	if (chars[start + resultSize] === CODE_POINT_DOLLAR_SIGN) {
+		const parseVariableExpressionResult = parseVariableExpression(chars, start + resultSize);
+		if (!parseVariableExpressionResult.ok) {
+			return parseVariableExpressionResult;
+		}
 		const variableExpressionNode = parseVariableExpressionResult.node;
 		resultSize += parseVariableExpressionResult.size;
 
-		const result: ParseExpressionElementResult = {
+		const result: ParseExpressionUnitSuccessResult = {
+			ok: true,
 			size: resultSize,
 			node: variableExpressionNode,
 		};
 		return result;
 	}
 
-	if (isAlphabet(bytes[start + resultSize])) {
-		const parseSpecialWordExpressionResult = parseSpecialWordExpressionNode(bytes, start + resultSize);
+	if (isAlphabet(chars[start + resultSize])) {
+		const parseSpecialWordExpressionResult = parseSpecialWordExpression(chars, start + resultSize);
+		if (!parseSpecialWordExpressionResult.ok) {
+			return parseSpecialWordExpressionResult;
+		}
 		const specialWordExpressionNode = parseSpecialWordExpressionResult.node;
 		resultSize += parseSpecialWordExpressionResult.size;
 
-		const result: ParseExpressionElementResult = {
+		const result: ParseExpressionUnitSuccessResult = {
+			ok: true,
 			size: resultSize,
 			node: specialWordExpressionNode,
 		};
 		return result;
 	}
 
-	if (bytes[start + resultSize] === CHAR_CODE_OPENING_PARENTHESIS) {
+	if (chars[start + resultSize] === CODE_POINT_OPENING_PARENTHESIS) {
 		resultSize++;
 
-		const parseExpressionResult = parseExpression(bytes, start + resultSize);
-		const groupExpressionNode: GroupExpressionNode = {
-			type: "expression.group",
-			expressionNode: parseExpressionResult.node,
-		};
-		resultSize += parseExpressionResult.size;
-
-		const spacesSize = parseSpaces(bytes, start + resultSize);
-		resultSize += spacesSize;
-
-		if (resultSize + start >= bytes.length) {
-			throw new Error("Unexpected termination");
+		const parseGroupExpressionResult = parseExpressionGroupExpression(chars, start + resultSize);
+		if (!parseGroupExpressionResult.ok) {
+			return parseGroupExpressionResult;
 		}
-		if (bytes[start + resultSize] !== CHAR_CODE_CLOSING_PARENTHESIS) {
-			throw new Error(`Expected closing parenthesis at position ${start + resultSize}`);
-		}
-		resultSize++;
+		const expressionGroupExpressionNode = parseGroupExpressionResult.node;
+		resultSize += parseGroupExpressionResult.size;
 
-		const result: ParseExpressionElementResult = {
+		const result: ParseExpressionUnitSuccessResult = {
+			ok: true,
 			size: resultSize,
-			node: groupExpressionNode,
+			node: expressionGroupExpressionNode,
 		};
 		return result;
 	}
 
-	throw new Error(`Unknown character at position ${start + resultSize}`);
+	const result: ParseErrorResult = {
+		ok: false,
+		position: resultSize + start,
+		message: "Unknown character",
+	};
+	return result;
 }
 
-export interface ParseExpressionElementResult {
+export type ParseExpressionUnitResult = ParseExpressionUnitSuccessResult | ParseErrorResult;
+
+export interface ParseExpressionUnitSuccessResult {
+	ok: true;
 	size: number;
 	node: ExpressionNode;
 }
 
-function parseStringLiteralExpression(bytes: Uint8Array, start: number): ParseStringLiteralExpressionResult {
+function parseStringLiteralExpression(chars: Uint32Array, start: number): ParseStringLiteralExpressionResult {
 	let resultSize = 0;
-	const valueVariableBytes: number[] = [];
+	const valueVariableChars: number[] = [];
 
-	if (start + resultSize >= bytes.length) {
-		throw new Error("Unexpected termination");
+	if (start + resultSize >= chars.length) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Unexpected termination",
+		};
+		return result;
 	}
-	if (bytes[start + resultSize] !== CHAR_CODE_DOUBLE_QUOTES) {
-		throw new Error(`Expected double quotes at position ${start + resultSize}`);
+	if (chars[start + resultSize] !== CODE_POINT_DOUBLE_QUOTES) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Expected double quotes",
+		};
+		return result;
 	}
 	resultSize++;
 
 	while (true) {
-		if (start >= bytes.length) {
-			throw new Error("Unexpected termination");
+		if (start >= chars.length) {
+			const result: ParseErrorResult = {
+				ok: false,
+				position: start + resultSize,
+				message: "Unexpected termination",
+			};
+			return result;
 		}
 
-		if (bytes[start + resultSize] === CHAR_CODE_DOUBLE_QUOTES) {
+		if (chars[start + resultSize] === CODE_POINT_DOUBLE_QUOTES) {
 			resultSize++;
 			break;
 		}
 
-		if (bytes[start + resultSize] === CHAR_CODE_BACKSLASH) {
-			if (start + resultSize + 1 >= bytes.length) {
-				throw new Error("Unexpected termination");
+		if (chars[start + resultSize] === CODE_POINT_BACKSLASH) {
+			if (start + resultSize + 1 >= chars.length) {
+				const result: ParseErrorResult = {
+					ok: false,
+					position: start + resultSize,
+					message: "Unexpected termination",
+				};
+				return result;
 			}
 
-			if (bytes[start + resultSize + 1] === CHAR_CODE_LOWERCASE_N) {
-				valueVariableBytes.push(10);
+			if (chars[start + resultSize + 1] === CODE_POINT_LOWERCASE_N) {
+				valueVariableChars.push(10);
 				resultSize += 2;
-			} else if (bytes[start + resultSize] === CHAR_CODE_DOUBLE_QUOTES) {
-				valueVariableBytes.push(bytes[start + resultSize]);
+			} else if (chars[start + resultSize] === CODE_POINT_DOUBLE_QUOTES) {
+				valueVariableChars.push(chars[start + resultSize]);
 				resultSize += 2;
-			} else if (bytes[start + resultSize] === CHAR_CODE_BACKSLASH) {
-				valueVariableBytes.push(bytes[start + resultSize]);
+			} else if (chars[start + resultSize] === CODE_POINT_BACKSLASH) {
+				valueVariableChars.push(chars[start + resultSize]);
 				resultSize += 2;
 			} else {
-				throw new Error(`Unknown escape sequence at position ${start + resultSize}`);
+				const result: ParseErrorResult = {
+					ok: false,
+					position: start + resultSize,
+					message: "Unknown escape sequence",
+				};
+				return result;
 			}
-		} else if (isASCIIStringCharacter(bytes[start + resultSize])) {
-			valueVariableBytes.push(bytes[start + resultSize]);
+		} else if (isASCIIStringCharacter(chars[start + resultSize])) {
+			valueVariableChars.push(chars[start + resultSize]);
 			resultSize++;
 		} else {
-			throw new Error(`Unknown character at position ${start + resultSize}`);
+			const result: ParseErrorResult = {
+				ok: false,
+				position: start + resultSize,
+				message: "Unknown character",
+			};
+			return result;
 		}
 	}
 
-	const value = String.fromCharCode(...valueVariableBytes);
+	const value = String.fromCodePoint(...valueVariableChars);
 	const expressionNode: StringLiteralExpressionNode = {
 		type: "expression.string_literal",
 		string: value,
 	};
-	const result: ParseStringLiteralExpressionResult = {
+	const result: ParseStringLiteralExpressionSuccessResult = {
+		ok: true,
 		size: resultSize,
 		node: expressionNode,
 	};
 	return result;
 }
 
-interface ParseStringLiteralExpressionResult {
+type ParseStringLiteralExpressionResult = ParseStringLiteralExpressionSuccessResult | ParseErrorResult;
+
+interface ParseStringLiteralExpressionSuccessResult {
+	ok: true;
 	size: number;
 	node: StringLiteralExpressionNode;
 }
 
-function parseNumberLiteralExpression(bytes: Uint8Array, start: number): ParseNumberLiteralExpressionResult {
+function parseNumberLiteralExpression(chars: Uint32Array, start: number): ParseNumberLiteralExpressionResult {
 	let resultSize = 0;
 
 	let positive = true;
-	if (start + resultSize >= bytes.length) {
-		throw new Error("Unexpected termination");
+	if (start + resultSize >= chars.length) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Unexpected termination",
+		};
+		return result;
 	}
-	if (bytes[start + resultSize] === CHAR_CODE_HYPHEN) {
+	if (chars[start + resultSize] === CODE_POINT_HYPHEN) {
 		positive = false;
 		resultSize++;
 	}
 
 	let whole: number;
-	if (start + resultSize >= bytes.length) {
-		throw new Error("Unexpected termination");
+	if (start + resultSize >= chars.length) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Unexpected termination",
+		};
+		return result;
 	}
-	if (bytes[start + resultSize] === CHAR_CODE_ZERO) {
+	if (chars[start + resultSize] === CODE_POINT_ZERO) {
 		whole = 0;
 		resultSize++;
 
-		if (start + resultSize < bytes.length && isDigit(bytes[start + resultSize])) {
+		if (start + resultSize < chars.length && isDigit(chars[start + resultSize])) {
 			throw new Error(`Unexpected digit at position ${start + resultSize}`);
 		}
 	} else {
-		whole = bytes[start + resultSize] - 48;
+		whole = chars[start + resultSize] - 48;
 		resultSize++;
 
 		while (true) {
-			if (start + resultSize >= bytes.length) {
+			if (start + resultSize >= chars.length) {
 				break;
 			}
-			if (!isDigit(bytes[start + resultSize])) {
+			if (!isDigit(chars[start + resultSize])) {
 				break;
 			}
-			whole = whole * 10 + (bytes[start + resultSize] - 48);
+			whole = whole * 10 + (chars[start + resultSize] - 48);
 			resultSize++;
 		}
 	}
 
-	if (start + resultSize >= bytes.length) {
+	if (start + resultSize >= chars.length) {
 		let value100: number;
 		if (positive) {
 			value100 = whole * 100;
@@ -520,12 +644,13 @@ function parseNumberLiteralExpression(bytes: Uint8Array, start: number): ParseNu
 			value100: value100,
 		};
 		const result: ParseNumberLiteralExpressionResult = {
+			ok: true,
 			size: resultSize,
 			node: expressionNode,
 		};
 		return result;
 	}
-	if (bytes[start + resultSize] !== CHAR_CODE_PERIOD) {
+	if (chars[start + resultSize] !== CODE_POINT_PERIOD) {
 		let value100: number;
 		if (positive) {
 			value100 = whole * 100;
@@ -537,6 +662,7 @@ function parseNumberLiteralExpression(bytes: Uint8Array, start: number): ParseNu
 			value100: value100,
 		};
 		const result: ParseNumberLiteralExpressionResult = {
+			ok: true,
 			size: resultSize,
 			node: expressionNode,
 		};
@@ -544,16 +670,26 @@ function parseNumberLiteralExpression(bytes: Uint8Array, start: number): ParseNu
 	}
 	resultSize++;
 
-	if (start + resultSize >= bytes.length) {
-		throw new Error("Unexpected termination");
+	if (start + resultSize >= chars.length) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Unexpected termination",
+		};
+		return result;
 	}
-	if (!isDigit(bytes[start + resultSize])) {
-		throw new Error(`Expected digit at position ${start + resultSize}`);
+	if (!isDigit(chars[start + resultSize])) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Expected digit",
+		};
+		return result;
 	}
-	let decimal100 = (bytes[start + resultSize] - 48) * 10;
+	let decimal100 = (chars[start + resultSize] - 48) * 10;
 	resultSize++;
 
-	if (start + resultSize >= bytes.length) {
+	if (start + resultSize >= chars.length) {
 		let value100: number;
 		if (positive) {
 			value100 = whole * 100 + decimal100;
@@ -565,12 +701,13 @@ function parseNumberLiteralExpression(bytes: Uint8Array, start: number): ParseNu
 			value100: value100,
 		};
 		const result: ParseNumberLiteralExpressionResult = {
+			ok: true,
 			size: resultSize,
 			node: expressionNode,
 		};
 		return result;
 	}
-	if (!isDigit(bytes[start + resultSize])) {
+	if (!isDigit(chars[start + resultSize])) {
 		let value100: number;
 		if (positive) {
 			value100 = whole * 100 + decimal100;
@@ -582,16 +719,22 @@ function parseNumberLiteralExpression(bytes: Uint8Array, start: number): ParseNu
 			value100: value100,
 		};
 		const result: ParseNumberLiteralExpressionResult = {
+			ok: true,
 			size: resultSize,
 			node: expressionNode,
 		};
 		return result;
 	}
-	decimal100 += bytes[start + resultSize] - 48;
+	decimal100 += chars[start + resultSize] - 48;
 	resultSize++;
 
-	if (start + resultSize < bytes.length && isDigit(bytes[start + resultSize])) {
-		throw new Error(`Unexpected digit at position ${start + resultSize}`);
+	if (start + resultSize < chars.length && isDigit(chars[start + resultSize])) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Unexpected digit",
+		};
+		return result;
 	}
 
 	let value100: number;
@@ -604,73 +747,118 @@ function parseNumberLiteralExpression(bytes: Uint8Array, start: number): ParseNu
 		type: "expression.number_literal",
 		value100: value100,
 	};
-	const result: ParseNumberLiteralExpressionResult = {
+	const result: ParseNumberLiteralExpressionSuccessResult = {
+		ok: true,
 		size: resultSize,
 		node: expressionNode,
 	};
 	return result;
 }
 
-interface ParseNumberLiteralExpressionResult {
+type ParseNumberLiteralExpressionResult = ParseNumberLiteralExpressionSuccessResult | ParseErrorResult;
+
+interface ParseNumberLiteralExpressionSuccessResult {
+	ok: true;
 	size: number;
 	node: NumberLiteralExpressionNode;
 }
 
-function parseFunctionCallExpression(bytes: Uint8Array, start: number): ParseFunctionCallExpression {
+function parseFunctionCallExpression(chars: Uint32Array, start: number): ParseFunctionCallExpressionResult {
 	let resultSize = 0;
 
-	if (start + resultSize >= bytes.length) {
-		throw new Error("Unexpected termination");
+	if (start + resultSize >= chars.length) {
+		const result: ParseFunctionCallErrorExpressionResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Unexpected termination",
+		};
+		return result;
 	}
-	if (bytes[start + resultSize] !== CHAR_CODE_AT_SIGN) {
-		throw new Error(`Expected at sign at position ${start + resultSize}`);
+	if (chars[start + resultSize] !== CODE_POINT_AT_SIGN) {
+		const result: ParseFunctionCallErrorExpressionResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Expected at sign",
+		};
+		return result;
 	}
 	resultSize++;
 
-	const parseFunctionNameResult = parseIdentifier(bytes, start + resultSize);
+	const parseFunctionNameResult = parseIdentifier(chars, start + resultSize);
+	if (!parseFunctionNameResult.ok) {
+		return parseFunctionNameResult;
+	}
 	const functionName = parseFunctionNameResult.identifier;
 	resultSize += parseFunctionNameResult.size;
 
-	if (start + resultSize >= bytes.length) {
-		throw new Error("Unexpected termination");
+	if (start + resultSize >= chars.length) {
+		const result: ParseFunctionCallErrorExpressionResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Unexpected termination",
+		};
+		return result;
 	}
-	if (bytes[start + resultSize] !== CHAR_CODE_OPENING_PARENTHESIS) {
-		throw new Error(`Expected opening parenthesis at position ${start + resultSize}`);
+	if (chars[start + resultSize] !== CODE_POINT_OPENING_PARENTHESIS) {
+		const result: ParseFunctionCallErrorExpressionResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Expected open parenthesis",
+		};
+		return result;
 	}
 	resultSize++;
 
 	const argumentNodes: ExpressionNode[] = [];
 	while (true) {
-		let spacesSize = parseSpaces(bytes, start + resultSize);
+		let spacesSize = parseSpaces(chars, start + resultSize);
 		resultSize += spacesSize;
 
-		if (start + resultSize >= bytes.length) {
-			throw new Error("Unexpected termination");
+		if (start + resultSize >= chars.length) {
+			const result: ParseFunctionCallErrorExpressionResult = {
+				ok: false,
+				position: start + resultSize,
+				message: "Unexpected termination",
+			};
+			return result;
 		}
 
-		if (bytes[start + resultSize] === CHAR_CODE_CLOSING_PARENTHESIS) {
+		if (chars[start + resultSize] === CODE_POINT_CLOSING_PARENTHESIS) {
 			resultSize++;
 
 			break;
 		}
 
-		const parseArgumentResult = parseExpression(bytes, start + resultSize);
+		const parseArgumentResult = parseExpression(chars, start + resultSize);
+		if (!parseArgumentResult.ok) {
+			return parseArgumentResult;
+		}
 		argumentNodes.push(parseArgumentResult.node);
 		resultSize += parseArgumentResult.size;
 
-		spacesSize = parseSpaces(bytes, start + resultSize);
+		spacesSize = parseSpaces(chars, start + resultSize);
 		resultSize += spacesSize;
 
-		if (start + resultSize >= bytes.length) {
-			throw new Error("Unexpected termination");
+		if (start + resultSize >= chars.length) {
+			const result: ParseFunctionCallErrorExpressionResult = {
+				ok: false,
+				position: start + resultSize,
+				message: "Unexpected termination",
+			};
+			return result;
 		}
-		if (bytes[start + resultSize] === CHAR_CODE_CLOSING_PARENTHESIS) {
+		if (chars[start + resultSize] === CODE_POINT_CLOSING_PARENTHESIS) {
 			resultSize++;
 
 			break;
 		}
-		if (bytes[start + resultSize] !== CHAR_CODE_COMMA) {
-			throw new Error(`Expected comma at position ${start + resultSize}`);
+		if (chars[start + resultSize] !== CODE_POINT_COMMA) {
+			const result: ParseFunctionCallErrorExpressionResult = {
+				ok: false,
+				position: start + resultSize,
+				message: "Expected comma",
+			};
+			return result;
 		}
 		resultSize++;
 	}
@@ -680,22 +868,37 @@ function parseFunctionCallExpression(bytes: Uint8Array, start: number): ParseFun
 		functionName: functionName,
 		argumentNodes: argumentNodes,
 	};
-	const result: ParseFunctionCallExpression = {
+	const result: ParseFunctionCallSuccessExpressionResult = {
+		ok: true,
 		size: resultSize,
 		node: expressionNode,
 	};
 	return result;
 }
 
-interface ParseFunctionCallExpression {
+type ParseFunctionCallExpressionResult =
+	| ParseFunctionCallSuccessExpressionResult
+	| ParseFunctionCallErrorExpressionResult;
+
+interface ParseFunctionCallSuccessExpressionResult {
+	ok: true;
 	size: number;
 	node: FunctionCallExpressionNode;
 }
 
-function parseSpecialWordExpressionNode(bytes: Uint8Array, start: number): ParseSpecialWordExpressionNode {
+interface ParseFunctionCallErrorExpressionResult {
+	ok: false;
+	position: number;
+	message: string;
+}
+
+function parseSpecialWordExpression(chars: Uint32Array, start: number): ParseSpecialWordExpressionResult {
 	let resultSize = 0;
 
-	const parseSpecialWordResult = parseIdentifier(bytes, start + resultSize);
+	const parseSpecialWordResult = parseIdentifier(chars, start + resultSize);
+	if (!parseSpecialWordResult.ok) {
+		return parseSpecialWordResult;
+	}
 	const specialWord = parseSpecialWordResult.identifier;
 	resultSize += parseSpecialWordResult.size;
 
@@ -704,44 +907,67 @@ function parseSpecialWordExpressionNode(bytes: Uint8Array, start: number): Parse
 		specialWord: specialWord,
 	};
 
-	const result: ParseSpecialWordExpressionNode = {
+	const result: ParseSpecialWordExpressionSuccessResult = {
+		ok: true,
 		size: resultSize,
 		node: specialWordExpressionNode,
 	};
 	return result;
 }
 
-interface ParseSpecialWordExpressionNode {
+type ParseSpecialWordExpressionResult = ParseSpecialWordExpressionSuccessResult | ParseErrorResult;
+
+interface ParseSpecialWordExpressionSuccessResult {
+	ok: true;
 	size: number;
 	node: SpecialWordExpressionNode;
 }
 
-function parseVariableExpression(bytes: Uint8Array, start: number): ParseVariableExpressionResult {
+function parseVariableExpression(chars: Uint32Array, start: number): ParseVariableExpressionResult {
 	let resultSize = 0;
 
-	if (start + resultSize >= bytes.length) {
-		throw new Error("Unexpected termination");
+	if (start + resultSize >= chars.length) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Unexpected termination",
+		};
+		return result;
 	}
-	if (bytes[start + resultSize] !== CHAR_CODE_DOLLAR_SIGN) {
-		throw new Error(`Expected dollar sign at position ${start + resultSize}`);
+	if (chars[start + resultSize] !== CODE_POINT_DOLLAR_SIGN) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Expected dollar sign",
+		};
+		return result;
 	}
 	resultSize++;
 
-	const parseVariableNameResult = parseIdentifier(bytes, start + resultSize);
+	const parseVariableNameResult = parseIdentifier(chars, start + resultSize);
+	if (!parseVariableNameResult.ok) {
+		return parseVariableNameResult;
+	}
 	const variableName = parseVariableNameResult.identifier;
 	resultSize += parseVariableNameResult.size;
 
 	const valueAccessorNodes: ValueAccessorNode[] = [];
 	while (true) {
-		if (start + resultSize >= bytes.length) {
+		if (start + resultSize >= chars.length) {
 			break;
 		}
-		if (bytes[start + resultSize] === CHAR_CODE_PERIOD) {
-			const parsePropertyValueAccessorResult = parsePropertyValueAccessor(bytes, start + resultSize);
+		if (chars[start + resultSize] === CODE_POINT_PERIOD) {
+			const parsePropertyValueAccessorResult = parsePropertyValueAccessor(chars, start + resultSize);
+			if (!parsePropertyValueAccessorResult.ok) {
+				return parsePropertyValueAccessorResult;
+			}
 			valueAccessorNodes.push(parsePropertyValueAccessorResult.node);
 			resultSize += parsePropertyValueAccessorResult.size;
-		} else if (bytes[start + resultSize] === CHAR_CODE_OPENING_BRACKET) {
-			const parseIndexValueAccessorResult = parseIndexValueAccessor(bytes, start + resultSize);
+		} else if (chars[start + resultSize] === CODE_POINT_OPENING_BRACKET) {
+			const parseIndexValueAccessorResult = parseIndexValueAccessor(chars, start + resultSize);
+			if (!parseIndexValueAccessorResult.ok) {
+				return parseIndexValueAccessorResult;
+			}
 			valueAccessorNodes.push(parseIndexValueAccessorResult.node);
 			resultSize += parseIndexValueAccessorResult.size;
 		} else {
@@ -755,30 +981,47 @@ function parseVariableExpression(bytes: Uint8Array, start: number): ParseVariabl
 		valueAccessorNodes: valueAccessorNodes,
 	};
 
-	const result: ParseVariableExpressionResult = {
+	const result: ParseVariableExpressionSuccessResult = {
+		ok: true,
 		size: resultSize,
 		node: inputExpressionNode,
 	};
 	return result;
 }
 
-interface ParseVariableExpressionResult {
+type ParseVariableExpressionResult = ParseVariableExpressionSuccessResult | ParseErrorResult;
+
+interface ParseVariableExpressionSuccessResult {
+	ok: true;
 	size: number;
 	node: VariableExpressionNode;
 }
 
-function parsePropertyValueAccessor(bytes: Uint8Array, start: number): ParsePropertyValueAccessorResult {
+function parsePropertyValueAccessor(chars: Uint32Array, start: number): ParsePropertyValueAccessorResult {
 	let resultSize = 0;
 
-	if (start + resultSize >= bytes.length) {
-		throw new Error("Unexpected termination");
+	if (start + resultSize >= chars.length) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Unexpected termination",
+		};
+		return result;
 	}
-	if (bytes[start + resultSize] !== CHAR_CODE_PERIOD) {
-		throw new Error(`Expected period at position ${start + resultSize}`);
+	if (chars[start + resultSize] !== CODE_POINT_PERIOD) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Unexpected termination",
+		};
+		return result;
 	}
 	resultSize++;
 
-	const parsePropertyNameResult = parseIdentifier(bytes, start + resultSize);
+	const parsePropertyNameResult = parseIdentifier(chars, start + resultSize);
+	if (!parsePropertyNameResult.ok) {
+		return parsePropertyNameResult;
+	}
 	const propertyName = parsePropertyNameResult.identifier;
 	resultSize += parsePropertyNameResult.size;
 
@@ -787,38 +1030,60 @@ function parsePropertyValueAccessor(bytes: Uint8Array, start: number): ParseProp
 		propertyName: propertyName,
 	};
 
-	const result: ParsePropertyValueAccessorResult = {
+	const result: ParsePropertyValueAccessorSuccessResult = {
+		ok: true,
 		size: resultSize,
 		node: propertyValueAccessorNode,
 	};
 	return result;
 }
 
-interface ParsePropertyValueAccessorResult {
+type ParsePropertyValueAccessorResult = ParsePropertyValueAccessorSuccessResult | ParseErrorResult;
+
+interface ParsePropertyValueAccessorSuccessResult {
+	ok: true;
 	size: number;
 	node: PropertyValueAccessorNode;
 }
 
-function parseIndexValueAccessor(bytes: Uint8Array, start: number): ParseIndexValueAccessorResult {
+function parseIndexValueAccessor(chars: Uint32Array, start: number): ParseIndexValueAccessorResult {
 	let resultSize = 0;
 
-	if (start + resultSize >= bytes.length) {
-		throw new Error("Unexpected termination");
+	if (start + resultSize >= chars.length) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Unexpected termination",
+		};
+		return result;
 	}
-	if (bytes[start + resultSize] !== CHAR_CODE_OPENING_BRACKET) {
-		throw new Error(`Expected period at position ${start + resultSize}`);
+	if (chars[start + resultSize] !== CODE_POINT_OPENING_BRACKET) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Expected period",
+		};
+		return result;
 	}
 	resultSize++;
 
-	const parseIndexExpressionResult = parseExpression(bytes, start + resultSize);
+	const parseIndexExpressionResult = parseExpression(chars, start + resultSize);
+	if (!parseIndexExpressionResult.ok) {
+		return parseIndexExpressionResult;
+	}
 	const indexExpressionNode = parseIndexExpressionResult.node;
 	resultSize += parseIndexExpressionResult.size;
 
-	const spacesSize = parseSpaces(bytes, start + resultSize);
+	const spacesSize = parseSpaces(chars, start + resultSize);
 	resultSize += spacesSize;
 
-	if (bytes[start + resultSize] !== CHAR_CODE_CLOSING_BRACKET) {
-		throw new Error(`Expected closing bracket at position ${start + resultSize}`);
+	if (chars[start + resultSize] !== CODE_POINT_CLOSING_BRACKET) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Expected closing bracket",
+		};
+		return result;
 	}
 	resultSize++;
 
@@ -827,61 +1092,93 @@ function parseIndexValueAccessor(bytes: Uint8Array, start: number): ParseIndexVa
 		indexExpressionNode: indexExpressionNode,
 	};
 
-	const result: ParseIndexValueAccessorResult = {
+	const result: ParseIndexValueAccessorSuccessResult = {
+		ok: true,
 		size: resultSize,
 		node: valueAccessorNode,
 	};
 	return result;
 }
 
-interface ParseIndexValueAccessorResult {
+type ParseIndexValueAccessorResult = ParseIndexValueAccessorSuccessResult | ParseErrorResult;
+
+interface ParseIndexValueAccessorSuccessResult {
+	ok: true;
 	size: number;
 	node: IndexValueAccessorNode;
 }
 
-function parseListLiteralExpression(bytes: Uint8Array, start: number): ParseListLiteralExpressionResult {
+function parseListLiteralExpression(chars: Uint32Array, start: number): ParseListLiteralExpressionResult {
 	let resultSize = 0;
 
-	if (start + resultSize >= bytes.length) {
-		throw new Error("Unexpected termination");
+	if (start + resultSize >= chars.length) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Unexpected termination",
+		};
+		return result;
 	}
-	if (bytes[start + resultSize] !== CHAR_CODE_OPENING_BRACKET) {
-		throw new Error(`Expected opening bracket at position ${start + resultSize}`);
+	if (chars[start + resultSize] !== CODE_POINT_OPENING_BRACKET) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Expected opening bracket",
+		};
+		return result;
 	}
 	resultSize++;
 
 	const listItemNodes: ExpressionNode[] = [];
 	while (true) {
-		let spacesSize = parseSpaces(bytes, start + resultSize);
+		let spacesSize = parseSpaces(chars, start + resultSize);
 		resultSize += spacesSize;
 
-		if (start + resultSize >= bytes.length) {
-			throw new Error("Unexpected termination");
+		if (start + resultSize >= chars.length) {
+			const result: ParseErrorResult = {
+				ok: false,
+				position: start + resultSize,
+				message: "Unexpected termination",
+			};
+			return result;
 		}
 
-		if (bytes[start + resultSize] === CHAR_CODE_CLOSING_BRACKET) {
+		if (chars[start + resultSize] === CODE_POINT_CLOSING_BRACKET) {
 			resultSize++;
 
 			break;
 		}
 
-		const parseItemResult = parseExpression(bytes, start + resultSize);
+		const parseItemResult = parseExpression(chars, start + resultSize);
+		if (!parseItemResult.ok) {
+			return parseItemResult;
+		}
 		listItemNodes.push(parseItemResult.node);
 		resultSize += parseItemResult.size;
 
-		spacesSize = parseSpaces(bytes, start + resultSize);
+		spacesSize = parseSpaces(chars, start + resultSize);
 		resultSize += spacesSize;
 
-		if (start + resultSize >= bytes.length) {
-			throw new Error("Unexpected termination");
+		if (start + resultSize >= chars.length) {
+			const result: ParseErrorResult = {
+				ok: false,
+				position: start + resultSize,
+				message: "Unexpected termination",
+			};
+			return result;
 		}
-		if (bytes[start + resultSize] === CHAR_CODE_CLOSING_BRACKET) {
+		if (chars[start + resultSize] === CODE_POINT_CLOSING_BRACKET) {
 			resultSize++;
 
 			break;
 		}
-		if (bytes[start + resultSize] !== CHAR_CODE_COMMA) {
-			throw new Error(`Expected comma at position ${start + resultSize}`);
+		if (chars[start + resultSize] !== CODE_POINT_COMMA) {
+			const result: ParseErrorResult = {
+				ok: false,
+				position: start + resultSize,
+				message: "Expected comma",
+			};
+			return result;
 		}
 		resultSize++;
 	}
@@ -890,75 +1187,120 @@ function parseListLiteralExpression(bytes: Uint8Array, start: number): ParseList
 		type: "expression.list_literal",
 		listItemNodes: listItemNodes,
 	};
-	const result: ParseListLiteralExpressionResult = {
+	const result: ParseListLiteralExpressionSuccessResult = {
+		ok: true,
 		size: resultSize,
 		node: expressionNode,
 	};
 	return result;
 }
 
-interface ParseListLiteralExpressionResult {
+type ParseListLiteralExpressionResult = ParseListLiteralExpressionSuccessResult | ParseErrorResult;
+
+interface ParseListLiteralExpressionSuccessResult {
+	ok: true;
 	size: number;
 	node: ListLiteralExpressionNode;
 }
 
-function parseObjectLiteralExpression(bytes: Uint8Array, i: number): ParseObjectLiteralExpressionResult {
+function parseObjectLiteralExpression(chars: Uint32Array, start: number): ParseObjectLiteralExpressionResult {
 	let resultSize = 0;
 
-	if (i + resultSize >= bytes.length) {
-		throw new Error("Unexpected termination");
+	if (start + resultSize >= chars.length) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Unexpected termination",
+		};
+		return result;
 	}
-	if (bytes[i + resultSize] !== CHAR_CODE_OPENING_BRACE) {
-		throw new Error(`Expected opening brace at position ${i + resultSize}`);
+	if (chars[start + resultSize] !== CODE_POINT_OPENING_BRACE) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Expected opening brace",
+		};
+		return result;
 	}
 	resultSize++;
 
 	const objectProperties = new Map<string, ExpressionNode>();
 	while (true) {
-		let spacesSize = parseSpaces(bytes, i + resultSize);
+		let spacesSize = parseSpaces(chars, start + resultSize);
 		resultSize += spacesSize;
 
-		if (i + resultSize >= bytes.length) {
-			throw new Error("Unexpected termination");
+		if (start + resultSize >= chars.length) {
+			const result: ParseErrorResult = {
+				ok: false,
+				position: start + resultSize,
+				message: "Unexpected termination",
+			};
+			return result;
 		}
-		if (bytes[i + resultSize] === CHAR_CODE_CLOSING_BRACE) {
+		if (chars[start + resultSize] === CODE_POINT_CLOSING_BRACE) {
 			resultSize++;
 
 			break;
 		}
 
-		const parsePropertyNameResult = parseIdentifier(bytes, i + resultSize);
+		const parsePropertyNameResult = parseIdentifier(chars, start + resultSize);
+		if (!parsePropertyNameResult.ok) {
+			return parsePropertyNameResult;
+		}
 		const propertyName = parsePropertyNameResult.identifier;
 		resultSize += parsePropertyNameResult.size;
 
-		spacesSize = parseSpaces(bytes, i + resultSize);
+		spacesSize = parseSpaces(chars, start + resultSize);
 		resultSize += spacesSize;
 
-		if (i + resultSize >= bytes.length) {
-			throw new Error("Unexpected termination");
+		if (start + resultSize >= chars.length) {
+			const result: ParseErrorResult = {
+				ok: false,
+				position: start + resultSize,
+				message: "Unexpected termination",
+			};
+			return result;
 		}
-		if (bytes[i + resultSize] !== CHAR_CODE_COLON) {
-			throw new Error(`Expected colon at position ${i + resultSize}`);
+		if (chars[start + resultSize] !== CODE_POINT_COLON) {
+			const result: ParseErrorResult = {
+				ok: false,
+				position: start + resultSize,
+				message: "Expected colon",
+			};
+			return result;
 		}
 		resultSize++;
 
-		const parsePropertyValueResult = parseExpression(bytes, i + resultSize);
+		const parsePropertyValueResult = parseExpression(chars, start + resultSize);
+		if (!parsePropertyValueResult.ok) {
+			return parsePropertyValueResult;
+		}
 		objectProperties.set(propertyName, parsePropertyValueResult.node);
 		resultSize += parsePropertyValueResult.size;
 
-		spacesSize = parseSpaces(bytes, i + resultSize);
+		spacesSize = parseSpaces(chars, start + resultSize);
 		resultSize += spacesSize;
 
-		if (i + resultSize >= bytes.length) {
-			throw new Error("Unexpected termination");
+		if (start + resultSize >= chars.length) {
+			const result: ParseErrorResult = {
+				ok: false,
+				position: start + resultSize,
+				message: "Unexpected termination",
+			};
+			return result;
 		}
-		if (bytes[i + resultSize] === CHAR_CODE_CLOSING_BRACE) {
+		if (chars[start + resultSize] === CODE_POINT_CLOSING_BRACE) {
 			resultSize++;
 
 			break;
 		}
-		if (bytes[i + resultSize] !== CHAR_CODE_COMMA) {
-			throw new Error(`Expected comma at position ${i + resultSize}`);
+		if (chars[start + resultSize] !== CODE_POINT_COMMA) {
+			const result: ParseErrorResult = {
+				ok: false,
+				position: start + resultSize,
+				message: "Expected comma",
+			};
+			return result;
 		}
 		resultSize++;
 	}
@@ -967,16 +1309,70 @@ function parseObjectLiteralExpression(bytes: Uint8Array, i: number): ParseObject
 		type: "expression.object_literal",
 		objectProperties: objectProperties,
 	};
-	const result: ParseObjectLiteralExpressionResult = {
+	const result: ParseObjectLiteralExpressionSuccessResult = {
+		ok: true,
 		size: resultSize,
 		node: expressionNode,
 	};
 	return result;
 }
 
-interface ParseObjectLiteralExpressionResult {
+type ParseObjectLiteralExpressionResult = ParseObjectLiteralExpressionSuccessResult | ParseErrorResult;
+
+interface ParseObjectLiteralExpressionSuccessResult {
+	ok: true;
 	size: number;
 	node: ObjectLiteralExpressionNode;
+}
+
+function parseExpressionGroupExpression(chars: Uint32Array, start: number): ParseExpressionGroupExpressionResult {
+	let resultSize = 0;
+
+	const parseExpressionResult = parseExpression(chars, start + resultSize);
+	if (!parseExpressionResult.ok) {
+		return parseExpressionResult;
+	}
+	const expressionGroupExpressionNode: ExpressionGroupExpressionNode = {
+		type: "expression.group",
+		expressionNode: parseExpressionResult.node,
+	};
+	resultSize += parseExpressionResult.size;
+
+	const spacesSize = parseSpaces(chars, start + resultSize);
+	resultSize += spacesSize;
+
+	if (resultSize + start >= chars.length) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: resultSize + start,
+			message: "Unexpected termination",
+		};
+		return result;
+	}
+	if (chars[start + resultSize] !== CODE_POINT_CLOSING_PARENTHESIS) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: resultSize + start,
+			message: "Expected closing parenthesis",
+		};
+		return result;
+	}
+	resultSize++;
+
+	const result: ParseExpressionGroupExpressionResult = {
+		ok: true,
+		size: resultSize,
+		node: expressionGroupExpressionNode,
+	};
+	return result;
+}
+
+type ParseExpressionGroupExpressionResult = ParseExpressionGroupExpressionSuccessResult | ParseErrorResult;
+
+interface ParseExpressionGroupExpressionSuccessResult {
+	ok: true;
+	size: number;
+	node: ExpressionGroupExpressionNode;
 }
 
 export type ExpressionNode =
@@ -998,7 +1394,7 @@ export type ExpressionNode =
 	| LessThanOrEqualOperatorExpressionNode
 	| GreaterThanOperatorExpressionNode
 	| GreaterThanOrEqualOperatorExpressionNode
-	| GroupExpressionNode;
+	| ExpressionGroupExpressionNode;
 
 export interface NumberLiteralExpressionNode {
 	type: "expression.number_literal";
@@ -1103,7 +1499,7 @@ export interface GreaterThanOrEqualOperatorExpressionNode {
 	leftNode: ExpressionNode;
 }
 
-export interface GroupExpressionNode {
+export interface ExpressionGroupExpressionNode {
 	type: "expression.group";
 	expressionNode: ExpressionNode;
 }
@@ -1124,27 +1520,27 @@ function isASCIIStringCharacter(charCode: number): boolean {
 	return charCode >= 32 && charCode <= 126;
 }
 
-const CHAR_CODE_EXCLAMATION_MARK = 33;
-const CHAR_CODE_DOUBLE_QUOTES = 34;
-const CHAR_CODE_DOLLAR_SIGN = 36;
-const CHAR_CODE_PERCENT = 37;
-const CHAR_CODE_OPENING_PARENTHESIS = 40;
-const CHAR_CODE_CLOSING_PARENTHESIS = 41;
-const CHAR_CODE_ASTERISK = 42;
-const CHAR_CODE_PLUS = 43;
-const CHAR_CODE_COMMA = 44;
-const CHAR_CODE_HYPHEN = 45;
-const CHAR_CODE_PERIOD = 46;
-const CHAR_CODE_SLASH = 47;
-const CHAR_CODE_ZERO = 48;
-const CHAR_CODE_COLON = 58;
-const CHAR_CODE_OPENING_ANGLE_BRACKET = 60;
-const CHAR_CODE_EQUAL = 61;
-const CHAR_CODE_CLOSING_ANGLE_BRACKET = 62;
-const CHAR_CODE_AT_SIGN = 64;
-const CHAR_CODE_OPENING_BRACKET = 91;
-const CHAR_CODE_BACKSLASH = 92;
-const CHAR_CODE_CLOSING_BRACKET = 93;
-const CHAR_CODE_OPENING_BRACE = 123;
-const CHAR_CODE_CLOSING_BRACE = 125;
-const CHAR_CODE_LOWERCASE_N = 110;
+const CODE_POINT_EXCLAMATION_MARK = 33;
+const CODE_POINT_DOUBLE_QUOTES = 34;
+const CODE_POINT_DOLLAR_SIGN = 36;
+const CODE_POINT_PERCENT = 37;
+const CODE_POINT_OPENING_PARENTHESIS = 40;
+const CODE_POINT_CLOSING_PARENTHESIS = 41;
+const CODE_POINT_ASTERISK = 42;
+const CODE_POINT_PLUS = 43;
+const CODE_POINT_COMMA = 44;
+const CODE_POINT_HYPHEN = 45;
+const CODE_POINT_PERIOD = 46;
+const CODE_POINT_SLASH = 47;
+const CODE_POINT_ZERO = 48;
+const CODE_POINT_COLON = 58;
+const CODE_POINT_OPENING_ANGLE_BRACKET = 60;
+const CODE_POINT_EQUAL = 61;
+const CODE_POINT_CLOSING_ANGLE_BRACKET = 62;
+const CODE_POINT_AT_SIGN = 64;
+const CODE_POINT_OPENING_BRACKET = 91;
+const CODE_POINT_BACKSLASH = 92;
+const CODE_POINT_CLOSING_BRACKET = 93;
+const CODE_POINT_OPENING_BRACE = 123;
+const CODE_POINT_CLOSING_BRACE = 125;
+const CODE_POINT_LOWERCASE_N = 110;
