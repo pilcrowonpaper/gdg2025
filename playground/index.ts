@@ -15,7 +15,7 @@ if (!(outputTextElement instanceof HTMLPreElement)) {
 	throw new Error("Not a pre element");
 }
 
-const executionTimeElement = document.getElementById("execution-time");
+const executionTimeElement = document.getElementById("execution-time-message");
 if (!(executionTimeElement instanceof HTMLParagraphElement)) {
 	throw new Error("Not a p element");
 }
