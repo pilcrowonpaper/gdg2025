@@ -42,15 +42,15 @@ for num, 3, $max + 1:
 do @print(@format_int($prime_count))
 do @print(" prime numbers between 1 and ")
 do @print(@format_int($max))
-do @print(".\\n")`
+do @print(".\\n")`;
 
-		const textEditorTextAreaElement = document.getElementById("editor-textarea")
+		const textEditorTextAreaElement = document.getElementById("editor-textarea");
 
 		const storedScript = window.localStorage.getItem("script");
 
-		let script = defaultScript
+		let script = defaultScript;
 		if (storedScript !== null && storedScript !== "") {
-			script = storedScript
+			script = storedScript;
 		}
 		textEditorTextAreaElement.value = script;
 
@@ -68,7 +68,7 @@ do @print(".\\n")`
 			lineCountElement.innerText = String(textEditorLineCountElement.childElementCount + 1);
 			textEditorLineCountElement.appendChild(lineCountElement);
 		}
-	</script>
+		</script>
 		<div id="output" style="overflow-wrap: normal; overflow-x: scroll; padding:0;">
 			<pre id="output-text" style="font-family: monospace; font-size: 1rem; white-space: pre;"></pre>
 		</div>
