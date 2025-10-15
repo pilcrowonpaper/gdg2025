@@ -70,32 +70,82 @@ runButtonElement.addEventListener("click", () => {
 	outputTextElement.innerText += `[result] ${stringifiedResultValue}\n`;
 });
 
+let textEditorTextAreaHistoryIndex = 0;
+const textEditorTextAreaHistory: HistoryRecord[] = [
+	{
+		value: textEditorTextAreaElement.value,
+		selectionStart: 0,
+		selectionEnd: 0,
+	},
+];
+interface HistoryRecord {
+	value: string;
+	selectionStart: number;
+	selectionEnd: number;
+}
+
 textEditorTextAreaElement.addEventListener("input", () => {
-	const value = textEditorTextAreaElement.value;
-	window.localStorage.setItem("script", value);
+	const script = textEditorTextAreaElement.value;
+	window.localStorage.setItem("script", script);
+
+	addTextEditorHistoryRecord(script, textEditorTextAreaElement.selectionStart, textEditorTextAreaElement.selectionEnd);
+
 	const CHAR_CODE_NEWLINE = 10;
-	const lineCount = countCharacterCount(value, CHAR_CODE_NEWLINE) + 1;
+	let lineCount = 1;
+	for (let i = 0; i < script.length; i++) {
+		if (script.charCodeAt(i) === CHAR_CODE_NEWLINE) {
+			lineCount++;
+		}
+	}
 	textEditorTextAreaElement.rows = lineCount;
 	updateEditorLineCountElement(lineCount);
 });
 
 textEditorTextAreaElement.addEventListener("keydown", (e) => {
+	textEditorTextAreaHistory[textEditorTextAreaHistoryIndex].selectionStart = textEditorTextAreaElement.selectionStart;
+	textEditorTextAreaHistory[textEditorTextAreaHistoryIndex].selectionEnd = textEditorTextAreaElement.selectionEnd;
+
 	if (e.key === "Tab") {
 		e.preventDefault();
 		const start = textEditorTextAreaElement.selectionStart;
 		const end = textEditorTextAreaElement.selectionEnd;
 
-		textEditorTextAreaElement.value = `${textEditorTextAreaElement.value.slice(
+		const newValue = `${textEditorTextAreaElement.value.slice(
 			0,
 			start,
 		)}\t${textEditorTextAreaElement.value.slice(end)}`;
 
+		textEditorTextAreaElement.value = newValue;
 		textEditorTextAreaElement.selectionStart = start + 1;
 		textEditorTextAreaElement.selectionEnd = start + 1;
+
+		addTextEditorHistoryRecord(newValue, start + 1, start + 1);
 	} else if (e.key === "Escape") {
 		textEditorTextAreaElement.blur();
-		// TODO: focus next element
+	} else if (e.key === "z" && (e.metaKey || e.ctrlKey) && e.shiftKey) {
+		e.preventDefault();
+		if (textEditorTextAreaHistoryIndex < textEditorTextAreaHistory.length - 1) {
+			textEditorTextAreaHistoryIndex++;
+			updateTextEditorValue(textEditorTextAreaHistory[textEditorTextAreaHistoryIndex].value);
+			textEditorTextAreaElement.selectionStart =
+				textEditorTextAreaHistory[textEditorTextAreaHistoryIndex].selectionStart;
+			textEditorTextAreaElement.selectionEnd = textEditorTextAreaHistory[textEditorTextAreaHistoryIndex].selectionEnd;
+		}
+	} else if (e.key === "z" && (e.metaKey || e.ctrlKey)) {
+		e.preventDefault();
+		if (textEditorTextAreaHistoryIndex > 0) {
+			textEditorTextAreaHistoryIndex--;
+			updateTextEditorValue(textEditorTextAreaHistory[textEditorTextAreaHistoryIndex].value);
+			textEditorTextAreaElement.selectionStart =
+				textEditorTextAreaHistory[textEditorTextAreaHistoryIndex].selectionStart;
+			textEditorTextAreaElement.selectionEnd = textEditorTextAreaHistory[textEditorTextAreaHistoryIndex].selectionEnd;
+		}
 	}
+});
+
+textEditorTextAreaElement.addEventListener("click", () => {
+	textEditorTextAreaHistory[textEditorTextAreaHistoryIndex].selectionStart = textEditorTextAreaElement.selectionStart;
+	textEditorTextAreaHistory[textEditorTextAreaHistoryIndex].selectionEnd = textEditorTextAreaElement.selectionEnd;
 });
 
 function updateEditorLineCountElement(lineCount: number): void {
@@ -117,12 +167,36 @@ function updateEditorLineCountElement(lineCount: number): void {
 	}
 }
 
-function countCharacterCount(s: string, charCode: number): number {
-	let count = 0;
-	for (let i = 0; i < s.length; i++) {
-		if (s.charCodeAt(i) === charCode) {
-			count++;
+function addTextEditorHistoryRecord(value: string, selectionStart: number, selectionEnd: number): void {
+	textEditorTextAreaHistory.splice(textEditorTextAreaHistoryIndex + 1);
+	if (textEditorTextAreaHistory.length > 100) {
+		textEditorTextAreaHistory.shift();
+	}
+	textEditorTextAreaHistory.push({
+		value: value,
+		selectionStart: selectionStart,
+		selectionEnd: selectionEnd,
+	});
+	textEditorTextAreaHistoryIndex = textEditorTextAreaHistory.length - 1;
+}
+
+function updateTextEditorValue(value: string): void {
+	const textEditorTextAreaElement = document.getElementById("editor-textarea");
+	if (!(textEditorTextAreaElement instanceof HTMLTextAreaElement)) {
+		throw new Error("Not a textarea element");
+	}
+
+	textEditorTextAreaElement.value = value;
+
+	window.localStorage.setItem("script", value);
+
+	const CHAR_CODE_NEWLINE = 10;
+	let lineCount = 1;
+	for (let i = 0; i < value.length; i++) {
+		if (value.charCodeAt(i) === CHAR_CODE_NEWLINE) {
+			lineCount++;
 		}
 	}
-	return count;
+	textEditorTextAreaElement.rows = lineCount;
+	updateEditorLineCountElement(lineCount);
 }
