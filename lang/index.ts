@@ -1,4 +1,11 @@
 export type {
+	ExecuteInstructionResult,
+	ExecuteInstructionSuccessResult,
+	ExecutionErrorResult,
+	ExternalFunction,
+	ExternalFunctionErrorResult,
+	ExternalFunctionResult,
+	ExternalFunctionSuccessResult,
 	FalseValue,
 	ListValue,
 	Memory,
@@ -25,6 +32,6 @@ export type {
 	WhileInstructionNode,
 } from "./instruction.js";
 export type { ParseScriptResult, ParseScriptSuccessResult } from "./script.js";
-export { parseScript } from "./script.js";
+export { parseScript, parseString } from "./script.js";
 export type { ParseErrorResult } from "./shared.js";
 export { createStandardLibrary, stringifyValue } from "./standard-library.js";

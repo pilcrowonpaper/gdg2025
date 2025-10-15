@@ -31,7 +31,7 @@
 set prime_count, 1
 for num, 3, $max + 1:
 	set prime_num, true
-	set max_factor, @sqrt($num)
+	set max_factor, @floor(@sqrt($num))
 	for factor, 2, $max_factor + 1:
 		if $num % $factor == 0:
 			set prime_num, false
@@ -68,8 +68,8 @@ do @print(".\\n")`;
 			lineCountElement.innerText = String(textEditorLineCountElement.childElementCount + 1);
 			textEditorLineCountElement.appendChild(lineCountElement);
 		}
-		</script>
-		<div id="output" style="overflow-wrap: normal; overflow-x: scroll; padding:0;">
+	</script>
+		<div style="overflow-wrap: normal; overflow-x: scroll; padding:0;">
 			<pre id="output-text" style="font-family: monospace; font-size: 1rem; white-space: pre;"></pre>
 		</div>
 		<p id="execution-time-message" style="margin:0; font-size: 1rem;"></p>

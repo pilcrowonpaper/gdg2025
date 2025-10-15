@@ -206,6 +206,8 @@ export function parseExpression(chars: Uint32Array, start: number): ParseExpress
 					type: "expression.add_operator",
 					leftNode: expressionNodes[highestPriorityIndex],
 					rightNode: expressionNodes[highestPriorityIndex + 1],
+					startPosition: expressionNodes[highestPriorityIndex].startPosition,
+					endPosition: expressionNodes[highestPriorityIndex + 1].endPosition,
 				};
 				break;
 			}
@@ -214,6 +216,8 @@ export function parseExpression(chars: Uint32Array, start: number): ParseExpress
 					type: "expression.minus_operator",
 					leftNode: expressionNodes[highestPriorityIndex],
 					rightNode: expressionNodes[highestPriorityIndex + 1],
+					startPosition: expressionNodes[highestPriorityIndex].startPosition,
+					endPosition: expressionNodes[highestPriorityIndex + 1].endPosition,
 				};
 				break;
 			}
@@ -222,6 +226,8 @@ export function parseExpression(chars: Uint32Array, start: number): ParseExpress
 					type: "expression.multiply_operator",
 					leftNode: expressionNodes[highestPriorityIndex],
 					rightNode: expressionNodes[highestPriorityIndex + 1],
+					startPosition: expressionNodes[highestPriorityIndex].startPosition,
+					endPosition: expressionNodes[highestPriorityIndex + 1].endPosition,
 				};
 				break;
 			}
@@ -230,6 +236,8 @@ export function parseExpression(chars: Uint32Array, start: number): ParseExpress
 					type: "expression.divide_operator",
 					leftNode: expressionNodes[highestPriorityIndex],
 					rightNode: expressionNodes[highestPriorityIndex + 1],
+					startPosition: expressionNodes[highestPriorityIndex].startPosition,
+					endPosition: expressionNodes[highestPriorityIndex + 1].endPosition,
 				};
 				break;
 			}
@@ -238,6 +246,8 @@ export function parseExpression(chars: Uint32Array, start: number): ParseExpress
 					type: "expression.remainder_operator",
 					leftNode: expressionNodes[highestPriorityIndex],
 					rightNode: expressionNodes[highestPriorityIndex + 1],
+					startPosition: expressionNodes[highestPriorityIndex].startPosition,
+					endPosition: expressionNodes[highestPriorityIndex + 1].endPosition,
 				};
 				break;
 			}
@@ -246,6 +256,8 @@ export function parseExpression(chars: Uint32Array, start: number): ParseExpress
 					type: "expression.equal_operator",
 					leftNode: expressionNodes[highestPriorityIndex],
 					rightNode: expressionNodes[highestPriorityIndex + 1],
+					startPosition: expressionNodes[highestPriorityIndex].startPosition,
+					endPosition: expressionNodes[highestPriorityIndex + 1].endPosition,
 				};
 				break;
 			}
@@ -254,6 +266,8 @@ export function parseExpression(chars: Uint32Array, start: number): ParseExpress
 					type: "expression.not_equal_operator",
 					leftNode: expressionNodes[highestPriorityIndex],
 					rightNode: expressionNodes[highestPriorityIndex + 1],
+					startPosition: expressionNodes[highestPriorityIndex].startPosition,
+					endPosition: start + resultSize,
 				};
 				break;
 			}
@@ -262,6 +276,8 @@ export function parseExpression(chars: Uint32Array, start: number): ParseExpress
 					type: "expression.less_than_operator",
 					leftNode: expressionNodes[highestPriorityIndex],
 					rightNode: expressionNodes[highestPriorityIndex + 1],
+					startPosition: expressionNodes[highestPriorityIndex].startPosition,
+					endPosition: expressionNodes[highestPriorityIndex + 1].endPosition,
 				};
 				break;
 			}
@@ -270,6 +286,8 @@ export function parseExpression(chars: Uint32Array, start: number): ParseExpress
 					type: "expression.less_than_or_equal_operator",
 					leftNode: expressionNodes[highestPriorityIndex],
 					rightNode: expressionNodes[highestPriorityIndex + 1],
+					startPosition: expressionNodes[highestPriorityIndex].startPosition,
+					endPosition: expressionNodes[highestPriorityIndex + 1].endPosition,
 				};
 				break;
 			}
@@ -278,6 +296,8 @@ export function parseExpression(chars: Uint32Array, start: number): ParseExpress
 					type: "expression.greater_than_operator",
 					leftNode: expressionNodes[highestPriorityIndex],
 					rightNode: expressionNodes[highestPriorityIndex + 1],
+					startPosition: expressionNodes[highestPriorityIndex].startPosition,
+					endPosition: expressionNodes[highestPriorityIndex + 1].endPosition,
 				};
 				break;
 			}
@@ -286,6 +306,8 @@ export function parseExpression(chars: Uint32Array, start: number): ParseExpress
 					type: "expression.greater_than_or_equal_operator",
 					leftNode: expressionNodes[highestPriorityIndex],
 					rightNode: expressionNodes[highestPriorityIndex + 1],
+					startPosition: expressionNodes[highestPriorityIndex].startPosition,
+					endPosition: expressionNodes[highestPriorityIndex + 1].endPosition,
 				};
 				break;
 			}
@@ -330,10 +352,10 @@ export function parseExpressionUnit(chars: Uint32Array, start: number): ParseExp
 	const spacesSize = parseSpaces(chars, start + resultSize);
 	resultSize += spacesSize;
 
-	if (resultSize + start >= chars.length) {
+	if (start + resultSize >= chars.length) {
 		const result: ParseErrorResult = {
 			ok: false,
-			position: resultSize + start,
+			position: start + resultSize,
 			message: "Unexpected termination",
 		};
 		return result;
@@ -452,8 +474,6 @@ export function parseExpressionUnit(chars: Uint32Array, start: number): ParseExp
 	}
 
 	if (chars[start + resultSize] === CODE_POINT_OPENING_PARENTHESIS) {
-		resultSize++;
-
 		const parseGroupExpressionResult = parseExpressionGroupExpression(chars, start + resultSize);
 		if (!parseGroupExpressionResult.ok) {
 			return parseGroupExpressionResult;
@@ -508,7 +528,7 @@ function parseStringLiteralExpression(chars: Uint32Array, start: number): ParseS
 	resultSize++;
 
 	while (true) {
-		if (start >= chars.length) {
+		if (start + resultSize >= chars.length) {
 			const result: ParseErrorResult = {
 				ok: false,
 				position: start + resultSize,
@@ -533,13 +553,16 @@ function parseStringLiteralExpression(chars: Uint32Array, start: number): ParseS
 			}
 
 			if (chars[start + resultSize + 1] === CODE_POINT_LOWERCASE_N) {
-				valueVariableChars.push(10);
+				valueVariableChars.push(CODE_POINT_NEWLINE);
 				resultSize += 2;
-			} else if (chars[start + resultSize] === CODE_POINT_DOUBLE_QUOTES) {
-				valueVariableChars.push(chars[start + resultSize]);
+			} else if (chars[start + resultSize + 1] === CODE_POINT_DOUBLE_QUOTES) {
+				valueVariableChars.push(CODE_POINT_DOUBLE_QUOTES);
 				resultSize += 2;
-			} else if (chars[start + resultSize] === CODE_POINT_BACKSLASH) {
-				valueVariableChars.push(chars[start + resultSize]);
+			} else if (chars[start + resultSize + 1] === CODE_POINT_BACKSLASH) {
+				valueVariableChars.push(CODE_POINT_BACKSLASH);
+				resultSize += 2;
+			} else if (chars[start + resultSize + 1] === CODE_POINT_LOWERCASE_T) {
+				valueVariableChars.push(CODE_POINT_TAB);
 				resultSize += 2;
 			} else {
 				const result: ParseErrorResult = {
@@ -559,6 +582,8 @@ function parseStringLiteralExpression(chars: Uint32Array, start: number): ParseS
 	const expressionNode: StringLiteralExpressionNode = {
 		type: "expression.string_literal",
 		string: value,
+		startPosition: start,
+		endPosition: start + resultSize,
 	};
 	const result: ParseStringLiteralExpressionSuccessResult = {
 		ok: true,
@@ -607,7 +632,12 @@ function parseNumberLiteralExpression(chars: Uint32Array, start: number): ParseN
 		resultSize++;
 
 		if (start + resultSize < chars.length && isDigit(chars[start + resultSize])) {
-			throw new Error(`Unexpected digit at position ${start + resultSize}`);
+			const result: ParseErrorResult = {
+				ok: false,
+				position: start + resultSize,
+				message: "Unexpected digit",
+			};
+			return result;
 		}
 	} else {
 		whole = chars[start + resultSize] - 48;
@@ -635,6 +665,8 @@ function parseNumberLiteralExpression(chars: Uint32Array, start: number): ParseN
 		const expressionNode: NumberLiteralExpressionNode = {
 			type: "expression.number_literal",
 			value100: value100,
+			startPosition: start,
+			endPosition: start + resultSize,
 		};
 		const result: ParseNumberLiteralExpressionResult = {
 			ok: true,
@@ -653,6 +685,8 @@ function parseNumberLiteralExpression(chars: Uint32Array, start: number): ParseN
 		const expressionNode: NumberLiteralExpressionNode = {
 			type: "expression.number_literal",
 			value100: value100,
+			startPosition: start,
+			endPosition: start + resultSize,
 		};
 		const result: ParseNumberLiteralExpressionResult = {
 			ok: true,
@@ -692,6 +726,8 @@ function parseNumberLiteralExpression(chars: Uint32Array, start: number): ParseN
 		const expressionNode: NumberLiteralExpressionNode = {
 			type: "expression.number_literal",
 			value100: value100,
+			startPosition: start,
+			endPosition: start + resultSize,
 		};
 		const result: ParseNumberLiteralExpressionResult = {
 			ok: true,
@@ -710,6 +746,8 @@ function parseNumberLiteralExpression(chars: Uint32Array, start: number): ParseN
 		const expressionNode: NumberLiteralExpressionNode = {
 			type: "expression.number_literal",
 			value100: value100,
+			startPosition: start,
+			endPosition: start + resultSize,
 		};
 		const result: ParseNumberLiteralExpressionResult = {
 			ok: true,
@@ -739,6 +777,8 @@ function parseNumberLiteralExpression(chars: Uint32Array, start: number): ParseN
 	const expressionNode: NumberLiteralExpressionNode = {
 		type: "expression.number_literal",
 		value100: value100,
+		startPosition: start,
+		endPosition: start + resultSize,
 	};
 	const result: ParseNumberLiteralExpressionSuccessResult = {
 		ok: true,
@@ -760,7 +800,7 @@ function parseFunctionCallExpression(chars: Uint32Array, start: number): ParseFu
 	let resultSize = 0;
 
 	if (start + resultSize >= chars.length) {
-		const result: ParseFunctionCallErrorExpressionResult = {
+		const result: ParseErrorResult = {
 			ok: false,
 			position: start + resultSize,
 			message: "Unexpected termination",
@@ -768,7 +808,7 @@ function parseFunctionCallExpression(chars: Uint32Array, start: number): ParseFu
 		return result;
 	}
 	if (chars[start + resultSize] !== CODE_POINT_AT_SIGN) {
-		const result: ParseFunctionCallErrorExpressionResult = {
+		const result: ParseErrorResult = {
 			ok: false,
 			position: start + resultSize,
 			message: "Expected at sign",
@@ -785,7 +825,7 @@ function parseFunctionCallExpression(chars: Uint32Array, start: number): ParseFu
 	resultSize += parseFunctionNameResult.size;
 
 	if (start + resultSize >= chars.length) {
-		const result: ParseFunctionCallErrorExpressionResult = {
+		const result: ParseErrorResult = {
 			ok: false,
 			position: start + resultSize,
 			message: "Unexpected termination",
@@ -793,7 +833,7 @@ function parseFunctionCallExpression(chars: Uint32Array, start: number): ParseFu
 		return result;
 	}
 	if (chars[start + resultSize] !== CODE_POINT_OPENING_PARENTHESIS) {
-		const result: ParseFunctionCallErrorExpressionResult = {
+		const result: ParseErrorResult = {
 			ok: false,
 			position: start + resultSize,
 			message: "Expected open parenthesis",
@@ -808,7 +848,7 @@ function parseFunctionCallExpression(chars: Uint32Array, start: number): ParseFu
 		resultSize += spacesSize;
 
 		if (start + resultSize >= chars.length) {
-			const result: ParseFunctionCallErrorExpressionResult = {
+			const result: ParseErrorResult = {
 				ok: false,
 				position: start + resultSize,
 				message: "Unexpected termination",
@@ -833,7 +873,7 @@ function parseFunctionCallExpression(chars: Uint32Array, start: number): ParseFu
 		resultSize += spacesSize;
 
 		if (start + resultSize >= chars.length) {
-			const result: ParseFunctionCallErrorExpressionResult = {
+			const result: ParseErrorResult = {
 				ok: false,
 				position: start + resultSize,
 				message: "Unexpected termination",
@@ -846,7 +886,7 @@ function parseFunctionCallExpression(chars: Uint32Array, start: number): ParseFu
 			break;
 		}
 		if (chars[start + resultSize] !== CODE_POINT_COMMA) {
-			const result: ParseFunctionCallErrorExpressionResult = {
+			const result: ParseErrorResult = {
 				ok: false,
 				position: start + resultSize,
 				message: "Expected comma",
@@ -860,6 +900,8 @@ function parseFunctionCallExpression(chars: Uint32Array, start: number): ParseFu
 		type: "expression.function_call",
 		functionName: functionName,
 		argumentNodes: argumentNodes,
+		startPosition: start,
+		endPosition: start + resultSize,
 	};
 	const result: ParseFunctionCallSuccessExpressionResult = {
 		ok: true,
@@ -869,20 +911,12 @@ function parseFunctionCallExpression(chars: Uint32Array, start: number): ParseFu
 	return result;
 }
 
-type ParseFunctionCallExpressionResult =
-	| ParseFunctionCallSuccessExpressionResult
-	| ParseFunctionCallErrorExpressionResult;
+type ParseFunctionCallExpressionResult = ParseFunctionCallSuccessExpressionResult | ParseErrorResult;
 
 interface ParseFunctionCallSuccessExpressionResult {
 	ok: true;
 	size: number;
 	node: FunctionCallExpressionNode;
-}
-
-interface ParseFunctionCallErrorExpressionResult {
-	ok: false;
-	position: number;
-	message: string;
 }
 
 function parseSpecialWordExpression(chars: Uint32Array, start: number): ParseSpecialWordExpressionResult {
@@ -898,6 +932,8 @@ function parseSpecialWordExpression(chars: Uint32Array, start: number): ParseSpe
 	const specialWordExpressionNode: SpecialWordExpressionNode = {
 		type: "expression.special_word",
 		specialWord: specialWord,
+		startPosition: start,
+		endPosition: start + resultSize,
 	};
 
 	const result: ParseSpecialWordExpressionSuccessResult = {
@@ -972,6 +1008,8 @@ function parseVariableExpression(chars: Uint32Array, start: number): ParseVariab
 		type: "expression.variable",
 		variableName: variableName,
 		valueAccessorNodes: valueAccessorNodes,
+		startPosition: start,
+		endPosition: start + resultSize,
 	};
 
 	const result: ParseVariableExpressionSuccessResult = {
@@ -1021,6 +1059,8 @@ function parsePropertyValueAccessor(chars: Uint32Array, start: number): ParsePro
 	const propertyValueAccessorNode: PropertyValueAccessorNode = {
 		type: "value_accessor.property",
 		propertyName: propertyName,
+		startPosition: start,
+		endPosition: start + resultSize,
 	};
 
 	const result: ParsePropertyValueAccessorSuccessResult = {
@@ -1083,6 +1123,8 @@ function parseIndexValueAccessor(chars: Uint32Array, start: number): ParseIndexV
 	const valueAccessorNode: IndexValueAccessorNode = {
 		type: "value_accessor.index",
 		indexExpressionNode: indexExpressionNode,
+		startPosition: start,
+		endPosition: start + resultSize,
 	};
 
 	const result: ParseIndexValueAccessorSuccessResult = {
@@ -1179,6 +1221,8 @@ function parseListLiteralExpression(chars: Uint32Array, start: number): ParseLis
 	const expressionNode: ListLiteralExpressionNode = {
 		type: "expression.list_literal",
 		listItemNodes: listItemNodes,
+		startPosition: start,
+		endPosition: start + resultSize,
 	};
 	const result: ParseListLiteralExpressionSuccessResult = {
 		ok: true,
@@ -1301,6 +1345,8 @@ function parseObjectLiteralExpression(chars: Uint32Array, start: number): ParseO
 	const expressionNode: ObjectLiteralExpressionNode = {
 		type: "expression.object_literal",
 		objectProperties: objectProperties,
+		startPosition: start,
+		endPosition: start + resultSize,
 	};
 	const result: ParseObjectLiteralExpressionSuccessResult = {
 		ok: true,
@@ -1321,23 +1367,38 @@ interface ParseObjectLiteralExpressionSuccessResult {
 function parseExpressionGroupExpression(chars: Uint32Array, start: number): ParseExpressionGroupExpressionResult {
 	let resultSize = 0;
 
+	if (start + resultSize >= chars.length) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Unexpected termination",
+		};
+		return result;
+	}
+	if (chars[start + resultSize] !== CODE_POINT_OPENING_PARENTHESIS) {
+		const result: ParseErrorResult = {
+			ok: false,
+			position: start + resultSize,
+			message: "Expected opening parenthesis",
+		};
+		return result;
+	}
+	resultSize++;
+
 	const parseExpressionResult = parseExpression(chars, start + resultSize);
 	if (!parseExpressionResult.ok) {
 		return parseExpressionResult;
 	}
-	const expressionGroupExpressionNode: ExpressionGroupExpressionNode = {
-		type: "expression.group",
-		expressionNode: parseExpressionResult.node,
-	};
+	const expressionNode = parseExpressionResult.node;
 	resultSize += parseExpressionResult.size;
 
 	const spacesSize = parseSpaces(chars, start + resultSize);
 	resultSize += spacesSize;
 
-	if (resultSize + start >= chars.length) {
+	if (start + resultSize >= chars.length) {
 		const result: ParseErrorResult = {
 			ok: false,
-			position: resultSize + start,
+			position: start + resultSize,
 			message: "Unexpected termination",
 		};
 		return result;
@@ -1352,6 +1413,12 @@ function parseExpressionGroupExpression(chars: Uint32Array, start: number): Pars
 	}
 	resultSize++;
 
+	const expressionGroupExpressionNode: ExpressionGroupExpressionNode = {
+		type: "expression.group",
+		expressionNode: expressionNode,
+		startPosition: start,
+		endPosition: start + resultSize,
+	};
 	const result: ParseExpressionGroupExpressionResult = {
 		ok: true,
 		size: resultSize,
@@ -1392,109 +1459,147 @@ export type ExpressionNode =
 export interface NumberLiteralExpressionNode {
 	type: "expression.number_literal";
 	value100: number;
+	startPosition: number;
+	endPosition: number;
 }
 
 export interface StringLiteralExpressionNode {
 	type: "expression.string_literal";
 	string: string;
+	startPosition: number;
+	endPosition: number;
 }
 
 export interface SpecialWordExpressionNode {
 	type: "expression.special_word";
 	specialWord: string;
+	startPosition: number;
+	endPosition: number;
 }
 
 export interface ListLiteralExpressionNode {
 	type: "expression.list_literal";
 	listItemNodes: ExpressionNode[];
+	startPosition: number;
+	endPosition: number;
 }
 
 export interface ObjectLiteralExpressionNode {
 	type: "expression.object_literal";
 	objectProperties: Map<string, ExpressionNode>;
+	startPosition: number;
+	endPosition: number;
 }
 
 export interface VariableExpressionNode {
 	type: "expression.variable";
 	variableName: string;
 	valueAccessorNodes: ValueAccessorNode[];
+	startPosition: number;
+	endPosition: number;
 }
 
 export interface FunctionCallExpressionNode {
 	type: "expression.function_call";
 	functionName: string;
 	argumentNodes: ExpressionNode[];
+	startPosition: number;
+	endPosition: number;
 }
 
 export interface AddOperatorExpressionNode {
 	type: "expression.add_operator";
 	rightNode: ExpressionNode;
 	leftNode: ExpressionNode;
+	startPosition: number;
+	endPosition: number;
 }
 
 export interface MinusOperatorExpressionNode {
 	type: "expression.minus_operator";
 	rightNode: ExpressionNode;
 	leftNode: ExpressionNode;
+	startPosition: number;
+	endPosition: number;
 }
 
 export interface MultiplyOperatorExpressionNode {
 	type: "expression.multiply_operator";
 	rightNode: ExpressionNode;
 	leftNode: ExpressionNode;
+	startPosition: number;
+	endPosition: number;
 }
 
 export interface DivideOperatorExpressionNode {
 	type: "expression.divide_operator";
 	rightNode: ExpressionNode;
 	leftNode: ExpressionNode;
+	startPosition: number;
+	endPosition: number;
 }
 
 export interface RemainderOperatorExpressionNode {
 	type: "expression.remainder_operator";
 	rightNode: ExpressionNode;
 	leftNode: ExpressionNode;
+	startPosition: number;
+	endPosition: number;
 }
 
 export interface EqualOperatorExpressionNode {
 	type: "expression.equal_operator";
 	rightNode: ExpressionNode;
 	leftNode: ExpressionNode;
+	startPosition: number;
+	endPosition: number;
 }
 
 export interface NotEqualOperatorExpressionNode {
 	type: "expression.not_equal_operator";
 	rightNode: ExpressionNode;
 	leftNode: ExpressionNode;
+	startPosition: number;
+	endPosition: number;
 }
 
 export interface LessThanOperatorExpressionNode {
 	type: "expression.less_than_operator";
 	rightNode: ExpressionNode;
 	leftNode: ExpressionNode;
+	startPosition: number;
+	endPosition: number;
 }
 
 export interface LessThanOrEqualOperatorExpressionNode {
 	type: "expression.less_than_or_equal_operator";
 	rightNode: ExpressionNode;
 	leftNode: ExpressionNode;
+	startPosition: number;
+	endPosition: number;
 }
 
 export interface GreaterThanOperatorExpressionNode {
 	type: "expression.greater_than_operator";
 	rightNode: ExpressionNode;
 	leftNode: ExpressionNode;
+	startPosition: number;
+	endPosition: number;
 }
 
 export interface GreaterThanOrEqualOperatorExpressionNode {
 	type: "expression.greater_than_or_equal_operator";
 	rightNode: ExpressionNode;
 	leftNode: ExpressionNode;
+	startPosition: number;
+	endPosition: number;
 }
 
 export interface ExpressionGroupExpressionNode {
 	type: "expression.group";
 	expressionNode: ExpressionNode;
+	startPosition: number;
+	endPosition: number;
 }
 
 export type ValueAccessorNode = PropertyValueAccessorNode | IndexValueAccessorNode;
@@ -1502,13 +1607,19 @@ export type ValueAccessorNode = PropertyValueAccessorNode | IndexValueAccessorNo
 export interface PropertyValueAccessorNode {
 	type: "value_accessor.property";
 	propertyName: string;
+	startPosition: number;
+	endPosition: number;
 }
 
 export interface IndexValueAccessorNode {
 	type: "value_accessor.index";
 	indexExpressionNode: ExpressionNode;
+	startPosition: number;
+	endPosition: number;
 }
 
+const CODE_POINT_TAB = 9;
+const CODE_POINT_NEWLINE = 10;
 const CODE_POINT_EXCLAMATION_MARK = 33;
 const CODE_POINT_DOUBLE_QUOTES = 34;
 const CODE_POINT_DOLLAR_SIGN = 36;
@@ -1533,3 +1644,4 @@ const CODE_POINT_CLOSING_BRACKET = 93;
 const CODE_POINT_OPENING_BRACE = 123;
 const CODE_POINT_CLOSING_BRACE = 125;
 const CODE_POINT_LOWERCASE_N = 110;
+const CODE_POINT_LOWERCASE_T = 116;

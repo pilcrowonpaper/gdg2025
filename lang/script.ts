@@ -23,7 +23,7 @@ export interface ParseScriptSuccessResult {
 	instructions: InstructionNode[];
 }
 
-function parseString(s: string): Uint32Array {
+export function parseString(s: string): Uint32Array {
 	const chars = new Uint32Array(s.length);
 	let size = 0;
 

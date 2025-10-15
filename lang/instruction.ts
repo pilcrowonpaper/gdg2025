@@ -29,7 +29,12 @@ export function parseInstructions(chars: Uint32Array, start: number, level: numb
 			break;
 		}
 		if (chars[start + resultSize] === CODE_POINT_TAB) {
-			throw new Error(`Unexpected tab at position ${start + resultSize}`);
+			const result: ParseErrorResult = {
+				ok: false,
+				position: start + resultSize,
+				message: "Expected tab",
+			};
+			return result;
 		}
 		const spacesSize = parseSpaces(chars, start + resultSize);
 		resultSize += spacesSize;
@@ -96,6 +101,7 @@ function parseInstruction(chars: Uint32Array, start: number, level: number): Par
 		const doInstructionNode: DoInstructionNode = {
 			type: "instruction.do",
 			expressionNode: parseExpressionResult.node,
+			position: start,
 		};
 		resultSize += parseExpressionResult.size;
 
@@ -172,6 +178,7 @@ function parseInstruction(chars: Uint32Array, start: number, level: number): Par
 			type: "instruction.set",
 			targetNode: instructionTargetNode,
 			valueNode: parseVariableValueResult.node,
+			position: start,
 		};
 		resultSize += parseVariableValueResult.size;
 
@@ -266,6 +273,7 @@ function parseInstruction(chars: Uint32Array, start: number, level: number): Par
 			type: "instruction.add",
 			targetNode: instructionTargetNode,
 			valueNode: valueNode,
+			position: start,
 		};
 
 		const result: ParseInstructionSuccessResult = {
@@ -341,6 +349,7 @@ function parseInstruction(chars: Uint32Array, start: number, level: number): Par
 			type: "instruction.if",
 			conditionNodes: conditionNodes,
 			instructionNodes: instructionNodes,
+			position: start,
 		};
 
 		const result: ParseInstructionSuccessResult = {
@@ -416,6 +425,7 @@ function parseInstruction(chars: Uint32Array, start: number, level: number): Par
 			type: "instruction.elseif",
 			conditionNodes: conditionNodes,
 			instructionNodes: instructionNodes,
+			position: start,
 		};
 
 		const result: ParseInstructionSuccessResult = {
@@ -478,6 +488,7 @@ function parseInstruction(chars: Uint32Array, start: number, level: number): Par
 		const elseInstructionNode: ElseInstructionNode = {
 			type: "instruction.else",
 			instructionNodes: instructionNodes,
+			position: start,
 		};
 
 		const result: ParseInstructionSuccessResult = {
@@ -504,7 +515,12 @@ function parseInstruction(chars: Uint32Array, start: number, level: number): Par
 			resultSize += spacesSize;
 
 			if (start + resultSize >= chars.length) {
-				throw new Error("Unexpected termination");
+				const result: ParseErrorResult = {
+					ok: false,
+					position: start + resultSize,
+					message: "Unexpected termination",
+				};
+				return result;
 			}
 			if (chars[start + resultSize] === CODE_POINT_COLON) {
 				resultSize++;
@@ -514,7 +530,12 @@ function parseInstruction(chars: Uint32Array, start: number, level: number): Par
 				resultSize++;
 				continue;
 			}
-			throw new Error(`Expected colon at position ${start + resultSize}`);
+			const result: ParseErrorResult = {
+				ok: false,
+				position: start + resultSize,
+				message: "Expected colon",
+			};
+			return result;
 		}
 
 		let instructionNodes: InstructionNode[];
@@ -543,6 +564,7 @@ function parseInstruction(chars: Uint32Array, start: number, level: number): Par
 			type: "instruction.while",
 			conditionNodes: conditionNodes,
 			instructionNodes: instructionNodes,
+			position: start,
 		};
 
 		const result: ParseInstructionSuccessResult = {
@@ -574,6 +596,7 @@ function parseInstruction(chars: Uint32Array, start: number, level: number): Par
 		const returnInstructionNode: ReturnInstructionNode = {
 			type: "instruction.return",
 			expressionNode: parseExpressionResult.node,
+			position: start,
 		};
 		resultSize += parseExpressionResult.size;
 
@@ -620,6 +643,7 @@ function parseInstruction(chars: Uint32Array, start: number, level: number): Par
 
 		const breakInstructionNode: BreakInstructionNode = {
 			type: "instruction.break",
+			position: start,
 		};
 
 		const result: ParseInstructionSuccessResult = {
@@ -646,6 +670,7 @@ function parseInstruction(chars: Uint32Array, start: number, level: number): Par
 
 		const commentInstructionNode: CommentInstructionNode = {
 			type: "instruction.comment",
+			position: start,
 		};
 
 		const result: ParseInstructionSuccessResult = {
@@ -785,6 +810,7 @@ function parseInstruction(chars: Uint32Array, start: number, level: number): Par
 			startNode: startExpressionNode,
 			endNode: endExpressionResult,
 			instructionNodes: instructionNodes,
+			position: start,
 		};
 
 		const result: ParseInstructionSuccessResult = {
@@ -849,6 +875,8 @@ function parseInstructionTarget(chars: Uint32Array, start: number): ParseInstruc
 		type: "instruction_target",
 		variableName: variableName,
 		modifiers: modifiers,
+		startPosition: start,
+		endPosition: start + resultSize,
 	};
 
 	const result: ParseInstructionTargetSuccessResult = {
@@ -901,6 +929,8 @@ function parsePropertyAccessorInstructionTargetModifier(
 	const propertyAccessor: PropertyAccessorInstructionTargetModifierNode = {
 		type: "instruction_target_modifier.property_accessor",
 		propertyName: propertyName,
+		startPosition: start,
+		endPosition: start + resultSize,
 	};
 
 	const result: ParsePropertyAccessorInstructionTargetModifierSuccessResult = {
@@ -968,6 +998,8 @@ function parseIndexAccessorInstructionTargetModifier(
 	const indexAccessor: IndexAccessorInstructionTargetModifierNode = {
 		type: "instruction_target_modifier.index_accessor",
 		indexExpressionNode: indexExpressionNode,
+		startPosition: start,
+		endPosition: start + resultSize,
 	};
 
 	const result: ParseIndexAccessorInstructionTargetModifierSuccessResult = {
@@ -1059,35 +1091,41 @@ export type InstructionNode =
 export interface DoInstructionNode {
 	type: "instruction.do";
 	expressionNode: ExpressionNode;
+	position: number;
 }
 
 export interface SetInstructionNode {
 	type: "instruction.set";
 	targetNode: InstructionTargetNode;
 	valueNode: ExpressionNode;
+	position: number;
 }
 
 export interface AddInstructionNode {
 	type: "instruction.add";
 	targetNode: InstructionTargetNode;
 	valueNode: ExpressionNode;
+	position: number;
 }
 
 export interface IfInstructionNode {
 	type: "instruction.if";
 	conditionNodes: ExpressionNode[];
 	instructionNodes: InstructionNode[];
+	position: number;
 }
 
 export interface ElseifInstructionNode {
 	type: "instruction.elseif";
 	conditionNodes: ExpressionNode[];
 	instructionNodes: InstructionNode[];
+	position: number;
 }
 
 export interface ElseInstructionNode {
 	type: "instruction.else";
 	instructionNodes: InstructionNode[];
+	position: number;
 }
 
 export interface ForInstructionNode {
@@ -1096,31 +1134,38 @@ export interface ForInstructionNode {
 	startNode: ExpressionNode;
 	endNode: ExpressionNode;
 	instructionNodes: InstructionNode[];
+	position: number;
 }
 
 export interface WhileInstructionNode {
 	type: "instruction.while";
 	conditionNodes: ExpressionNode[];
 	instructionNodes: InstructionNode[];
+	position: number;
 }
 
 export interface ReturnInstructionNode {
 	type: "instruction.return";
 	expressionNode: ExpressionNode;
+	position: number;
 }
 
 export interface BreakInstructionNode {
 	type: "instruction.break";
+	position: number;
 }
 
 export interface CommentInstructionNode {
 	type: "instruction.comment";
+	position: number;
 }
 
 export interface InstructionTargetNode {
 	type: "instruction_target";
 	variableName: string;
 	modifiers: InstructionTargetModifierNode[];
+	startPosition: number;
+	endPosition: number;
 }
 
 export type InstructionTargetModifierNode =
@@ -1130,11 +1175,15 @@ export type InstructionTargetModifierNode =
 export interface PropertyAccessorInstructionTargetModifierNode {
 	type: "instruction_target_modifier.property_accessor";
 	propertyName: string;
+	startPosition: number;
+	endPosition: number;
 }
 
 export interface IndexAccessorInstructionTargetModifierNode {
 	type: "instruction_target_modifier.index_accessor";
 	indexExpressionNode: ExpressionNode;
+	startPosition: number;
+	endPosition: number;
 }
 
 const CODE_POINT_TAB = 9;
