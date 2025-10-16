@@ -46,7 +46,7 @@ do @print(".\\n")`;
 
 		const textEditorTextAreaElement = document.getElementById("editor-textarea");
 
-		const storedScript = window.localStorage.getItem("script");
+		const storedScript = window.localStorage.getItem("playground:script");
 
 		let script = defaultScript;
 		if (storedScript !== null && storedScript !== "") {

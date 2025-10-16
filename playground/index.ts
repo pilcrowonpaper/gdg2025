@@ -188,7 +188,7 @@ textEditorTextAreaElement.addEventListener("input", () => {
 	resetEditorLineCountColor();
 
 	const script = textEditorTextAreaElement.value;
-	window.localStorage.setItem("script", script);
+	window.localStorage.setItem("playground:script", script);
 
 	addTextEditorHistoryRecord(script, textEditorTextAreaElement.selectionStart, textEditorTextAreaElement.selectionEnd);
 
@@ -318,7 +318,7 @@ function updateTextEditorValue(value: string): void {
 
 	textEditorTextAreaElement.value = value;
 
-	window.localStorage.setItem("script", value);
+	window.localStorage.setItem("playground:script", value);
 
 	const CHAR_CODE_NEWLINE = 10;
 	let lineCount = 1;
