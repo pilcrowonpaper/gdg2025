@@ -1,0 +1,120 @@
+* {
+	appearance: none;
+	margin: 0;
+	padding: 0;
+	border: none;
+	background-color: transparent;
+	font-family: inherit;
+	color: inherit;
+	font-size: inherit;
+	border-radius: 0;
+	font-weight: normal;
+}
+
+h1 {
+	font-size: 3rem;
+	font-weight: bold;
+}
+
+h2 {
+	font-size: 1.5rem;
+	font-weight: bold;
+}
+
+select {
+	padding: 0.25rem 2rem 0.25rem 0.5rem;
+	border: solid 1px;
+	background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9L12 15L18 9" stroke-width="2" stroke="currentColor"/></svg>');
+	background-repeat: no-repeat;
+	background-position: right center;
+	background-size: 1.5rem;
+}
+
+button {
+	color: white;
+	background-color: black;
+	padding: 0.25rem 0.5rem;
+	border: solid 1px black;
+	width: fit-content;
+}
+button:hover {
+	color: black;
+	background-color: transparent;
+}
+
+#delete-audio-clip-button {
+	color: white;
+	background-color: red;
+	border: solid 1px red;
+}
+#delete-audio-clip-button:hover {
+	color: red;
+	background-color: transparent;
+}
+
+input {
+	padding: 0.25rem 0.5rem;
+	border: solid 1px;
+}
+
+input[type="range"] {
+	padding: 0;
+	border: solid 1px;
+	height: 0.5rem;
+	accent-color: green;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+	appearance: none;
+	width: 1rem;
+	height: 1rem;
+	background: #000000;
+	cursor: pointer;
+	border: none;
+	border-radius: 0;
+}
+
+input[type="range"]::-moz-range-thumb {
+	appearance: none;
+	width: 1rem;
+	height: 1rem;
+	background: #000000;
+	cursor: pointer;
+	border: none;
+	border-radius: 0;
+}
+
+a {
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+}
+
+.link-like-button {
+	padding: 0;
+	text-decoration: none;
+	color: black;
+	background-color: transparent;
+	border: none;
+	cursor: pointer;
+}
+.link-like-button:hover {
+	text-decoration: underline;
+}
+
+#color-picker {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+#color-picker input {
+	border: solid 1px black;
+	cursor: pointer;
+	width: 2rem;
+	height: 2rem;
+}
+
+#color-picker input:checked {
+	border: solid 3px orange;
+}

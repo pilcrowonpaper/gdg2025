@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<link rel="icon" type="image/svg+xml" href="/vite.svg">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Game</title>
+		<link rel="stylesheet" type="text/css" href="./style.css">
+	</head>
+
+	<body style="font-family: monospace; font-size: 1rem;">
+		<header
+			style="padding: 1rem 2rem; border-bottom: solid 1px black; display: flex; justify-content: space-between; align-items: center;"
+		>
+			<a>Game creator</a>
+			<ul style="display: flex; gap: 2rem; list-style: none;">
+				<li>
+					<a href="/game/plat/">Play</a>
+				</li>
+				<li>
+					<a href="/game/scripts/">Scripts</a>
+				</li>
+				<li>
+					<a href="/game/sprites/">Sprites</a>
+				</li>
+				<li>
+					<a href="/game/audio-clips/">Audio clips</a>
+				</li>
+			</ul>
+		</header>
+		<main style="padding: 1rem 2rem;">
+			<h1 style="padding: 2rem 0rem;">Edit sprites</h1>
+			<div id="editor-body">
+				<div style="display: grid; grid-column: 1; gap: 1rem;">
+					<div style="display: flex; justify-content: space-between; align-items: center;">
+						<div>
+							<label>Select sprite:</label>
+							<select id="sprite-selector"></select>
+						</div>
+						<div style="display: flex; gap: 1rem;">
+							<button id="new-sprite-button">New sprite</button>
+						</div>
+					</div>
+					<div style="border: solid 1px black; ">
+						<div
+							style="padding: 1rem 2rem; border-bottom: solid 1px black; display: flex; justify-content: space-between; align-items: center;"
+						>
+							<ul style="display: flex; gap: 1rem; list-style: none;">
+								<button id="show-sprite-edit-page-button" class="link-like-button">Edit</button>
+								<button id="show-sprite-config-page-button" class="link-like-button">Config</button>
+							</ul>
+						</div>
+						<div style="padding: 2rem;">
+							<div id="sprite-edit-page">
+								<div style="display: grid; column-count: 1; gap: 2rem;">
+									<div style="display: flex; align-items: center; gap: 2rem;">
+										<div>
+											<label for="tool-type-selector">Tool:</label>
+											<select id="tool-type-selector">
+												<option value="pen">Pen</option>
+												<option value="eraser">Eraser</option>
+											</select>
+										</div>
+										<div>
+											<label for="background-color-slider">Background color:</label>
+											<input id="background-color-slider" type="range" min="0" max="255" value="0">
+										</div>
+									</div>
+
+									<div style="display: flex; gap: 4rem;">
+										<canvas
+											id="sprite-canvas"
+											style="aspect-ratio: 1 / 1; max-width: 30rem; width: 100%; border: solid 1px black; image-rendering: pixelated; flex-shrink: 0;"
+											width="16"
+											height="16"
+										></canvas>
+										<div>
+											<fieldset id="color-picker">
+												<legend>Pen color</legend>
+											</fieldset>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div id="sprite-config-page" hidden>
+								<div style="display: grid; column-count: 1; gap: 2rem">
+									<section>
+										<h2 style="margin-bottom: 1rem;">Rename sprite</h2>
+										<form id="rename-sprite-id-form">
+											<input name="new_audio_clip_id">
+											<button>Rename</button>
+										</form>
+									</section>
+									<section>
+										<h2 style="margin-bottom: 1rem;">Delete sprite</h2>
+										<button id="delete-sprite-button">Delete</button>
+									</section>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+	</body>
+
+	<script type="module" src="./index.ts"></script>
+</html>

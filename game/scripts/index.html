@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<link rel="icon" type="image/svg+xml" href="/vite.svg">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Game</title>
+		<link rel="stylesheet" type="text/css" href="./style.css">
+	</head>
+
+	<body style="font-family: monospace; font-size: 1rem;">
+		<header
+			style="padding: 1rem 2rem; border-bottom: solid 1px black; display: flex; justify-content: space-between; align-items: center;"
+		>
+			<a>Game creator</a>
+			<ul style="display: flex; gap: 2rem; list-style: none;">
+				<li>
+					<a href="/game/plat/">Play</a>
+				</li>
+				<li>
+					<a href="/game/scripts/">Scripts</a>
+				</li>
+				<li>
+					<a href="/game/sprites/">Sprites</a>
+				</li>
+				<li>
+					<a href="/game/audio-clips/">Audio clips</a>
+				</li>
+			</ul>
+		</header>
+		<main style="padding: 1rem 2rem;">
+			<h1 style="padding: 2.5rem 0rem;">Script editor</h1>
+			<div id="editor-body" hidden style="display: grid; grid-column: 1; gap: 1rem;">
+				<div style="display: flex; justify-content: space-between; align-items: center;">
+					<div>
+						<label>Select script:</label>
+						<select id="script-selector"></select>
+					</div>
+					<div style="display: flex; gap: 1rem;">
+						<button id="new-script-button">New script</button>
+					</div>
+				</div>
+				<div style="border: solid 1px black; padding: 2rem; display: grid; column-count: 1; gap: 2rem;">
+					<ul style="display: flex; gap: 1rem; list-style: none;">
+						<button id="show-script-edit-page-button" class="link-like-button">Edit</button>
+						<button id="show-script-config-page-button" class="link-like-button">Config</button>
+					</ul>
+					<div id="script-edit-page" hidden>
+						<p>Press ESC to un-focus from the editor.</p>
+						<div style="display: flex; gap: 1rem; border: solid black 1px; padding: 1rem 0;">
+							<div
+								style="font-family: monospace; font-size: 1rem; margin: 0; text-align: right; width:4ch; color: gray; line-height: 150%;"
+								id="text-editor.line-count-section"
+								aria-hidden="true"
+							></div>
+							<textarea
+								id="text-editor.text"
+								style="width: 100%; resize: none; font-family: monospace; font-size: 1rem; white-space: pre; overflow-wrap: normal; overflow-x: scroll; line-height: 150%; border: none;"
+								autocorrect="off"
+								autocomplete="off"
+								autocapitalize="off"
+								spellcheck="false"
+								rows="1"
+							></textarea>
+						</div>
+					</div>
+					<div id="script-config-page" hidden>
+						<div style="display: grid; column-count: 1; gap: 2rem">
+							<section>
+								<h2 style="margin-bottom: 1rem;">Rename script</h2>
+								<form id="rename-script-id-form">
+									<input name="new_script_id">
+									<button>Rename</button>
+								</form>
+							</section>
+							<section>
+								<h2 style="margin-bottom: 1rem;">Delete script</h2>
+								<button id="delete-script-button">Delete</button>
+							</section>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+	</body>
+
+	<script type="module" src="./index.ts"></script>
+</html>

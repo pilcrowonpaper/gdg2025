@@ -267,7 +267,7 @@ export function createStandardLibrary(): Map<string, ExternalFunction> {
 			return result;
 		}
 		let formatted: string;
-		if (arg.value100 > 0) {
+		if (arg.value100 >= 0) {
 			formatted = `${arg.value100 / 100}`;
 		} else {
 			formatted = `-${arg.value100 / 100}`;
