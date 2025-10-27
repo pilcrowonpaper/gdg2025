@@ -2,8 +2,8 @@ import * as shared from "@shared";
 import * as storage from "@storage";
 
 const globalScripts = storage.getScripts();
-let textEditorTextAreaHistoryIndex = 0;
-const textEditorTextAreaHistory: HistoryRecord[] = [];
+let globalTextHistoryIndex = 0;
+const globalTextHistory: HistoryRecord[] = [];
 
 init();
 
@@ -27,7 +27,7 @@ function init(): void {
 		selectionStart: 0,
 		selectionEnd: 0,
 	};
-	textEditorTextAreaHistory.push(initialHistoryRecord);
+	globalTextHistory.push(initialHistoryRecord);
 
 	newScriptButtonElement.addEventListener("click", () => {
 		const existingScriptIds: string[] = [];
@@ -109,8 +109,8 @@ function init(): void {
 	});
 
 	textEditorTextElement.addEventListener("keydown", (e) => {
-		textEditorTextAreaHistory[textEditorTextAreaHistoryIndex].selectionStart = textEditorTextElement.selectionStart;
-		textEditorTextAreaHistory[textEditorTextAreaHistoryIndex].selectionEnd = textEditorTextElement.selectionEnd;
+		globalTextHistory[globalTextHistoryIndex].selectionStart = textEditorTextElement.selectionStart;
+		globalTextHistory[globalTextHistoryIndex].selectionEnd = textEditorTextElement.selectionEnd;
 
 		if (e.key === "Tab") {
 			e.preventDefault();
@@ -129,23 +129,23 @@ function init(): void {
 			textEditorTextElement.blur();
 		} else if (e.key === "z" && (e.metaKey || e.ctrlKey) && e.shiftKey) {
 			e.preventDefault();
-			if (textEditorTextAreaHistoryIndex < textEditorTextAreaHistory.length - 1) {
-				textEditorTextAreaHistoryIndex++;
-				const newValue = textEditorTextAreaHistory[textEditorTextAreaHistoryIndex].value;
+			if (globalTextHistoryIndex < globalTextHistory.length - 1) {
+				globalTextHistoryIndex++;
+				const newValue = globalTextHistory[globalTextHistoryIndex].value;
 				updateTextEditor(newValue);
 				storeScript(scriptSelectorElement.id, newValue);
-				textEditorTextElement.selectionStart = textEditorTextAreaHistory[textEditorTextAreaHistoryIndex].selectionStart;
-				textEditorTextElement.selectionEnd = textEditorTextAreaHistory[textEditorTextAreaHistoryIndex].selectionEnd;
+				textEditorTextElement.selectionStart = globalTextHistory[globalTextHistoryIndex].selectionStart;
+				textEditorTextElement.selectionEnd = globalTextHistory[globalTextHistoryIndex].selectionEnd;
 			}
 		} else if (e.key === "z" && (e.metaKey || e.ctrlKey)) {
 			e.preventDefault();
-			if (textEditorTextAreaHistoryIndex > 0) {
-				textEditorTextAreaHistoryIndex--;
-				const newValue = textEditorTextAreaHistory[textEditorTextAreaHistoryIndex].value;
+			if (globalTextHistoryIndex > 0) {
+				globalTextHistoryIndex--;
+				const newValue = globalTextHistory[globalTextHistoryIndex].value;
 				updateTextEditor(newValue);
 				storeScript(scriptSelectorElement.id, newValue);
-				textEditorTextElement.selectionStart = textEditorTextAreaHistory[textEditorTextAreaHistoryIndex].selectionStart;
-				textEditorTextElement.selectionEnd = textEditorTextAreaHistory[textEditorTextAreaHistoryIndex].selectionEnd;
+				textEditorTextElement.selectionStart = globalTextHistory[globalTextHistoryIndex].selectionStart;
+				textEditorTextElement.selectionEnd = globalTextHistory[globalTextHistoryIndex].selectionEnd;
 			}
 		}
 	});
@@ -238,16 +238,16 @@ function updateTextEditorLineCount(lineCount: number): void {
 }
 
 function addTextEditorHistoryRecord(value: string, selectionStart: number, selectionEnd: number): void {
-	textEditorTextAreaHistory.splice(textEditorTextAreaHistoryIndex + 1);
-	if (textEditorTextAreaHistory.length > 100) {
-		textEditorTextAreaHistory.shift();
+	globalTextHistory.splice(globalTextHistoryIndex + 1);
+	if (globalTextHistory.length > 100) {
+		globalTextHistory.shift();
 	}
-	textEditorTextAreaHistory.push({
+	globalTextHistory.push({
 		value: value,
 		selectionStart: selectionStart,
 		selectionEnd: selectionEnd,
 	});
-	textEditorTextAreaHistoryIndex = textEditorTextAreaHistory.length - 1;
+	globalTextHistoryIndex = globalTextHistory.length - 1;
 }
 
 function storeScript(scriptId: string, script: string): void {
