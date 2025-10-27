@@ -124,7 +124,7 @@ function init(): void {
 			textEditorTextElement.selectionEnd = start + 1;
 
 			addTextEditorHistoryRecord(newValue, start + 1, start + 1);
-			storeScript(scriptSelectorElement.id, newValue);
+			storeScript(scriptSelectorElement.value, newValue);
 		} else if (e.key === "Escape") {
 			textEditorTextElement.blur();
 		} else if (e.key === "z" && (e.metaKey || e.ctrlKey) && e.shiftKey) {
@@ -133,7 +133,7 @@ function init(): void {
 				globalTextHistoryIndex++;
 				const newValue = globalTextHistory[globalTextHistoryIndex].value;
 				updateTextEditor(newValue);
-				storeScript(scriptSelectorElement.id, newValue);
+				storeScript(scriptSelectorElement.value, newValue);
 				textEditorTextElement.selectionStart = globalTextHistory[globalTextHistoryIndex].selectionStart;
 				textEditorTextElement.selectionEnd = globalTextHistory[globalTextHistoryIndex].selectionEnd;
 			}
@@ -143,7 +143,7 @@ function init(): void {
 				globalTextHistoryIndex--;
 				const newValue = globalTextHistory[globalTextHistoryIndex].value;
 				updateTextEditor(newValue);
-				storeScript(scriptSelectorElement.id, newValue);
+				storeScript(scriptSelectorElement.value, newValue);
 				textEditorTextElement.selectionStart = globalTextHistory[globalTextHistoryIndex].selectionStart;
 				textEditorTextElement.selectionEnd = globalTextHistory[globalTextHistoryIndex].selectionEnd;
 			}
