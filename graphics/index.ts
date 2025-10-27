@@ -65,6 +65,8 @@ export const colors: Color[] = [
     { red: 0, green: 23, blue: 125 },
 ];
 
+export const transparentPixelByte = 0x80;
+
 export interface Color {
     red: number;
     blue: number;
@@ -83,9 +85,40 @@ function byteToHexString(byte: number): string {
     return alphabet[byte >> 4] || alphabet[byte & 0xf];
 }
 
-export interface Sprite {
-    pixels: Uint8Array; // spritePixelsByteSize
-    transparencyColorId: number;
+export function setPixel(
+    pixels: Uint8Array,
+    i: number,
+    solid: boolean,
+    fullColor: boolean,
+    colorId: number
+): void {
+    let byte = colorId;
+    if (solid) {
+        byte |= 0x80;
+    }
+    if (fullColor) {
+        byte |= 0x40;
+    }
+    pixels[i] = byte;
+}
+
+export function getPixelColor(pixels: Uint8Array, i: number): Color | null {
+    const solidFlag = pixels[i] >> 7;
+    const fullColorFlag = (pixels[i] >> 6) & 0x01;
+    const colorId = pixels[i] & 0x3f;
+    if (solidFlag === 0) {
+        return null;
+    }
+    const fullColor = colors[colorId];
+    if (fullColorFlag === 1) {
+        return fullColor;
+    }
+    const color: Color = {
+        red: Math.floor(fullColor.red / 2),
+        green: Math.floor(fullColor.green / 2),
+        blue: Math.floor(fullColor.blue / 2),
+    };
+    return color;
 }
 
 export function getSpriteCoordinatesFromPixelPosition(

@@ -32,41 +32,24 @@ export function getSprites(): Sprites {
             console.error("'id' not defined or invalid in object");
             return sprites;
         }
-        if (
-            !("transparency_color_id" in item) ||
-            typeof item.transparency_color_id !== "number" ||
-            !Number.isInteger(item.transparency_color_id) ||
-            item.transparency_color_id < 0 ||
-            item.transparency_color_id >= graphics.colors.length
-        ) {
-            console.error(
-                "'transparency_color_id' not defined or invalid in object"
-            );
-            return sprites;
-        }
-        const transparencyColorId = item.transparency_color_id;
 
         if (!("pixels" in item) || typeof item.pixels !== "string") {
             console.error("'pixels' not defined or invalid in object");
             return sprites;
         }
-        let pixels: Uint8Array;
+        let spritePixels: Uint8Array;
         try {
-            pixels = encoding.decodeBase64(item.pixels);
+            spritePixels = encoding.decodeBase64(item.pixels);
         } catch {
             console.error("'pixels' not defined or invalid in object");
             return sprites;
         }
-        if (pixels.length !== graphics.spritePixelCount) {
+        if (spritePixels.length !== graphics.spritePixelCount) {
             console.error("'pixels' not defined or invalid in object");
             return sprites;
         }
 
-        const sprite: graphics.Sprite = {
-            pixels,
-            transparencyColorId: transparencyColorId,
-        };
-        sprites.set(item.id, sprite);
+        sprites.set(item.id, spritePixels);
     }
 
     return sprites;
@@ -74,15 +57,14 @@ export function getSprites(): Sprites {
 
 export function setSprites(sprites: Sprites): void {
     const recordsJSONArray: unknown[] = [];
-    for (const [spriteId, sprite] of sprites.entries()) {
-        const pixelsEncoded = encoding.encodeBase64(sprite.pixels);
+    for (const [spriteId, spritePixels] of sprites.entries()) {
+        const pixelsEncoded = encoding.encodeBase64(spritePixels);
         recordsJSONArray.push({
             id: spriteId,
-            transparency_color_id: sprite.transparencyColorId,
             pixels: pixelsEncoded,
         });
     }
     localStorage.setItem(spritesStorageKey, JSON.stringify(recordsJSONArray));
 }
 
-export type Sprites = Map<string, graphics.Sprite>;
+export type Sprites = Map<string, Uint8Array>;
