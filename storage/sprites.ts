@@ -57,7 +57,7 @@ export function getSprites(): Sprites {
             console.error("'pixels' not defined or invalid in object");
             return sprites;
         }
-        if (pixels.length !== graphics.spritePixelsByteSize) {
+        if (pixels.length !== graphics.spritePixelCount) {
             console.error("'pixels' not defined or invalid in object");
             return sprites;
         }

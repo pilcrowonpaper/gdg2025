@@ -88,27 +88,6 @@ export interface Sprite {
     transparencyColorId: number;
 }
 
-export function getPixelColor(pixels: Uint8Array, position: number): number {
-    if (position % 2 === 0) {
-        return pixels[position / 2] >> 4;
-    }
-    return pixels[Math.floor(position / 2)] & 0xf;
-}
-
-export function setPixelColor(
-    pixels: Uint8Array,
-    position: number,
-    colorId: number
-): void {
-    if (position % 2 === 0) {
-        pixels[position / 2] &= 0x0f;
-        pixels[position / 2] |= colorId << 4;
-    } else {
-        pixels[Math.floor(position / 2)] &= 0xf0;
-        pixels[Math.floor(position / 2)] |= colorId;
-    }
-}
-
 export function getSpriteCoordinatesFromPixelPosition(
     position: number
 ): Coordinates {
@@ -130,5 +109,4 @@ export interface Coordinates {
     y: number;
 }
 
-export const spritePixelsByteSize = 128;
 export const spritePixelCount = 256;
