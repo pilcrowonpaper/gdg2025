@@ -268,11 +268,11 @@ function storeAudioClip(audioClipId: string, audioClip: audio.Clip): void {
 }
 
 function getEditorBodyElement(): HTMLDivElement {
-	const ELEMENT_ID = "editor-body";
+	const elementId = "editor-body";
 
-	const editorBodyElement = document.getElementById(ELEMENT_ID);
+	const editorBodyElement = document.getElementById(elementId);
 	if (!(editorBodyElement instanceof HTMLDivElement)) {
-		throw new Error(`${ELEMENT_ID} not div element`);
+		throw new Error(`${elementId} not div element`);
 	}
 	return editorBodyElement;
 }
@@ -371,61 +371,61 @@ function getVolumeSliderElements(): HTMLInputElement[] {
 }
 
 function getShowAudioClipEditPageButtonElement(): HTMLButtonElement {
-	const ELEMENT_ID = "show-audio-clip-edit-page-button";
+	const elementId = "show-audio-clip-edit-page-button";
 
-	const element = document.getElementById(ELEMENT_ID);
+	const element = document.getElementById(elementId);
 	if (!(element instanceof HTMLButtonElement)) {
-		throw new Error(`${ELEMENT_ID} not button element`);
+		throw new Error(`${elementId} not button element`);
 	}
 	return element;
 }
 
 function getShowAudioClipConfigPageButtonElement(): HTMLButtonElement {
-	const ELEMENT_ID = "show-audio-clip-config-page-button";
+	const elementId = "show-audio-clip-config-page-button";
 
-	const element = document.getElementById(ELEMENT_ID);
+	const element = document.getElementById(elementId);
 	if (!(element instanceof HTMLButtonElement)) {
-		throw new Error(`${ELEMENT_ID} not button element`);
+		throw new Error(`${elementId} not button element`);
 	}
 	return element;
 }
 
 function getAudioClipEditPageElement(): HTMLDivElement {
-	const ELEMENT_ID = "audio-clip-edit-page";
+	const elementId = "audio-clip-edit-page";
 
-	const element = document.getElementById(ELEMENT_ID);
+	const element = document.getElementById(elementId);
 	if (!(element instanceof HTMLDivElement)) {
-		throw new Error(`${ELEMENT_ID} not div element`);
+		throw new Error(`${elementId} not div element`);
 	}
 	return element;
 }
 
 function getAudioClipConfigPageElement(): HTMLDivElement {
-	const ELEMENT_ID = "audio-clip-config-page";
+	const elementId = "audio-clip-config-page";
 
-	const element = document.getElementById(ELEMENT_ID);
+	const element = document.getElementById(elementId);
 	if (!(element instanceof HTMLDivElement)) {
-		throw new Error(`${ELEMENT_ID} not div element`);
+		throw new Error(`${elementId} not div element`);
 	}
 	return element;
 }
 
 function getRenameAudioClipIdFormElement(): HTMLFormElement {
-	const ELEMENT_ID = "rename-audio-clip-id-form";
+	const elementId = "rename-audio-clip-id-form";
 
-	const element = document.getElementById(ELEMENT_ID);
+	const element = document.getElementById(elementId);
 	if (!(element instanceof HTMLFormElement)) {
-		throw new Error(`${ELEMENT_ID} not input element`);
+		throw new Error(`${elementId} not input element`);
 	}
 	return element;
 }
 
 function getDeleteAudioClipButtonElement(): HTMLButtonElement {
-	const ELEMENT_ID = "delete-audio-clip-button";
+	const elementId = "delete-audio-clip-button";
 
-	const element = document.getElementById(ELEMENT_ID);
+	const element = document.getElementById(elementId);
 	if (!(element instanceof HTMLButtonElement)) {
-		throw new Error(`${ELEMENT_ID} not button element`);
+		throw new Error(`${elementId} not button element`);
 	}
 	return element;
 }

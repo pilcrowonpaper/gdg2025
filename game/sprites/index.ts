@@ -207,91 +207,91 @@ function drawSprite(sprite: graphics.Sprite): void {
 }
 
 function getEditorBodyElement(): HTMLDivElement {
-	const ELEMENT_ID = "editor-body";
+	const elementId = "editor-body";
 
-	const editorBodyElement = document.getElementById(ELEMENT_ID);
+	const editorBodyElement = document.getElementById(elementId);
 	if (!(editorBodyElement instanceof HTMLDivElement)) {
-		throw new Error(`${ELEMENT_ID} not div element`);
+		throw new Error(`${elementId} not div element`);
 	}
 	return editorBodyElement;
 }
 
 function getSpriteSelectorElement(): HTMLSelectElement {
-    const ELEMENT_ID = "sprite-selector";
+    const elementId = "sprite-selector";
 
-    const element = document.getElementById(ELEMENT_ID);
+    const element = document.getElementById(elementId);
     if (!(element instanceof HTMLSelectElement)) {
-        throw new Error(`${ELEMENT_ID} not select element`);
+        throw new Error(`${elementId} not select element`);
     }
     return element;
 }
 
 function getNewSpriteButtonElement(): HTMLButtonElement {
-    const ELEMENT_ID = "new-sprite-button";
+    const elementId = "new-sprite-button";
 
-    const element = document.getElementById(ELEMENT_ID);
+    const element = document.getElementById(elementId);
     if (!(element instanceof HTMLButtonElement)) {
-        throw new Error(`${ELEMENT_ID} not button element`);
+        throw new Error(`${elementId} not button element`);
     }
     return element;
 }
 
 function getRenameSpriteIdFormElement(): HTMLFormElement {
-    const ELEMENT_ID = "rename-sprite-id-form";
+    const elementId = "rename-sprite-id-form";
 
-    const element = document.getElementById(ELEMENT_ID);
+    const element = document.getElementById(elementId);
     if (!(element instanceof HTMLFormElement)) {
-        throw new Error(`${ELEMENT_ID} not input element`);
+        throw new Error(`${elementId} not input element`);
     }
     return element;
 }
 
 function getDeleteSpriteButtonElement(): HTMLButtonElement {
-    const ELEMENT_ID = "delete-sprite-button";
+    const elementId = "delete-sprite-button";
 
-    const element = document.getElementById(ELEMENT_ID);
+    const element = document.getElementById(elementId);
     if (!(element instanceof HTMLButtonElement)) {
-        throw new Error(`${ELEMENT_ID} not button element`);
+        throw new Error(`${elementId} not button element`);
     }
     return element;
 }
 
 function getShowSpriteEditPageButtonElement(): HTMLButtonElement {
-    const ELEMENT_ID = "show-sprite-edit-page-button";
+    const elementId = "show-sprite-edit-page-button";
 
-    const element = document.getElementById(ELEMENT_ID);
+    const element = document.getElementById(elementId);
     if (!(element instanceof HTMLButtonElement)) {
-        throw new Error(`${ELEMENT_ID} not button element`);
+        throw new Error(`${elementId} not button element`);
     }
     return element;
 }
 
 function getShowSpriteConfigPageButtonElement(): HTMLButtonElement {
-    const ELEMENT_ID = "show-sprite-config-page-button";
+    const elementId = "show-sprite-config-page-button";
 
-    const element = document.getElementById(ELEMENT_ID);
+    const element = document.getElementById(elementId);
     if (!(element instanceof HTMLButtonElement)) {
-        throw new Error(`${ELEMENT_ID} not button element`);
+        throw new Error(`${elementId} not button element`);
     }
     return element;
 }
 
 function getSpriteEditPageElement(): HTMLDivElement {
-    const ELEMENT_ID = "sprite-edit-page";
+    const elementId = "sprite-edit-page";
 
-    const element = document.getElementById(ELEMENT_ID);
+    const element = document.getElementById(elementId);
     if (!(element instanceof HTMLDivElement)) {
-        throw new Error(`${ELEMENT_ID} not div element`);
+        throw new Error(`${elementId} not div element`);
     }
     return element;
 }
 
 function getSpriteConfigPageElement(): HTMLDivElement {
-    const ELEMENT_ID = "sprite-config-page";
+    const elementId = "sprite-config-page";
 
-    const element = document.getElementById(ELEMENT_ID);
+    const element = document.getElementById(elementId);
     if (!(element instanceof HTMLDivElement)) {
-        throw new Error(`${ELEMENT_ID} not div element`);
+        throw new Error(`${elementId} not div element`);
     }
     return element;
 }

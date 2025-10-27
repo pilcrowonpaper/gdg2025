@@ -269,111 +269,111 @@ function updateScriptSelectorOptions(scriptIds: string[]): void {
 }
 
 function getEditorBodyElement(): HTMLDivElement {
-	const ELEMENT_ID = "editor-body";
+	const elementId = "editor-body";
 
-	const editorBodyElement = document.getElementById(ELEMENT_ID);
+	const editorBodyElement = document.getElementById(elementId);
 	if (!(editorBodyElement instanceof HTMLDivElement)) {
-		throw new Error(`${ELEMENT_ID} not div element`);
+		throw new Error(`${elementId} not div element`);
 	}
 	return editorBodyElement;
 }
 
 function getScriptSelectorElement(): HTMLSelectElement {
-	const ELEMENT_ID = "script-selector";
+	const elementId = "script-selector";
 
-	const element = document.getElementById(ELEMENT_ID);
+	const element = document.getElementById(elementId);
 	if (!(element instanceof HTMLSelectElement)) {
-		throw new Error(`${ELEMENT_ID} not select element`);
+		throw new Error(`${elementId} not select element`);
 	}
 	return element;
 }
 
 function getNewScriptButtonElement(): HTMLButtonElement {
-	const ELEMENT_ID = "new-script-button";
+	const elementId = "new-script-button";
 
-	const element = document.getElementById(ELEMENT_ID);
+	const element = document.getElementById(elementId);
 	if (!(element instanceof HTMLButtonElement)) {
-		throw new Error(`${ELEMENT_ID} not button element`);
+		throw new Error(`${elementId} not button element`);
 	}
 	return element;
 }
 
 function getRenameScriptIdFormElement(): HTMLFormElement {
-	const ELEMENT_ID = "rename-script-id-form";
+	const elementId = "rename-script-id-form";
 
-	const element = document.getElementById(ELEMENT_ID);
+	const element = document.getElementById(elementId);
 	if (!(element instanceof HTMLFormElement)) {
-		throw new Error(`${ELEMENT_ID} not input element`);
+		throw new Error(`${elementId} not input element`);
 	}
 	return element;
 }
 
 function getDeleteScriptButtonElement(): HTMLButtonElement {
-	const ELEMENT_ID = "delete-script-button";
+	const elementId = "delete-script-button";
 
-	const element = document.getElementById(ELEMENT_ID);
+	const element = document.getElementById(elementId);
 	if (!(element instanceof HTMLButtonElement)) {
-		throw new Error(`${ELEMENT_ID} not button element`);
+		throw new Error(`${elementId} not button element`);
 	}
 	return element;
 }
 
 function getTextEditorLineCountSectionElement(): HTMLDivElement {
-	const ELEMENT_ID = "text-editor.line-count-section";
+	const elementId = "text-editor.line-count-section";
 
-	const element = document.getElementById(ELEMENT_ID);
+	const element = document.getElementById(elementId);
 	if (!(element instanceof HTMLDivElement)) {
-		throw new Error(`${ELEMENT_ID} not div element`);
+		throw new Error(`${elementId} not div element`);
 	}
 	return element;
 }
 
 function getTextEditorTextElement(): HTMLTextAreaElement {
-	const ELEMENT_ID = "text-editor.text";
+	const elementId = "text-editor.text";
 
-	const element = document.getElementById(ELEMENT_ID);
+	const element = document.getElementById(elementId);
 	if (!(element instanceof HTMLTextAreaElement)) {
-		throw new Error(`${ELEMENT_ID} not textarea element`);
+		throw new Error(`${elementId} not textarea element`);
 	}
 	return element;
 }
 
 function getShowScriptEditPageButtonElement(): HTMLButtonElement {
-	const ELEMENT_ID = "show-script-edit-page-button";
+	const elementId = "show-script-edit-page-button";
 
-	const element = document.getElementById(ELEMENT_ID);
+	const element = document.getElementById(elementId);
 	if (!(element instanceof HTMLButtonElement)) {
-		throw new Error(`${ELEMENT_ID} not button element`);
+		throw new Error(`${elementId} not button element`);
 	}
 	return element;
 }
 
 function getShowScriptConfigPageButtonElement(): HTMLButtonElement {
-	const ELEMENT_ID = "show-script-config-page-button";
+	const elementId = "show-script-config-page-button";
 
-	const element = document.getElementById(ELEMENT_ID);
+	const element = document.getElementById(elementId);
 	if (!(element instanceof HTMLButtonElement)) {
-		throw new Error(`${ELEMENT_ID} not button element`);
+		throw new Error(`${elementId} not button element`);
 	}
 	return element;
 }
 
 function getScriptEditPageElement(): HTMLDivElement {
-	const ELEMENT_ID = "script-edit-page";
+	const elementId = "script-edit-page";
 
-	const element = document.getElementById(ELEMENT_ID);
+	const element = document.getElementById(elementId);
 	if (!(element instanceof HTMLDivElement)) {
-		throw new Error(`${ELEMENT_ID} not div element`);
+		throw new Error(`${elementId} not div element`);
 	}
 	return element;
 }
 
 function getScriptConfigPageElement(): HTMLDivElement {
-	const ELEMENT_ID = "script-config-page";
+	const elementId = "script-config-page";
 
-	const element = document.getElementById(ELEMENT_ID);
+	const element = document.getElementById(elementId);
 	if (!(element instanceof HTMLDivElement)) {
-		throw new Error(`${ELEMENT_ID} not div element`);
+		throw new Error(`${elementId} not div element`);
 	}
 	return element;
 }
