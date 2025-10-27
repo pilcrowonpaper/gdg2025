@@ -11,6 +11,7 @@ init();
 let mousedown = false;
 
 function init(): void {
+    const editorBodyElement = getEditorBodyElement()
     const spriteCanvasElement = getSpriteCanvasElement();
     const colorPicketElement = getColorPickerElement();
 
@@ -31,6 +32,7 @@ function init(): void {
     }
 
     showDefaultSprite();
+    editorBodyElement.hidden = false
 
     spriteCanvasElement.addEventListener("mousedown", (e) => {
         mousedown = true;
@@ -202,6 +204,16 @@ function drawSprite(sprite: graphics.Sprite): void {
             draw(coordinates.x, coordinates.y, graphics.colors[colorId]);
         }
     }
+}
+
+function getEditorBodyElement(): HTMLDivElement {
+	const ELEMENT_ID = "editor-body";
+
+	const editorBodyElement = document.getElementById(ELEMENT_ID);
+	if (!(editorBodyElement instanceof HTMLDivElement)) {
+		throw new Error(`${ELEMENT_ID} not div element`);
+	}
+	return editorBodyElement;
 }
 
 function getSpriteSelectorElement(): HTMLSelectElement {
