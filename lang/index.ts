@@ -6,6 +6,7 @@ export type {
 	ExternalFunctionErrorResult,
 	ExternalFunctionResult,
 	ExternalFunctionSuccessResult,
+	ExternalFunctions,
 	FalseValue,
 	ListValue,
 	Memory,

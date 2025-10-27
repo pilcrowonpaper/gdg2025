@@ -32,7 +32,7 @@ export function parseInstructions(chars: Uint32Array, start: number, level: numb
 			const result: ParseErrorResult = {
 				ok: false,
 				position: start + resultSize,
-				message: "Expected tab",
+				message: "Unexpected tab",
 			};
 			return result;
 		}

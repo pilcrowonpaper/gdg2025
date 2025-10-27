@@ -49,7 +49,7 @@ function executeInstructionsWithBreak(
 						ok: false,
 						startPosition: instruction.targetNode.startPosition,
 						endPosition: instruction.targetNode.endPosition,
-						message: "Variable not defined",
+						message: `Variable ${instruction.targetNode.variableName} not defined`,
 					};
 					return result;
 				}
@@ -168,7 +168,7 @@ function executeInstructionsWithBreak(
 						ok: false,
 						startPosition: instruction.targetNode.startPosition,
 						endPosition: instruction.targetNode.endPosition,
-						message: "Variable not defined",
+						message: `Variable ${instruction.targetNode.variableName} not defined`,
 					};
 					return result;
 				}
@@ -704,7 +704,7 @@ function resolveExpression(
 					ok: false,
 					startPosition: expressionNode.startPosition,
 					endPosition: expressionNode.endPosition,
-					message: "Variable not defined",
+					message: `Variable ${expressionNode.variableName} not defined`,
 				};
 				return result;
 			}
