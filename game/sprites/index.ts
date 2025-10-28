@@ -1,319 +1,281 @@
 import * as graphics from "@graphics";
 import * as shared from "@shared";
 import * as storage from "@storage";
+import { getBackgroundColor, setBackgroundColor } from "@storage";
 
-const globalSprites = storage.getSprites();
 
-init();
+// ===================================
+// DOM Helpers
+// ===================================
+const getSpriteCanvasElement = () => document.getElementById("sprite-canvas") as HTMLCanvasElement;
+const getColorPickerElement = () => document.getElementById("color-picker") as HTMLFieldSetElement;
+const getSpriteSelectorElement = () => document.getElementById("sprite-selector") as HTMLSelectElement;
+const getSelectedSpriteId = () => getSpriteSelectorElement().value;
+const getEditorBodyElement = () => document.getElementById("editor-body") as HTMLDivElement;
+function getToolTypeSelectorElement(): HTMLSelectElement {
+  const el = document.getElementById("tool-type-selector");
+  if (!(el instanceof HTMLSelectElement)) {
+    throw new Error("tool-type-selector not select");
+  }
+  return el;
+}
 
-let mousedown = false;
+
+
+const GRID_SIZE = 16;
+const DEFAULT_BG = 255;
+
+let sprites = storage.getSprites();
+let backgroundGray = getBackgroundColor();
+
+const undoStack: PixelAction[] = [];
+const redoStack: PixelAction[] = [];
+
+type PixelAction = {
+  spriteId: string;
+  pos: number;
+  prevColor: number;
+  newColor: number;
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  init();
+});
 
 function init(): void {
-    const editorBodyElement = getEditorBodyElement();
-    const spriteCanvasElement = getSpriteCanvasElement();
-    const colorPicketElement = getColorPickerElement();
+  getEditorBodyElement().hidden = false;
+  setupColorPicker();
+  setupBackgroundSlider();
+  setupSpriteSelector();
+  setupPointerDraw();
+  setupUndoRedo();
 
-    for (let i = 0; i < graphics.colors.length; i++) {
-        const inputElement = document.createElement("input");
-        inputElement.type = "radio";
-        inputElement.value = i.toString();
-        if (i === 0) {
-            inputElement.checked = true;
-        }
-        const hexCode = graphics.colorToHexCode(graphics.colors[i]);
-        inputElement.ariaLabel = hexCode;
-        inputElement.style.backgroundColor = hexCode;
-        inputElement.name = "color";
-        colorPicketElement.append(inputElement);
-    }
+  showInitialSprite();
+  setupToolTypeSelector();
 
-    showDefaultSprite();
-    editorBodyElement.hidden = false;
+}
 
-    spriteCanvasElement.addEventListener("mousedown", (e) => {
-        mousedown = true;
-        const colorId = getCurrentColor();
-        const target = e.currentTarget as HTMLElement;
-        const rect = target.getBoundingClientRect();
-        const x = Math.floor((e.pageX - target.offsetLeft) / (rect.width / 16));
-        const y = Math.floor((e.pageY - target.offsetTop) / (rect.height / 16));
-        draw(x, y, graphics.colors[colorId]);
+// ===================================
+// Setup UI
+// ===================================
+function setupColorPicker(): void {
+  const picker = getColorPickerElement();
+  for (let i = 0; i < graphics.colors.length; i++) {
+    const input = document.createElement("input");
+    input.type = "radio";
+    input.value = i.toString();
+    input.checked = i === 0;
+    input.style.backgroundColor = graphics.colorToHexCode(graphics.colors[i]);
+    input.name = "color";
+    picker.append(input);
+  }
+}
+
+function setupBackgroundSlider(): void {
+  const slider = document.getElementById("background-color-slider") as HTMLInputElement;
+  slider.value = String(DEFAULT_BG - backgroundGray);
+
+  redrawCurrentSprite();
+    slider.addEventListener("input", () => {
+    backgroundGray = DEFAULT_BG - parseInt(slider.value);
+    console.log("backgroundGray", backgroundGray); 
+    setBackgroundColor(backgroundGray);
+    redrawCurrentSprite();
     });
 
-    spriteCanvasElement.addEventListener("touchstart", (e) => {
-        mousedown = true;
-        if (e.touches.length !== 1) {
-            return;
-        }
-        const colorId = getCurrentColor();
-        const target = e.currentTarget as HTMLElement;
-        const rect = target.getBoundingClientRect();
-        const x = Math.floor(
-            (e.touches[0].pageX - target.offsetLeft) / (rect.width / 16)
+}
+
+function setupSpriteSelector(): void {
+  getSpriteSelectorElement().addEventListener("change", redrawCurrentSprite);
+}
+
+function setupPointerDraw(): void {
+  const canvas = getSpriteCanvasElement();
+  let drawing = false;
+
+  canvas.addEventListener("pointerdown", e => {
+    drawing = true;
+    handleDraw(e);
+  });
+  canvas.addEventListener("pointermove", e => {
+    if (drawing) handleDraw(e);
+  });
+  window.addEventListener("pointerup", () => (drawing = false));
+}
+
+function setupUndoRedo(): void {
+  window.addEventListener("keydown", e => {
+    const mod = navigator.platform.toUpperCase().includes("MAC") ? e.metaKey : e.ctrlKey;
+    if (!mod) return;
+
+    if (e.key.toLowerCase() === "z") {
+      e.preventDefault();
+      e.shiftKey ? redo() : undo();
+    }
+    if (e.key.toLowerCase() === "y") {
+      e.preventDefault();
+      redo();
+    }
+  });
+}
+
+// ===================================
+// Drawing
+// ===================================
+function handleDraw(e: PointerEvent): void {
+  const rect = getSpriteCanvasElement().getBoundingClientRect();
+  const x = Math.floor((e.clientX - rect.left) / (rect.width / GRID_SIZE));
+  const y = Math.floor((e.clientY - rect.top) / (rect.height / GRID_SIZE));
+  const pos = graphics.getSpritePixelPositionFromCoordinates({ x, y });
+
+  const spriteId = getSelectedSpriteId();
+
+  setPixelWithUndo(spriteId, pos, getDrawColor());
+  saveSprites();
+  redrawCurrentSprite();
+}
+
+function drawSprite(sprite: Uint8Array): void {
+  const canvas = getSpriteCanvasElement();
+  const ctx = canvas.getContext("2d")!;
+  const size = canvas.width / GRID_SIZE;
+
+  // ✅ 背景色をまず描画
+  ctx.fillStyle = `rgb(${backgroundGray},${backgroundGray},${backgroundGray})`;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // ✅ 透明 pixel は背景のまま
+  for (let i = 0; i < graphics.spritePixelCount; i++) {
+    const { x, y } = graphics.getSpriteCoordinatesFromPixelPosition(i);
+    const color = graphics.getPixelColor(sprite, i);
+
+    if (color !== null) {
+      ctx.fillStyle = `rgb(${color.red},${color.green},${color.blue})`;
+      ctx.fillRect(x * size, y * size, size, size);
+    }
+  }
+}
+
+
+// ===================================
+// Undo / Redo
+// ===================================
+function setPixelWithUndo(spriteId: string, pos: number, newColor: number): void {
+  const sprite = sprites.get(spriteId)!;
+  const currentColor = graphics.getPixelColor(sprite, pos);
+
+  const prevColor =
+    currentColor === null
+      ? 0
+      : graphics.colors.findIndex(
+          c =>
+            c.red === currentColor.red &&
+            c.green === currentColor.green &&
+            c.blue === currentColor.blue
         );
-        const y = Math.floor(
-            (e.touches[0].pageY - target.offsetTop) / (rect.height / 16)
-        );
-        draw(x, y, graphics.colors[colorId]);
-    });
 
-    window.addEventListener("mouseup", () => {
-        mousedown = false;
-    });
+  if (prevColor === newColor) return;
 
-    window.addEventListener("touchend", () => {
-        mousedown = false;
-    });
+  undoStack.push({ spriteId, pos, prevColor, newColor });
+  redoStack.length = 0;
 
-    spriteCanvasElement.addEventListener("mousemove", (e) => {
-        if (!mousedown) {
-            return;
-        }
-        const colorId = getCurrentColor();
-        const target = e.currentTarget as HTMLElement;
-        const rect = target.getBoundingClientRect();
-        const x = Math.floor((e.pageX - target.offsetLeft) / (rect.width / 16));
-        const y = Math.floor((e.pageY - target.offsetTop) / (rect.height / 16));
-        draw(x, y, graphics.colors[colorId]);
-    });
+    const tool = getToolTypeSelectorElement().value;
+    const solid = tool === "pen";
+    graphics.setPixel(sprite, pos, solid, false, newColor);
 
-    spriteCanvasElement.addEventListener("touchmove", (e) => {
-        if (!mousedown || e.touches.length !== 1) {
-            return;
-        }
-        const colorId = getCurrentColor();
-        const target = e.currentTarget as HTMLElement;
-        const rect = target.getBoundingClientRect();
-        const x = Math.floor(
-            (e.touches[0].pageX - target.offsetLeft) / (rect.width / 16)
-        );
-        const y = Math.floor(
-            (e.touches[0].pageY - target.offsetTop) / (rect.height / 16)
-        );
-        draw(x, y, graphics.colors[colorId]);
-    });
 }
 
-function draw(x: number, y: number, color: graphics.Color): void {
-    const spriteCanvasElement = getSpriteCanvasElement();
-    const context = spriteCanvasElement.getContext("2d");
-    if (context === null) {
-        throw new Error("Context not defined");
-    }
-    const imageData = context.getImageData(x, y, 1, 1);
-    imageData.data[0] = color.red;
-    imageData.data[1] = color.green;
-    imageData.data[2] = color.blue;
-    imageData.data[3] = 255; // no transparency
-    context.putImageData(imageData, x, y);
+function undo(): void {
+  const action = undoStack.pop();
+  if (!action) return;
+
+  const sprite = sprites.get(action.spriteId)!;
+  graphics.setPixel(sprite, action.pos, true, false, action.prevColor);
+  redoStack.push(action);
+  saveSprites();
+  redrawCurrentSprite();
 }
 
-function getCurrentColor(): number {
-    const colorPickerElement = getColorPickerElement();
-    for (const childElement of colorPickerElement.children) {
-        if (childElement instanceof HTMLInputElement) {
-            if (childElement.checked) {
-                return Number(childElement.value);
-            }
-        }
-    }
-    return 0;
+function redo(): void {
+  const action = redoStack.pop();
+  if (!action) return;
+
+  const sprite = sprites.get(action.spriteId)!;
+  graphics.setPixel(sprite, action.pos, true, false, action.newColor);
+  undoStack.push(action);
+  saveSprites();
+  redrawCurrentSprite();
 }
 
-function getCurrentToolType(): ToolType {
-    const toolTypeSelectorElement = getToolTypeSelectorElement();
-    if (toolTypeSelectorElement.value === "pen") {
-        return "pen";
-    }
-    if (toolTypeSelectorElement.value === "eraser") {
-        return "eraser";
-    }
-    throw new Error("Invalid tool type selector value");
+// ===================================
+// Sprite Storage & Helpers
+// ===================================
+function redrawCurrentSprite(): void {
+  const sprite = sprites.get(getSelectedSpriteId());
+  if (sprite) drawSprite(sprite);
 }
 
-type ToolType = "pen" | "eraser";
-
-function generateSpriteId(existingRecordIds: string[]): string {
-    let num = 1;
-    let id = "untitled-1";
-    while (existingRecordIds.includes(id)) {
-        num++;
-        id = `untitled-${num}`;
-    }
-    return id;
-}
-
-function showDefaultSprite(): void {
-    const spriteSelectorElement = getSpriteSelectorElement();
-    if (globalSprites.size < 1) {
-        const defaultSprite = createDefaultSpritePixels();
-        globalSprites.set("untitled-1", defaultSprite);
-        storage.setSprites(globalSprites);
-    }
-
-    const spriteIds = shared.getSortedMapKeys(globalSprites);
-    updateSpriteSelectorOptions(spriteIds);
-
-    const initialSprite =
-        globalSprites.get(spriteSelectorElement.value) ?? null;
-    if (initialSprite === null) {
-        throw new Error(`${spriteSelectorElement.value} not defined`);
-    }
-    drawSprite(initialSprite);
-}
-
-function updateSpriteSelectorOptions(spriteIds: string[]): void {
-    const spriteSelectorElement = getSpriteSelectorElement();
-    shared.removeHTMLElementChildren(spriteSelectorElement);
-
-    for (let i = 0; i < spriteIds.length; i++) {
-        const optionElement = document.createElement("option");
-        optionElement.innerText = spriteIds[i];
-        spriteSelectorElement.append(optionElement);
-    }
-}
-
-function createDefaultSpritePixels(): Uint8Array {
-    const pixels = new Uint8Array(graphics.spritePixelCount);
+function showInitialSprite(): void {
+  if (sprites.size < 1) {
+    const sprite = new Uint8Array(graphics.spritePixelCount);
     for (let i = 0; i < graphics.spritePixelCount; i++) {
-        graphics.setPixel(pixels, i, false, false, 0);
+      graphics.setPixel(sprite, i, true, false, 0); // ← solid = true
     }
-
-    return pixels;
+    sprites.set("untitled-1", sprite);
+    saveSprites();
+  }
+  updateSpriteSelectorOptions();
+  redrawCurrentSprite();
 }
 
-function drawSprite(spritePixels: Uint8Array): void {
-    for (let i = 0; i < graphics.spritePixelCount; i++) {
-        const coordinates = graphics.getSpriteCoordinatesFromPixelPosition(i);
-        const color = graphics.getPixelColor(spritePixels, i);
-        if (color === null) {
-            const transparencyColor: graphics.Color = {
-                red: 239,
-                green: 239,
-                blue: 239,
-            };
-            draw(coordinates.x, coordinates.y, transparencyColor);
-        } else {
-            draw(coordinates.x, coordinates.y, color);
-        }
-    }
+function saveSprites(): void {
+  storage.setSprites(sprites);
 }
 
-function getEditorBodyElement(): HTMLDivElement {
-    const elementId = "editor-body";
-
-    const editorBodyElement = document.getElementById(elementId);
-    if (!(editorBodyElement instanceof HTMLDivElement)) {
-        throw new Error(`${elementId} not div element`);
-    }
-    return editorBodyElement;
+function updateSpriteSelectorOptions(): void {
+  const el = getSpriteSelectorElement();
+  shared.removeHTMLElementChildren(el);
+  shared.getSortedMapKeys(sprites).forEach(id => {
+    const opt = document.createElement("option");
+    opt.value = id;
+    opt.textContent = id;
+    el.append(opt);
+  });
 }
 
-function getSpriteSelectorElement(): HTMLSelectElement {
-    const elementId = "sprite-selector";
-
-    const element = document.getElementById(elementId);
-    if (!(element instanceof HTMLSelectElement)) {
-        throw new Error(`${elementId} not select element`);
-    }
-    return element;
+function setupToolTypeSelector(): void {
+  const tool = getToolTypeSelectorElement();
+  tool.addEventListener("change", () => {
+    console.log("Tool changed to:", tool.value);
+    redrawCurrentSprite();
+  });
 }
 
-function getNewSpriteButtonElement(): HTMLButtonElement {
-    const elementId = "new-sprite-button";
 
-    const element = document.getElementById(elementId);
-    if (!(element instanceof HTMLButtonElement)) {
-        throw new Error(`${elementId} not button element`);
+
+function getDrawColor(): number {
+  const toolType = getToolTypeSelectorElement().value;
+  if (toolType === "eraser") {
+    return 0; // always return transparent / default background
+  }
+
+  const picker = getColorPickerElement();
+  for (const child of picker.children) {
+    if (child instanceof HTMLInputElement && child.checked) {
+      return Number(child.value);
     }
-    return element;
+  }
+  return 0;
 }
 
-function getRenameSpriteIdFormElement(): HTMLFormElement {
-    const elementId = "rename-sprite-id-form";
 
-    const element = document.getElementById(elementId);
-    if (!(element instanceof HTMLFormElement)) {
-        throw new Error(`${elementId} not input element`);
-    }
-    return element;
-}
-
-function getDeleteSpriteButtonElement(): HTMLButtonElement {
-    const elementId = "delete-sprite-button";
-
-    const element = document.getElementById(elementId);
-    if (!(element instanceof HTMLButtonElement)) {
-        throw new Error(`${elementId} not button element`);
-    }
-    return element;
-}
-
-function getShowSpriteEditPageButtonElement(): HTMLButtonElement {
-    const elementId = "show-sprite-edit-page-button";
-
-    const element = document.getElementById(elementId);
-    if (!(element instanceof HTMLButtonElement)) {
-        throw new Error(`${elementId} not button element`);
-    }
-    return element;
-}
-
-function getShowSpriteConfigPageButtonElement(): HTMLButtonElement {
-    const elementId = "show-sprite-config-page-button";
-
-    const element = document.getElementById(elementId);
-    if (!(element instanceof HTMLButtonElement)) {
-        throw new Error(`${elementId} not button element`);
-    }
-    return element;
-}
-
-function getSpriteEditPageElement(): HTMLDivElement {
-    const elementId = "sprite-edit-page";
-
-    const element = document.getElementById(elementId);
-    if (!(element instanceof HTMLDivElement)) {
-        throw new Error(`${elementId} not div element`);
-    }
-    return element;
-}
-
-function getSpriteConfigPageElement(): HTMLDivElement {
-    const elementId = "sprite-config-page";
-
-    const element = document.getElementById(elementId);
-    if (!(element instanceof HTMLDivElement)) {
-        throw new Error(`${elementId} not div element`);
-    }
-    return element;
-}
-
-function getToolTypeSelectorElement(): HTMLSelectElement {
-    const elementId = "tool-type-selector";
-    const element = document.getElementById(elementId);
-    if (!(element instanceof HTMLSelectElement)) {
-        throw new Error(`${elementId} not a select element`);
-    }
-    return element;
-}
-
-function getColorPickerElement(): HTMLFieldSetElement {
-    const elementId = "color-picker";
-
-    const element = document.getElementById(elementId);
-    if (!(element instanceof HTMLFieldSetElement)) {
-        throw new Error(`${elementId} not fieldset element`);
-    }
-    return element;
-}
-
-function getSpriteCanvasElement(): HTMLCanvasElement {
-    const elementId = "sprite-canvas";
-
-    const element = document.getElementById(elementId);
-    if (!(element instanceof HTMLCanvasElement)) {
-        throw new Error(`${elementId} not canvas element`);
-    }
-    return element;
-}
+;(window as any).clearSprite = () => {
+  const id = getSelectedSpriteId();
+  const sprite = new Uint8Array(graphics.spritePixelCount);
+  for (let i = 0; i < graphics.spritePixelCount; i++) {
+    graphics.setPixel(sprite, i, false, false, 0);
+  }
+  sprites.set(id, sprite);
+  saveSprites();
+  redrawCurrentSprite();
+};

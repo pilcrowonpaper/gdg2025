@@ -5,7 +5,8 @@
             "@audio": ["./audio/index.js"],
             "@graphics": ["./graphics/index.js"],
             "@shared": ["./shared/index.js"],
-            "@storage": ["./storage/index.js"]
+            "@storage": ["./storage/index.ts"],
+            "@storage/*": ["./storage/*"]
         },
 
         "target": "ES2022",

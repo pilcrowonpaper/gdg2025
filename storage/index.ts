@@ -10,3 +10,11 @@ export type { AudioClips } from "./audio-clips.js";
 
 export { getSprites, setSprites, spritesStorageKey } from "./sprites.js";
 export type { Sprites } from "./sprites.js";
+
+export {
+  getBackgroundColor,
+  setBackgroundColor,
+  backgroundStorageKey,
+} from "./background.js";
+
+
