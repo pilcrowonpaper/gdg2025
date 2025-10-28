@@ -954,7 +954,7 @@ function resolveExpression(
 			}
 			const value: NumberValue = {
 				type: "value.number",
-				value100: Math.floor(leftValue.value100 / rightValue.value100),
+				value100: Math.floor(leftValue.value100 / rightValue.value100) * 100,
 			};
 			const result: ResolveExpressionSuccessResult = {
 				ok: true,
