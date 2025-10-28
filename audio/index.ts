@@ -6,7 +6,7 @@ const frequencies: number[] = [
     2793.826, 3135.963, 3729.31,
 ];
 
-const durations: number[] = [300, 200, 150, 100, 75, 50, 40, 30, 20, 10];
+const durations: number[] = [300, 200, 150, 100, 75, 60, 50, 40, 30, 20];
 
 export async function playAudio(audioClip: Clip): Promise<void> {
     const audioContext = new AudioContext();
@@ -20,19 +20,26 @@ export async function playAudio(audioClip: Clip): Promise<void> {
             frequencies[note.pitch],
             audioContext.currentTime
         );
-        gainNode.gain.value = 0;
-        gainNode.gain.linearRampToValueAtTime(
-            note.volume,
-            audioContext.currentTime + durations[audioClip.speed] / 1000 / 2
-        );
-        gainNode.gain.linearRampToValueAtTime(
-            0,
-            audioContext.currentTime + durations[audioClip.speed] / 1000
-        );
-        oscillator.connect(gainNode).connect(audioContext.destination);
-        oscillator.start();
-        await new Promise((r) => setTimeout(r, durations[audioClip.speed]));
-        oscillator.stop();
+        if (note.volume > 0) {
+            gainNode.gain.value = 0;
+            gainNode.gain.linearRampToValueAtTime(
+                note.volume,
+                audioContext.currentTime + durations[audioClip.speed] / 1000
+            );
+            gainNode.gain.linearRampToValueAtTime(
+                0,
+                audioContext.currentTime +
+                    durations[audioClip.speed] / 1000 +
+                    0.03
+            );
+            oscillator.connect(gainNode).connect(audioContext.destination);
+            oscillator.start();
+            await new Promise<void>((r) =>
+                setTimeout(r, durations[audioClip.speed])
+            );
+        } else {
+            await new Promise((r) => setTimeout(r, durations[audioClip.speed]));
+        }
     }
 }
 
