@@ -106,17 +106,30 @@ export function getPixelColor(pixels: Uint8Array, i: number): Color | null {
     const solidFlag = pixels[i] >> 7;
     const fullColorFlag = (pixels[i] >> 6) & 0x01;
     const colorId = pixels[i] & 0x3f;
-    if (solidFlag === 0) {
+    const color = resolvePixelColor(
+        solidFlag === 1,
+        fullColorFlag === 1,
+        colorId
+    );
+    return color;
+}
+
+export function resolvePixelColor(
+    solidColor: boolean,
+    fullColor: boolean,
+    colorId: number
+): Color | null {
+    if (!solidColor) {
         return null;
     }
-    const fullColor = colors[colorId];
-    if (fullColorFlag === 1) {
-        return fullColor;
+    if (fullColor) {
+        return colors[colorId];
     }
+    const baseColor = colors[colorId];
     const color: Color = {
-        red: Math.floor(fullColor.red / 2),
-        green: Math.floor(fullColor.green / 2),
-        blue: Math.floor(fullColor.blue / 2),
+        red: Math.floor(baseColor.red / 2),
+        green: Math.floor(baseColor.green / 2),
+        blue: Math.floor(baseColor.blue / 2),
     };
     return color;
 }
