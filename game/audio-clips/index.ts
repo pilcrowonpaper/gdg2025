@@ -4,6 +4,10 @@ import * as storage from "@storage";
 
 const globalAudioClips = storage.getAudioClips();
 
+const pentatonicScalePitches = [
+	0, 3, 5, 7, 10, 12, 15, 17, 19, 22, 24, 27, 29, 31, 34, 36, 39, 41, 43, 46, 48, 51, 53, 55, 58,
+];
+
 init();
 
 function init() {
@@ -11,35 +15,59 @@ function init() {
 	const playButtonElement = getPlayButtonElement();
 	const speedSliderElement = getSpeedSliderElement();
 	const noteTypeSelectorElement = getNoteTypeSelectorElement();
-	const pitchSliderElements = getPitchSliderElements();
-	const volumeSliderElements = getVolumeSliderElements();
+	// const pitchSliderElements = getPitchSliderElements();
+	// const volumeSliderElements = getVolumeSliderElements();
 	const audioClipSelectorElement = getAudioClipSelectorElement();
 	const newAudioClipButtonElement = getNewAudioClipButton();
 	const showAudioClipEditPageButtonElement = getShowAudioClipEditPageButtonElement();
 	const showAudioClipConfigPageButtonElement = getShowAudioClipConfigPageButtonElement();
 	const renameAudioClipIdFormElement = getRenameAudioClipIdFormElement();
 	const deleteAudioClipButtonElement = getDeleteAudioClipButtonElement();
+	const notesTableElement = getNotesTableElement();
 
-	showDefaultAudioClip();
+	const volumeSliderElements: HTMLInputElement[] = [];
+	const pitchSliderElements: HTMLInputElement[] = [];
+
+	for (let i = 0; i < audio.clipNoteCount; i++) {
+		const orderTableDataElement = document.createElement("td");
+		orderTableDataElement.innerText = (i + 1).toString();
+
+		const volumeSliderElement = document.createElement("input");
+		volumeSliderElement.type = "range";
+		volumeSliderElement.min = "0";
+		volumeSliderElement.max = "15";
+		volumeSliderElement.classList.add("volume-slider");
+		volumeSliderElements.push(volumeSliderElement);
+		const volumeSliderTableDataElement = document.createElement("td");
+		volumeSliderTableDataElement.append(volumeSliderElement);
+
+		const pitchSliderElement = document.createElement("input");
+		pitchSliderElement.type = "range";
+		pitchSliderElement.min = "0";
+		pitchSliderElement.max = "24";
+		pitchSliderElement.classList.add("pitch-slider");
+		pitchSliderElements.push(pitchSliderElement);
+		const pitchSliderTableDataElement = document.createElement("td");
+		pitchSliderTableDataElement.append(pitchSliderElement);
+
+		const tableRowElement = document.createElement("tr");
+		tableRowElement.append(orderTableDataElement, volumeSliderTableDataElement, pitchSliderTableDataElement);
+
+		notesTableElement.append(tableRowElement);
+	}
+
+	showDefaultAudioClip(pitchSliderElements, volumeSliderElements);
 
 	showAudioClipEditPage();
 	editorBodyElement.hidden = false;
 
-	playButtonElement.addEventListener("click", async () => {
-		const notes: audio.Note[] = [];
-		for (let i = 0; i < 10; i++) {
-			notes.push({
-				type: noteTypeSelectorElement.value as audio.NoteType,
-				pitch: Number(pitchSliderElements[i].value),
-				volume: Number(volumeSliderElements[i].value),
-			});
+	let stopPreviousAudioClip: audio.StopFunction | null = null;
+	playButtonElement.addEventListener("click", () => {
+		if (stopPreviousAudioClip !== null) {
+			stopPreviousAudioClip();
 		}
-
-		const audioClip: audio.Clip = {
-			speed: Number(speedSliderElement.value),
-			notes: notes,
-		};
-		await audio.playAudio(audioClip);
+		const audioClip = getCurrentAudioClip(pitchSliderElements, volumeSliderElements);
+		stopPreviousAudioClip = audio.playClip(audioClip);
 	});
 
 	newAudioClipButtonElement.addEventListener("click", () => {
@@ -55,7 +83,7 @@ function init() {
 		updateAudioClipSelectorOptions(audioClipIds);
 		audioClipSelectorElement.value = newAudioClipId;
 
-		updateAudioClipEditor(newAudioClip);
+		updateAudioClipEditor(newAudioClip, pitchSliderElements, volumeSliderElements);
 	});
 
 	audioClipSelectorElement.addEventListener("change", () => {
@@ -63,7 +91,7 @@ function init() {
 		if (audioClip === null) {
 			throw new Error(`Audio clip ${audioClipSelectorElement.value} not exists`);
 		}
-		updateAudioClipEditor(audioClip);
+		updateAudioClipEditor(audioClip, pitchSliderElements, volumeSliderElements);
 		showAudioClipEditPage();
 	});
 
@@ -76,22 +104,22 @@ function init() {
 	});
 
 	speedSliderElement.addEventListener("change", () => {
-		storeCurrentAudioClip();
+		storeCurrentAudioClip(pitchSliderElements, volumeSliderElements);
 	});
 
 	noteTypeSelectorElement.addEventListener("change", () => {
-		storeCurrentAudioClip();
+		storeCurrentAudioClip(pitchSliderElements, volumeSliderElements);
 	});
 
 	for (const pitchSliderElement of pitchSliderElements) {
 		pitchSliderElement.addEventListener("change", () => {
-			storeCurrentAudioClip();
+			storeCurrentAudioClip(pitchSliderElements, volumeSliderElements);
 		});
 	}
 
 	for (const volumeSliderElement of volumeSliderElements) {
 		volumeSliderElement.addEventListener("change", () => {
-			storeCurrentAudioClip();
+			storeCurrentAudioClip(pitchSliderElements, volumeSliderElements);
 		});
 	}
 
@@ -107,7 +135,7 @@ function init() {
 		}
 
 		globalAudioClips.delete(audioClipSelectorElement.value);
-		const audioClip = getCurrentAudioClip();
+		const audioClip = getCurrentAudioClip(pitchSliderElements, volumeSliderElements);
 		globalAudioClips.set(newAudioClipId, audioClip);
 
 		const audioClipIds = shared.getSortedMapKeys(globalAudioClips);
@@ -129,12 +157,12 @@ function init() {
 		}
 		storage.setAudioClips(globalAudioClips);
 
-		showDefaultAudioClip();
+		showDefaultAudioClip(pitchSliderElements, volumeSliderElements);
 		showAudioClipEditPage();
 	});
 }
 
-function showDefaultAudioClip(): void {
+function showDefaultAudioClip(pitchSliderElements: HTMLInputElement[], volumeSliderElements: HTMLInputElement[]): void {
 	const audioClipSelectorElement = getAudioClipSelectorElement();
 
 	if (globalAudioClips.size < 1) {
@@ -149,7 +177,7 @@ function showDefaultAudioClip(): void {
 	if (initialAudioClip === null) {
 		throw new Error(`${audioClipSelectorElement.value} not defined`);
 	}
-	updateAudioClipEditor(initialAudioClip);
+	updateAudioClipEditor(initialAudioClip, pitchSliderElements, volumeSliderElements);
 }
 
 function updateAudioClipSelectorOptions(audioClipIds: string[]): void {
@@ -164,18 +192,25 @@ function updateAudioClipSelectorOptions(audioClipIds: string[]): void {
 	}
 }
 
-function updateAudioClipEditor(audioClip: audio.Clip): void {
+function updateAudioClipEditor(
+	audioClip: audio.Clip,
+	pitchSliderElements: HTMLInputElement[],
+	volumeSliderElements: HTMLInputElement[],
+): void {
 	const speedSliderElement = getSpeedSliderElement();
 	const noteTypeSelectorElement = getNoteTypeSelectorElement();
-	const pitchSliderElements = getPitchSliderElements();
-	const volumeSliderElements = getVolumeSliderElements();
 
 	speedSliderElement.value = audioClip.speed.toString();
 
-	for (let i = 0; i < audioClip.notes.length; i++) {
-		pitchSliderElements[i].value = audioClip.notes[i].pitch.toString();
-		volumeSliderElements[i].value = audioClip.notes[i].volume.toString();
-		noteTypeSelectorElement.value = audioClip.notes[i].type;
+	for (let i = 0; i < audio.clipNoteCount; i++) {
+		const note = audio.getNote(audioClip.notes, i);
+		let sliderPitchValue = pentatonicScalePitches.indexOf(note.pitch);
+		if (sliderPitchValue < 0) {
+			sliderPitchValue = 0;
+		}
+		pitchSliderElements[i].value = sliderPitchValue.toString();
+		volumeSliderElements[i].value = note.volume.toString();
+		noteTypeSelectorElement.value = note.type.toString();
 	}
 }
 
@@ -206,58 +241,53 @@ function showAudioClipConfigPage(): void {
 }
 
 function createDefaultAudioClip(): audio.Clip {
-	const audioClip: audio.Clip = {
-		speed: 5,
-		notes: [],
-	};
-	for (let i = 0; i < 10; i++) {
+	const notes = new Uint8Array(audio.clipNotesByteSize);
+	for (let i = 0; i < audio.clipNoteCount; i++) {
 		const note: audio.Note = {
-			type: "sawtooth",
+			type: 0,
 			pitch: 0,
 			volume: 0,
 		};
-		audioClip.notes.push(note);
+		audio.setNote(notes, i, note);
 	}
+	const audioClip: audio.Clip = {
+		speed: 4,
+		notes: notes,
+	};
 	return audioClip;
 }
 
-function getCurrentAudioClip(): audio.Clip {
-	const speedSliderElement = getSpeedSliderElement();
+function getCurrentAudioClip(
+	pitchSliderElements: HTMLInputElement[],
+	volumeSliderElements: HTMLInputElement[],
+): audio.Clip {
 	const noteTypeSelectorElement = getNoteTypeSelectorElement();
-	const pitchSliderElements = getPitchSliderElements();
-	const volumeSliderElements = getVolumeSliderElements();
+	const speedSliderElement = getSpeedSliderElement();
+
+	const notes = new Uint8Array(audio.clipNotesByteSize);
+	for (let i = 0; i < audio.clipNoteCount; i++) {
+		const pentatonicScalePitch = Number(pitchSliderElements[i].value);
+		const note: audio.Note = {
+			type: Number(noteTypeSelectorElement.value),
+			pitch: pentatonicScalePitches[pentatonicScalePitch],
+			volume: Number(volumeSliderElements[i].value),
+		};
+		audio.setNote(notes, i, note);
+	}
 
 	const audioClip: audio.Clip = {
 		speed: Number(speedSliderElement.value),
-		notes: [],
+		notes: notes,
 	};
-	for (let i = 0; i < 10; i++) {
-		let noteType: audio.NoteType;
-		if (noteTypeSelectorElement.value === "sawtooth") {
-			noteType = "sawtooth";
-		} else if (noteTypeSelectorElement.value === "sine") {
-			noteType = "sine";
-		} else if (noteTypeSelectorElement.value === "square") {
-			noteType = "square";
-		} else if (noteTypeSelectorElement.value === "triangle") {
-			noteType = "triangle";
-		} else {
-			throw new Error("Invalid note type value");
-		}
-		const note: audio.Note = {
-			pitch: Number(pitchSliderElements[i].value),
-			volume: Number(volumeSliderElements[i].value),
-			type: noteType,
-		};
-		audioClip.notes.push(note);
-	}
-
 	return audioClip;
 }
 
-function storeCurrentAudioClip(): void {
+function storeCurrentAudioClip(
+	pitchSliderElements: HTMLInputElement[],
+	volumeSliderElements: HTMLInputElement[],
+): void {
 	const audioClipSelectorElement = getAudioClipSelectorElement();
-	const audioClip = getCurrentAudioClip();
+	const audioClip = getCurrentAudioClip(pitchSliderElements, volumeSliderElements);
 	storeAudioClip(audioClipSelectorElement.value, audioClip);
 }
 
@@ -322,54 +352,6 @@ function getNoteTypeSelectorElement(): HTMLSelectElement {
 	return element;
 }
 
-function getPitchSliderElements(): HTMLInputElement[] {
-	const elementClassName = "pitch-slider";
-	const elements = document.getElementsByClassName(elementClassName);
-	const inputElements: HTMLInputElement[] = [];
-	for (let i = 0; i < 10; i++) {
-		const orderAttribute = `${i + 1}`;
-		let inputElement: HTMLInputElement | null = null;
-		for (const element of elements) {
-			if (!(element instanceof HTMLInputElement)) {
-				throw new Error(`${elementClassName} not an input element`);
-			}
-			if (element.dataset.order === orderAttribute) {
-				inputElement = element;
-			}
-		}
-		if (inputElement === null) {
-			throw new Error(`data-order=${orderAttribute} not defined`);
-		}
-		inputElements.push(inputElement);
-	}
-
-	return inputElements;
-}
-
-function getVolumeSliderElements(): HTMLInputElement[] {
-	const elementClassName = "volume-slider";
-	const elements = document.getElementsByClassName(elementClassName);
-	const inputElements: HTMLInputElement[] = [];
-	for (let i = 0; i < 10; i++) {
-		const orderAttribute = `${i + 1}`;
-		let inputElement: HTMLInputElement | null = null;
-		for (const element of elements) {
-			if (!(element instanceof HTMLInputElement)) {
-				throw new Error(`${elementClassName} not an input element`);
-			}
-			if (element.dataset.order === orderAttribute) {
-				inputElement = element;
-			}
-		}
-		if (inputElement === null) {
-			throw new Error(`data-order=${orderAttribute} not defined`);
-		}
-		inputElements.push(inputElement);
-	}
-
-	return inputElements;
-}
-
 function getShowAudioClipEditPageButtonElement(): HTMLButtonElement {
 	const elementId = "show-audio-clip-edit-page-button";
 
@@ -426,6 +408,16 @@ function getDeleteAudioClipButtonElement(): HTMLButtonElement {
 	const element = document.getElementById(elementId);
 	if (!(element instanceof HTMLButtonElement)) {
 		throw new Error(`${elementId} not button element`);
+	}
+	return element;
+}
+
+function getNotesTableElement(): HTMLTableElement {
+	const elementId = "notes-table";
+
+	const element = document.getElementById(elementId);
+	if (!(element instanceof HTMLTableElement)) {
+		throw new Error(`${elementId} not table element`);
 	}
 	return element;
 }

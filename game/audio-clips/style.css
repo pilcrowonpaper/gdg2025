@@ -30,16 +30,20 @@ select {
 	background-size: 1.5rem;
 }
 
-button {
+button,
+.button {
 	color: white;
 	background-color: black;
 	padding: 0.25rem 0.5rem;
 	border: solid 1px black;
 	width: fit-content;
+	text-decoration: none;
 }
-button:hover {
+button:hover,
+.button:hover {
 	color: black;
 	background-color: transparent;
+	text-decoration: none;
 }
 
 #delete-audio-clip-button {
@@ -100,12 +104,12 @@ a:hover {
 	max-width: 20rem;
 }
 
-#sfx-table {
+#notes-table {
 	border-style: hidden;
 	border-collapse: collapse;
 }
 
-#sfx-table td {
+#notes-table td {
 	border: 1rem solid transparent;
 }
 

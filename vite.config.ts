@@ -20,6 +20,7 @@ export default vite.defineConfig({
 				path.resolve(import.meta.dirname, "game/audio-clips/index.html"),
 				path.resolve(import.meta.dirname, "game/sprites/index.html"),
 				path.resolve(import.meta.dirname, "game/scripts/index.html"),
+				path.resolve(import.meta.dirname, "game/files/index.html"),
 				path.resolve(import.meta.dirname, "playground/index.html"),
 			],
 		},

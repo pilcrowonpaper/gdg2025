@@ -13,20 +13,23 @@
 			style="padding: 1rem 2rem; border-bottom: solid 1px black; display: flex; justify-content: space-between; align-items: center;"
 		>
 			<a>Game creator</a>
-			<ul style="display: flex; gap: 2rem; list-style: none;">
-				<li>
-					<a href="/game/play/">Play</a>
-				</li>
-				<li>
-					<a href="/game/scripts/">Scripts</a>
-				</li>
-				<li>
-					<a href="/game/sprites/">Sprites</a>
-				</li>
-				<li>
-					<a href="/game/audio-clips/">Audio clips</a>
-				</li>
-			</ul>
+			<div style="display: flex; align-items: center; gap: 2rem;">
+				<ul style="display: flex; gap: 2rem; list-style: none;">
+					<li>
+						<a href="/game/scripts/">Scripts</a>
+					</li>
+					<li>
+						<a href="/game/sprites/">Sprites</a>
+					</li>
+					<li>
+						<a href="/game/audio-clips/">Audio clips</a>
+					</li>
+					<li>
+						<a href="/game/files/">Files</a>
+					</li>
+				</ul>
+				<a href="/game/play/" target="_blank" class="button">Play</a>
+			</div>
 		</header>
 		<main style="padding: 1rem 2rem;">
 			<h1 style="padding: 2rem 0rem;">Edit audio clips</h1>
@@ -57,114 +60,24 @@
 									<div style="display: flex; align-items: center; gap: 2rem;">
 										<div>
 											<label for="speed-slider">Speed:</label>
-											<input id="speed-slider" type="range" min="0" max="9">
+											<input id="speed-slider" type="range" min="0" max="7">
 										</div>
 										<div>
 											<label for="note-type-selector">Audio type:</label>
 											<select id="note-type-selector">
-												<option value="sawtooth">Sawtooth</option>
-												<option value="sine">Sine</option>
-												<option value="square">Square</option>
-												<option value="triangle">Triangle</option>
+												<option value="0">Sawtooth</option>
+												<option value="1">Sine</option>
+												<option value="2">Square</option>
+												<option value="3">Triangle</option>
 											</select>
 										</div>
 									</div>
 
-									<table id="sfx-table">
+									<table id="notes-table">
 										<tr style="text-align: left;">
 											<th style="width: 5rem;">Order</th>
 											<th>Volume</th>
 											<th>Pitch</th>
-										</tr>
-										<tr>
-											<td>1</td>
-											<td>
-												<input data-order="1" type="range" min="0" max="1" value="0" step="0.1" class="volume-slider">
-											</td>
-											<td>
-												<input data-order="1" type="range" min="1" max="35" class="pitch-slider">
-											</td>
-										</tr>
-										<tr>
-											<td>2</td>
-											<td>
-												<input data-order="2" type="range" min="0" max="1" value="0" step="0.1" class="volume-slider">
-											</td>
-											<td>
-												<input data-order="2" type="range" min="1" max="35" class="pitch-slider">
-											</td>
-										</tr>
-										<tr>
-											<td>3</td>
-											<td>
-												<input data-order="3" type="range" min="0" max="1" value="0" step="0.1" class="volume-slider">
-											</td>
-											<td>
-												<input data-order="3" type="range" min="1" max="35" class="pitch-slider">
-											</td>
-										</tr>
-										<tr>
-											<td>4</td>
-											<td>
-												<input data-order="4" type="range" min="0" max="1" value="0" step="0.1" class="volume-slider">
-											</td>
-											<td>
-												<input data-order="4" type="range" min="1" max="35" class="pitch-slider">
-											</td>
-										</tr>
-										<tr>
-											<td>5</td>
-											<td>
-												<input data-order="5" type="range" min="0" max="1" value="0" step="0.1" class="volume-slider">
-											</td>
-											<td>
-												<input data-order="5" type="range" min="1" max="35" class="pitch-slider">
-											</td>
-										</tr>
-										<tr>
-											<td>6</td>
-											<td>
-												<input data-order="6" type="range" min="0" max="1" value="0" step="0.1" class="volume-slider">
-											</td>
-											<td>
-												<input data-order="6" type="range" min="1" max="35" class="pitch-slider">
-											</td>
-										</tr>
-										<tr>
-											<td>7</td>
-											<td>
-												<input data-order="7" type="range" min="0" max="1" value="0" step="0.1" class="volume-slider">
-											</td>
-											<td>
-												<input data-order="7" type="range" min="1" max="35" class="pitch-slider">
-											</td>
-										</tr>
-										<tr>
-											<td>8</td>
-											<td>
-												<input data-order="8" type="range" min="0" max="1" value="0" step="0.1" class="volume-slider">
-											</td>
-											<td>
-												<input data-order="8" type="range" min="1" max="35" class="pitch-slider">
-											</td>
-										</tr>
-										<tr>
-											<td>9</td>
-											<td>
-												<input data-order="9" type="range" min="0" max="1" value="0" step="0.1" class="volume-slider">
-											</td>
-											<td>
-												<input data-order="9" type="range" min="1" max="35" class="pitch-slider">
-											</td>
-										</tr>
-										<tr>
-											<td>10</td>
-											<td>
-												<input data-order="10" type="range" min="0" max="1" value="0" step="0.1" class="volume-slider">
-											</td>
-											<td>
-												<input data-order="10" type="range" min="1" max="35" class="pitch-slider">
-											</td>
 										</tr>
 									</table>
 								</div>
