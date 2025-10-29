@@ -65,12 +65,10 @@ export const colors: Color[] = [
     { red: 0, green: 23, blue: 125 },
 ];
 
-export const transparentPixelByte = 0x80;
-
 export interface Color {
     red: number;
-    blue: number;
     green: number;
+    blue: number;
 }
 
 export function colorToHexCode(color: Color): string {
@@ -81,7 +79,7 @@ export function colorToHexCode(color: Color): string {
 }
 
 function byteToHexString(byte: number): string {
-    const alphabet = "01234566789abcdef";
+    const alphabet = "0123456789abcdef";
     return alphabet[byte >> 4] || alphabet[byte & 0xf];
 }
 
@@ -143,3 +141,17 @@ export interface Coordinates {
 }
 
 export const spritePixelCount = 256;
+
+export function getPixelRaw(pixels: Uint8Array, i: number): {
+  solid: boolean;
+  full: boolean;
+  colorId: number;
+} {
+  const byte = pixels[i];
+  return {
+    solid: (byte >> 7) === 1,
+    full: ((byte >> 6) & 0x01) === 1,
+    colorId: byte & 0x3f
+  };
+}
+

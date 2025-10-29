@@ -32,15 +32,16 @@
 			<h1 style="padding: 2rem 0rem;">Edit sprites</h1>
 			<div id="editor-body" hidden>
 				<div style="display: grid; grid-column: 1; gap: 1rem;">
-					<div style="display: flex; justify-content: space-between; align-items: center;">
+					<div style="display: flex; justify-content: space-between; align-items: center;"></div>
 						<div>
 							<label>Select sprite:</label>
 							<select id="sprite-selector"></select>
 						</div>
 						<div style="display: flex; gap: 1rem;">
 							<button id="new-sprite-button">New sprite</button>
+							<button id="clear-all-button">Clear All</button>
 						</div>
-					</div>
+					<div id="log-area" style="color: black; font-size: 14px; margin-top: 4px;"></div>
 					<div style="border: solid 1px black; ">
 						<div
 							style="padding: 1rem 2rem; border-bottom: solid 1px black; display: flex; justify-content: space-between; align-items: center;"
@@ -59,6 +60,7 @@
 											<select id="tool-type-selector">
 												<option value="pen">Pen</option>
 												<option value="eraser">Eraser</option>
+    											<option value="bucket">Bucket</option>
 											</select>
 										</div>
 										<div>
