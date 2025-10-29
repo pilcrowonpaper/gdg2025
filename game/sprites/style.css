@@ -23,7 +23,7 @@ h2 {
 
 select {
 	padding: 0.25rem 2rem 0.25rem 0.5rem;
-	border: 1px solid;
+	border: solid 1px ;
 	background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9L12 15L18 9" stroke-width="2" stroke="currentColor"/></svg>');
 	background-repeat: no-repeat;
 	background-position: right center;
@@ -45,7 +45,7 @@ button:hover {
 #delete-audio-clip-button {
 	color: white;
 	background-color: red;
-	border: 1px solid red;
+	border: solid 1px red;
 }
 #delete-audio-clip-button:hover {
 	color: red;
@@ -54,14 +54,14 @@ button:hover {
 
 input {
 	padding: 0.25rem 0.5rem;
-	border: 1px solid;
+	border: solid 1px;
 }
 
 input[type="range"] {
 	padding: 0;
-	border: 1px solid;
+	border: solid 1px;
 	height: 0.5rem;
-	accent-color: rgb(0, 0, 0);
+	accent-color: #000000;
 }
 
 input[type="range"]::-webkit-slider-thumb,
@@ -69,10 +69,10 @@ input[type="range"]::-moz-range-thumb {
 	appearance: none;
 	width: 1rem;
 	height: 1rem;
-	background: #000;
+	background: #000000;
 	cursor: pointer;
-	border-radius: 0;
 	border: none;
+	border-radius: 0;
 }
 
 a {
@@ -105,13 +105,13 @@ a:hover {
 	width: 2.5rem;
 	height: 2.5rem;
 	border-radius: 5px;
-	border: 2px solid #222;
+	border: solid 2px #222;
 	cursor: pointer;
 	transition: all 0.1s ease-in-out;
 }
 
 #color-picker input[type="radio"]:checked {
-	border: 3px solid #ffcc00;
+	border: solid 3px #ffcc00;
 	box-shadow: 0 0 8px #ffcc00;
 	transform: scale(1.15);
 }
