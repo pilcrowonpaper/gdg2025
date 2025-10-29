@@ -4,10 +4,10 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "vite",
-		"build": "tsc && vite build",
-		"preview": "vite preview",
-		"check": "biome check --write game/ lang/ playground/ vite.config.ts index.html"
+		"dev": "vite dev app",
+		"build": "tsc && vite build app",
+		"preview": "vite preview app",
+		"check": "biome check --write"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.2.5",
