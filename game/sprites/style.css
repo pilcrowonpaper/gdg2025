@@ -111,7 +111,5 @@ a:hover {
 }
 
 #color-picker input[type="radio"]:checked {
-	border: solid 3px #ffcc00;
-	box-shadow: 0 0 8px #ffcc00;
-	transform: scale(1.15);
+	border: solid 3px orange;
 }
