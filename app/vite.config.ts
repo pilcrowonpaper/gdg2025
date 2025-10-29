@@ -4,7 +4,7 @@ import * as vite from "vite";
 export default vite.defineConfig({
 	resolve: {
 		alias: {
-			"@lang": path.resolve(import.meta.dirname, "../lang/index.js"),
+			"@puffin": path.resolve(import.meta.dirname, "../puffin/index.js"),
 			"@audio": path.resolve(import.meta.dirname, "../audio/index.js"),
 			"@graphics": path.resolve(import.meta.dirname, "../graphics/index.js"),
 			"@storage": path.resolve(import.meta.dirname, "../storage/index.js"),

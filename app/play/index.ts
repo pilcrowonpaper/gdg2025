@@ -1,5 +1,5 @@
 import * as graphics from "@graphics";
-import * as lang from "@lang";
+import * as puffin from "@puffin";
 import * as storage from "@storage";
 
 import { AudioPlayer, Renderer } from "./utils.js";
@@ -81,7 +81,7 @@ async function init(): Promise<void> {
 
 	const parsedScripts = new Map<string, ParsedScript>();
 	for (const [scriptId, script] of scripts) {
-		const parseScriptResult = lang.parseScript(script);
+		const parseScriptResult = puffin.parseScript(script);
 		if (!parseScriptResult.ok) {
 			writeScriptParseError(scriptId, script, parseScriptResult);
 			showOutput();
@@ -108,9 +108,9 @@ async function init(): Promise<void> {
 		return;
 	}
 
-	const standardLibrary = lang.createStandardLibrary();
+	const standardLibrary = puffin.createStandardLibrary();
 
-	const initExecutionResult = lang.executeInstructions(initScript.instructions, new Map(), standardLibrary);
+	const initExecutionResult = puffin.executeInstructions(initScript.instructions, new Map(), standardLibrary);
 	if (!initExecutionResult.ok) {
 		writeExecutionError(initScript.id, initScript.script, initExecutionResult);
 		showOutput();
@@ -121,10 +121,10 @@ async function init(): Promise<void> {
 	const renderer = new Renderer(gameElementCanvasContext);
 	const audioPlayer = new AudioPlayer();
 
-	const updateInstructionsExternalFunctions = lang.createStandardLibrary();
+	const updateInstructionsExternalFunctions = puffin.createStandardLibrary();
 	updateInstructionsExternalFunctions.set("draw", (args) => {
 		if (args.length !== 3) {
-			const result: lang.ExternalFunctionErrorResult = {
+			const result: puffin.ExternalFunctionErrorResult = {
 				ok: false,
 				message: "Expected 3 arguments",
 			};
@@ -135,21 +135,21 @@ async function init(): Promise<void> {
 		const spriteYPositionValue = args[2];
 
 		if (spriteIdValue.type !== "value.string") {
-			const result: lang.ExternalFunctionErrorResult = {
+			const result: puffin.ExternalFunctionErrorResult = {
 				ok: false,
 				message: "Not a string",
 			};
 			return result;
 		}
 		if (spriteXPositionValue.type !== "value.number") {
-			const result: lang.ExternalFunctionErrorResult = {
+			const result: puffin.ExternalFunctionErrorResult = {
 				ok: false,
 				message: "Not a number",
 			};
 			return result;
 		}
 		if (spriteYPositionValue.type !== "value.number") {
-			const result: lang.ExternalFunctionErrorResult = {
+			const result: puffin.ExternalFunctionErrorResult = {
 				ok: false,
 				message: "Not a number",
 			};
@@ -158,7 +158,7 @@ async function init(): Promise<void> {
 
 		const sprite = sprites.get(spriteIdValue.string) ?? null;
 		if (sprite === null) {
-			const result: lang.ExternalFunctionErrorResult = {
+			const result: puffin.ExternalFunctionErrorResult = {
 				ok: false,
 				message: `Sprite ${spriteIdValue.string} does not exist`,
 			};
@@ -171,8 +171,8 @@ async function init(): Promise<void> {
 			Math.trunc(spriteYPositionValue.value100 / 100),
 		);
 
-		const returnValue: lang.NullValue = { type: "value.null" };
-		const result: lang.ExternalFunctionSuccessResult = {
+		const returnValue: puffin.NullValue = { type: "value.null" };
+		const result: puffin.ExternalFunctionSuccessResult = {
 			ok: true,
 			returnValue: returnValue,
 		};
@@ -181,7 +181,7 @@ async function init(): Promise<void> {
 
 	updateInstructionsExternalFunctions.set("set_background_pixels", (args) => {
 		if (args.length !== 3) {
-			const result: lang.ExternalFunctionErrorResult = {
+			const result: puffin.ExternalFunctionErrorResult = {
 				ok: false,
 				message: "Expected 3 arguments",
 			};
@@ -194,7 +194,7 @@ async function init(): Promise<void> {
 		} else if (solidColorValue.type === "value.false") {
 			solidColor = false;
 		} else {
-			const result: lang.ExternalFunctionErrorResult = {
+			const result: puffin.ExternalFunctionErrorResult = {
 				ok: false,
 				message: "Not true or false",
 			};
@@ -208,7 +208,7 @@ async function init(): Promise<void> {
 		} else if (fullColorValue.type === "value.false") {
 			fullColor = false;
 		} else {
-			const result: lang.ExternalFunctionErrorResult = {
+			const result: puffin.ExternalFunctionErrorResult = {
 				ok: false,
 				message: "Not true or false",
 			};
@@ -217,7 +217,7 @@ async function init(): Promise<void> {
 
 		const colorIdValue = args[2];
 		if (colorIdValue.type !== "value.number") {
-			const result: lang.ExternalFunctionErrorResult = {
+			const result: puffin.ExternalFunctionErrorResult = {
 				ok: false,
 				message: "Not a number",
 			};
@@ -229,8 +229,8 @@ async function init(): Promise<void> {
 
 		renderer.setBackgroundColor(backgroundColor);
 
-		const returnValue: lang.NullValue = { type: "value.null" };
-		const result: lang.ExternalFunctionSuccessResult = {
+		const returnValue: puffin.NullValue = { type: "value.null" };
+		const result: puffin.ExternalFunctionSuccessResult = {
 			ok: true,
 			returnValue: returnValue,
 		};
@@ -239,7 +239,7 @@ async function init(): Promise<void> {
 
 	updateInstructionsExternalFunctions.set("check_input", (args) => {
 		if (args.length !== 1) {
-			const result: lang.ExternalFunctionErrorResult = {
+			const result: puffin.ExternalFunctionErrorResult = {
 				ok: false,
 				message: "Expected 1 argument",
 			};
@@ -248,7 +248,7 @@ async function init(): Promise<void> {
 
 		const inputId = args[0];
 		if (inputId.type !== "value.string") {
-			const result: lang.ExternalFunctionErrorResult = {
+			const result: puffin.ExternalFunctionErrorResult = {
 				ok: false,
 				message: "Not a string",
 			};
@@ -257,16 +257,16 @@ async function init(): Promise<void> {
 
 		const on = inputs.has(inputId.string);
 		if (!on) {
-			const returnValue: lang.FalseValue = { type: "value.false" };
-			const result: lang.ExternalFunctionSuccessResult = {
+			const returnValue: puffin.FalseValue = { type: "value.false" };
+			const result: puffin.ExternalFunctionSuccessResult = {
 				ok: true,
 				returnValue: returnValue,
 			};
 			return result;
 		}
 
-		const returnValue: lang.TrueValue = { type: "value.true" };
-		const result: lang.ExternalFunctionSuccessResult = {
+		const returnValue: puffin.TrueValue = { type: "value.true" };
+		const result: puffin.ExternalFunctionSuccessResult = {
 			ok: true,
 			returnValue: returnValue,
 		};
@@ -275,7 +275,7 @@ async function init(): Promise<void> {
 
 	updateInstructionsExternalFunctions.set("play", (args) => {
 		if (args.length !== 1) {
-			const result: lang.ExternalFunctionErrorResult = {
+			const result: puffin.ExternalFunctionErrorResult = {
 				ok: false,
 				message: "Expected 1 argument",
 			};
@@ -284,7 +284,7 @@ async function init(): Promise<void> {
 
 		const audioClipIdValue = args[0];
 		if (audioClipIdValue.type !== "value.string") {
-			const result: lang.ExternalFunctionErrorResult = {
+			const result: puffin.ExternalFunctionErrorResult = {
 				ok: false,
 				message: "Not a string",
 			};
@@ -293,7 +293,7 @@ async function init(): Promise<void> {
 
 		const audioClip = audioClips.get(audioClipIdValue.string) ?? null;
 		if (audioClip === null) {
-			const result: lang.ExternalFunctionErrorResult = {
+			const result: puffin.ExternalFunctionErrorResult = {
 				ok: false,
 				message: `Audio clip ${audioClipIdValue.string} does not exist`,
 			};
@@ -302,8 +302,8 @@ async function init(): Promise<void> {
 
 		audioPlayer.push(audioClip);
 
-		const returnValue: lang.NullValue = { type: "value.null" };
-		const result: lang.ExternalFunctionSuccessResult = {
+		const returnValue: puffin.NullValue = { type: "value.null" };
+		const result: puffin.ExternalFunctionSuccessResult = {
 			ok: true,
 			returnValue: returnValue,
 		};
@@ -312,7 +312,7 @@ async function init(): Promise<void> {
 
 	updateInstructionsExternalFunctions.set("run", (args) => {
 		if (args.length !== 2) {
-			const result: lang.ExternalFunctionErrorResult = {
+			const result: puffin.ExternalFunctionErrorResult = {
 				ok: false,
 				message: "Expected 2 arguments",
 			};
@@ -321,7 +321,7 @@ async function init(): Promise<void> {
 
 		const scriptIdValue = args[0];
 		if (scriptIdValue.type !== "value.string") {
-			const result: lang.ExternalFunctionErrorResult = {
+			const result: puffin.ExternalFunctionErrorResult = {
 				ok: false,
 				message: "Not a string",
 			};
@@ -330,30 +330,30 @@ async function init(): Promise<void> {
 
 		const parsedScript = parsedScripts.get(scriptIdValue.string) ?? null;
 		if (parsedScript === null) {
-			const result: lang.ExternalFunctionErrorResult = {
+			const result: puffin.ExternalFunctionErrorResult = {
 				ok: false,
 				message: `Script ${scriptIdValue.string} does not exist`,
 			};
 			return result;
 		}
 
-		const memory: lang.Memory = new Map();
+		const memory: puffin.Memory = new Map();
 		memory.set("input", args[1]);
-		const executeResult = lang.executeInstructions(
+		const executeResult = puffin.executeInstructions(
 			parsedScript.instructions,
 			memory,
 			updateInstructionsExternalFunctions,
 		);
 		if (!executeResult.ok) {
 			writeExecutionError(parsedScript.id, parsedScript.script, executeResult);
-			const result: lang.ExternalFunctionErrorResult = {
+			const result: puffin.ExternalFunctionErrorResult = {
 				ok: false,
 				message: `Failed to execute ${parsedScript.id}`,
 			};
 			return result;
 		}
 
-		const result: lang.ExternalFunctionSuccessResult = {
+		const result: puffin.ExternalFunctionSuccessResult = {
 			ok: true,
 			returnValue: executeResult.returnValue,
 		};
@@ -372,22 +372,22 @@ async function init(): Promise<void> {
 interface ParsedScript {
 	id: string;
 	script: string;
-	instructions: lang.InstructionNode[];
+	instructions: puffin.InstructionNode[];
 }
 type Inputs = Set<string>;
 
 async function executeUpdateInstructions(
 	parsedUpdateScript: ParsedScript,
-	externalFunctions: lang.ExternalFunctions,
-	state: lang.Value,
+	externalFunctions: puffin.ExternalFunctions,
+	state: puffin.Value,
 	renderer: Renderer,
 	audioPlayer: AudioPlayer,
 ): Promise<void> {
 	const startMS = performance.now();
 
-	const memory: lang.Memory = new Map();
+	const memory: puffin.Memory = new Map();
 	memory.set("state", state);
-	const executeResult = lang.executeInstructions(parsedUpdateScript.instructions, memory, externalFunctions);
+	const executeResult = puffin.executeInstructions(parsedUpdateScript.instructions, memory, externalFunctions);
 	if (!executeResult.ok) {
 		writeExecutionError(parsedUpdateScript.id, parsedUpdateScript.script, executeResult);
 		showOutput();
@@ -424,8 +424,8 @@ function getGameElementCanvasContext(): CanvasRenderingContext2D {
 	return context;
 }
 
-function writeScriptParseError(scriptId: string, script: string, errorResult: lang.ParseErrorResult): void {
-	const chars = lang.parseString(script);
+function writeScriptParseError(scriptId: string, script: string, errorResult: puffin.ParseErrorResult): void {
+	const chars = puffin.parseString(script);
 	const lineColumnPosition = getLineColumnPosition(chars, errorResult.position);
 	writeToOutput(`[Parse error] @ ${scriptId}\n`, {
 		color: "#ff3f3f",
@@ -477,8 +477,8 @@ function writeScriptParseError(scriptId: string, script: string, errorResult: la
 	});
 }
 
-function writeExecutionError(scriptId: string, script: string, errorResult: lang.ExecutionErrorResult): void {
-	const chars = lang.parseString(script);
+function writeExecutionError(scriptId: string, script: string, errorResult: puffin.ExecutionErrorResult): void {
+	const chars = puffin.parseString(script);
 	const startLineColumnPosition = getLineColumnPosition(chars, errorResult.startPosition);
 	const endLineColumnPosition = getLineColumnPosition(chars, errorResult.endPosition);
 	writeToOutput(`[Execution error] @ ${scriptId}\n`, {
