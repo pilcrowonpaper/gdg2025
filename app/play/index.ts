@@ -97,11 +97,15 @@ async function init(): Promise<void> {
 
 	const initScript = parsedScripts.get("_init") ?? null;
 	if (initScript === null) {
-		throw new Error("_init not defined");
+		writeScriptMissingError("_init");
+		showOutput();
+		return;
 	}
 	const updateInstructions = parsedScripts.get("_update") ?? null;
 	if (updateInstructions === null) {
-		throw new Error("_update not defined");
+		writeScriptMissingError("_update");
+		showOutput();
+		return;
 	}
 
 	const standardLibrary = lang.createStandardLibrary();
@@ -111,9 +115,6 @@ async function init(): Promise<void> {
 		writeExecutionError(initScript.id, initScript.script, initExecutionResult);
 		showOutput();
 		return;
-	}
-	if (!initExecutionResult.returnValue) {
-		throw new Error("_init must return a value");
 	}
 	const initialStateValue = initExecutionResult.returnValue;
 
@@ -392,9 +393,6 @@ async function executeUpdateInstructions(
 		showOutput();
 		return;
 	}
-	if (executeResult.returnValue === null) {
-		throw new Error("_update must return next state");
-	}
 	const nextState = executeResult.returnValue;
 
 	renderer.render();
@@ -522,6 +520,21 @@ function writeExecutionError(scriptId: string, script: string, errorResult: lang
 	});
 	writeToOutput("\n", {
 		color: "gray",
+		textDecoration: "none",
+	});
+	writeToOutput("\n", {
+		color: "white",
+		textDecoration: "none",
+	});
+}
+
+function writeScriptMissingError(scriptId: string): void {
+	writeToOutput("[Missing file]\n", {
+		color: "#ff3f3f",
+		textDecoration: "none",
+	});
+	writeToOutput(`Script ${scriptId} missing.\n`, {
+		color: "white",
 		textDecoration: "none",
 	});
 	writeToOutput("\n", {
