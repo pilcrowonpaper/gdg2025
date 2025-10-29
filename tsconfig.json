@@ -30,5 +30,5 @@
         "noFallthroughCasesInSwitch": true,
         "noUncheckedSideEffectImports": true,
     },
-    "include": ["game", "playground", "lang", "audio", "shared", "graphics", "storage"]
+    "include": ["game", "lang", "audio", "shared", "graphics", "storage"]
 }
