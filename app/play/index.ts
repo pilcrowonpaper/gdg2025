@@ -550,6 +550,65 @@ async function init(): Promise<void> {
 		return result;
 	});
 
+	updateInstructionsExternalFunctions.set("get_sprite_pixel_color", (args) => {
+		if (args.length !== 2) {
+			const result: puffin.ExternalFunctionErrorResult = {
+				ok: false,
+				message: "Expected 2 arguments",
+			};
+			return result;
+		}
+
+		const spriteIdValue = args[0];
+		const pixelPositionValue = args[1];
+
+		if (spriteIdValue.type !== "value.string") {
+			const result: puffin.ExternalFunctionErrorResult = {
+				ok: false,
+				message: "Not a string",
+			};
+			return result;
+		}
+		if (pixelPositionValue.type !== "value.number") {
+			const result: puffin.ExternalFunctionErrorResult = {
+				ok: false,
+				message: "Not a number",
+			};
+			return result;
+		}
+
+		const sprite = sprites.get(spriteIdValue.string) ?? null;
+		if (sprite === null) {
+			const result: puffin.ExternalFunctionErrorResult = {
+				ok: false,
+				message: `Sprite ${spriteIdValue.string} does not exist`,
+			};
+			return result;
+		}
+
+		const pixelColor = graphics.getPixel(sprite, Math.trunc(pixelPositionValue.value100 / 100));
+		if (!pixelColor.solid) {
+			const returnValue: puffin.NullValue = {
+				type: "value.null",
+			};
+			const result: puffin.ExternalFunctionSuccessResult = {
+				ok: true,
+				returnValue: returnValue,
+			};
+			return result;
+		}
+
+		const returnValue: puffin.NumberValue = {
+			type: "value.number",
+			value100: pixelColor.colorId * 100,
+		};
+		const result: puffin.ExternalFunctionSuccessResult = {
+			ok: true,
+			returnValue: returnValue,
+		};
+		return result;
+	});
+
 	updateInstructionsExternalFunctions.set("log", (args) => {
 		console.log(args);
 
