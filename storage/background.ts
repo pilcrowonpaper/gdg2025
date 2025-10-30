@@ -1,4 +1,4 @@
-export const backgroundStorageKey = "spriteEditor.background";
+export const backgroundStorageKey = "sprite_editor.background";
 
 export function getBackgroundColor(): number {
 	const stored = localStorage.getItem(backgroundStorageKey);
