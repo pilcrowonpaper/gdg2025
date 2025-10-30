@@ -141,7 +141,7 @@ function handleDraw(e: PointerEvent): void {
 	const rect = getSpriteCanvasElement().getBoundingClientRect();
 	const x = Math.floor((e.clientX - rect.left) / (rect.width / graphics.spriteSize));
 	const y = Math.floor((e.clientY - rect.top) / (rect.height / graphics.spriteSize));
-	const pos = graphics.getSpritePixelPositionFromCoordinates({ x, y });
+	const pos = graphics.getSpritePixelPositionFromCoordinates(x, y);
 	const tool = getToolTypeSelectorElement().value;
 	const spriteId = getSelectedSpriteId();
 	if (tool === "bucket") {
