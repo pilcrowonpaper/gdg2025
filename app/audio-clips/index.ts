@@ -15,8 +15,6 @@ function init() {
 	const playButtonElement = getPlayButtonElement();
 	const speedSliderElement = getSpeedSliderElement();
 	const noteTypeSelectorElement = getNoteTypeSelectorElement();
-	// const pitchSliderElements = getPitchSliderElements();
-	// const volumeSliderElements = getVolumeSliderElements();
 	const audioClipSelectorElement = getAudioClipSelectorElement();
 	const newAudioClipButtonElement = getNewAudioClipButton();
 	const showAudioClipEditPageButtonElement = getShowAudioClipEditPageButtonElement();
