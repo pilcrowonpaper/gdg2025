@@ -1,4 +1,8 @@
-# README.md
+# LAV DevKit
+
+A development hardware for the LAV fantasy console.
+
+## Setup
 
 Install dependencies:
 
