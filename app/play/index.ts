@@ -8,30 +8,49 @@ init();
 
 async function init(): Promise<void> {
 	const inputs: Inputs = new Set();
+	const immediateInputs: Inputs = new Set();
 
 	window.addEventListener("keydown", (e) => {
 		if (e.key === " ") {
 			e.preventDefault();
+			if (!inputs.has("space")) {
+				immediateInputs.add("space");
+			}
 			inputs.add("space");
 		}
 		if (e.key === "Enter") {
 			e.preventDefault();
+			if (!inputs.has("enter")) {
+				immediateInputs.add("enter");
+			}
 			inputs.add("enter");
 		}
 		if (e.key === "ArrowDown") {
 			e.preventDefault();
+			if (!inputs.has("down")) {
+				immediateInputs.add("down");
+			}
 			inputs.add("down");
 		}
 		if (e.key === "ArrowUp") {
 			e.preventDefault();
+			if (!inputs.has("up")) {
+				immediateInputs.add("up");
+			}
 			inputs.add("up");
 		}
 		if (e.key === "ArrowLeft") {
 			e.preventDefault();
+			if (!inputs.has("left")) {
+				immediateInputs.add("left");
+			}
 			inputs.add("left");
 		}
 		if (e.key === "ArrowRight") {
 			e.preventDefault();
+			if (!inputs.has("right")) {
+				immediateInputs.add("right");
+			}
 			inputs.add("right");
 		}
 	});
@@ -100,7 +119,14 @@ async function init(): Promise<void> {
 
 	const standardLibrary = puffin.createStandardLibrary();
 
-	const initExecutionResult = puffin.executeInstructions(initScript.instructions, new Map(), standardLibrary);
+	const initInstructionsArgument: puffin.NullValue = {
+		type: "value.null",
+	};
+	const initExecutionResult = puffin.executeInstructions(
+		initScript.instructions,
+		initInstructionsArgument,
+		standardLibrary,
+	);
 	if (!initExecutionResult.ok) {
 		writeExecutionError(initScript.id, initScript.script, initExecutionResult);
 		showOutput();
@@ -263,6 +289,42 @@ async function init(): Promise<void> {
 		return result;
 	});
 
+	updateInstructionsExternalFunctions.set("check_immediate_input", (args) => {
+		if (args.length !== 1) {
+			const result: puffin.ExternalFunctionErrorResult = {
+				ok: false,
+				message: "Expected 1 argument",
+			};
+			return result;
+		}
+
+		const inputId = args[0];
+		if (inputId.type !== "value.string") {
+			const result: puffin.ExternalFunctionErrorResult = {
+				ok: false,
+				message: "Not a string",
+			};
+			return result;
+		}
+
+		const on = immediateInputs.has(inputId.string);
+		if (!on) {
+			const returnValue: puffin.FalseValue = { type: "value.false" };
+			const result: puffin.ExternalFunctionSuccessResult = {
+				ok: true,
+				returnValue: returnValue,
+			};
+			return result;
+		}
+
+		const returnValue: puffin.TrueValue = { type: "value.true" };
+		const result: puffin.ExternalFunctionSuccessResult = {
+			ok: true,
+			returnValue: returnValue,
+		};
+		return result;
+	});
+
 	updateInstructionsExternalFunctions.set("play", (args) => {
 		if (args.length !== 1) {
 			const result: puffin.ExternalFunctionErrorResult = {
@@ -327,11 +389,9 @@ async function init(): Promise<void> {
 			return result;
 		}
 
-		const memory: puffin.Memory = new Map();
-		memory.set("input", args[1]);
 		const executeResult = puffin.executeInstructions(
 			parsedScript.instructions,
-			memory,
+			args[1],
 			updateInstructionsExternalFunctions,
 		);
 		if (!executeResult.ok) {
@@ -350,12 +410,26 @@ async function init(): Promise<void> {
 		return result;
 	});
 
+	updateInstructionsExternalFunctions.set("log", (args) => {
+		console.log(args);
+
+		const returnValue: puffin.NullValue = {
+			type: "value.null",
+		};
+		const result: puffin.ExternalFunctionSuccessResult = {
+			ok: true,
+			returnValue: returnValue,
+		};
+		return result;
+	});
+
 	await executeUpdateInstructions(
 		updateInstructions,
 		updateInstructionsExternalFunctions,
 		initialStateValue,
 		renderer,
 		audioPlayer,
+		immediateInputs,
 	);
 }
 
@@ -372,18 +446,19 @@ async function executeUpdateInstructions(
 	state: puffin.Value,
 	renderer: Renderer,
 	audioPlayer: AudioPlayer,
+	immediateInputs: Inputs,
 ): Promise<void> {
 	const startMS = performance.now();
 
-	const memory: puffin.Memory = new Map();
-	memory.set("state", state);
-	const executeResult = puffin.executeInstructions(parsedUpdateScript.instructions, memory, externalFunctions);
+	const executeResult = puffin.executeInstructions(parsedUpdateScript.instructions, state, externalFunctions);
 	if (!executeResult.ok) {
 		writeExecutionError(parsedUpdateScript.id, parsedUpdateScript.script, executeResult);
 		showOutput();
 		return;
 	}
 	const nextState = executeResult.returnValue;
+
+	immediateInputs.clear();
 
 	renderer.render();
 
@@ -393,7 +468,7 @@ async function executeUpdateInstructions(
 
 	await new Promise((r) => setTimeout(r, 10 - durationMS));
 
-	executeUpdateInstructions(parsedUpdateScript, externalFunctions, nextState, renderer, audioPlayer);
+	executeUpdateInstructions(parsedUpdateScript, externalFunctions, nextState, renderer, audioPlayer, immediateInputs);
 }
 
 function getGameElement(): HTMLCanvasElement {
