@@ -42,8 +42,10 @@
 						</div>
 						<div style="display: flex; gap: 1rem;">
 							<button id="new-sprite-button">New sprite</button>
+							<button id="clear-all-button">Clear All</button>
 						</div>
 					</div>
+					<div id="log-area" style="color: black; font-size: 14px; margin-top: 4px;"></div>
 					<div style="border: solid 1px black; ">
 						<div
 							style="padding: 1rem 2rem; border-bottom: solid 1px black; display: flex; justify-content: space-between; align-items: center;"
@@ -62,6 +64,7 @@
 											<select id="tool-type-selector">
 												<option value="pen">Pen</option>
 												<option value="eraser">Eraser</option>
+												<option value="bucket">Bucket</option>
 											</select>
 										</div>
 										<div>
@@ -77,7 +80,7 @@
 											width="16"
 											height="16"
 										></canvas>
-										<div>
+										<div style="flex-grow: 1;">
 											<fieldset id="color-picker">
 												<legend>Pen color</legend>
 											</fieldset>
@@ -91,7 +94,7 @@
 									<section>
 										<h2 style="margin-bottom: 1rem;">Rename sprite</h2>
 										<form id="rename-sprite-id-form">
-											<input name="new_audio_clip_id">
+											<input name="new_sprite_id">
 											<button>Rename</button>
 										</form>
 									</section>

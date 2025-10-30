@@ -46,12 +46,12 @@ button:hover,
 	text-decoration: none;
 }
 
-#delete-audio-clip-button {
+#delete-sprite-button {
 	color: white;
 	background-color: red;
 	border: solid 1px red;
 }
-#delete-audio-clip-button:hover {
+#delete-sprite-button:hover {
 	color: red;
 	background-color: transparent;
 }
@@ -97,7 +97,6 @@ a:hover {
 
 .link-like-button {
 	padding: 0;
-	text-decoration: none;
 	color: black;
 	background-color: transparent;
 	border: none;
@@ -108,17 +107,23 @@ a:hover {
 }
 
 #color-picker {
-	display: flex;
-	flex-wrap: wrap;
+	display: grid;
+	width: 100%;
+	grid-template-columns: repeat(auto-fit, 2.5rem);
+	gap: 0.4rem;
+	/* justify-content: flex-start;
+	padding: 0.5rem; */
 }
 
-#color-picker input {
-	border: solid 1px black;
+#color-picker input[type="radio"] {
+	width: 2.5rem;
+	height: 2.5rem;
+	/* border-radius: 5px; */
+	/* border: solid 2px #222; */
 	cursor: pointer;
-	width: 2rem;
-	height: 2rem;
+	/* transition: all 0.1s ease-in-out; */
 }
 
-#color-picker input:checked {
+#color-picker input[type="radio"]:checked {
 	border: solid 3px orange;
 }

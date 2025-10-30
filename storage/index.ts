@@ -6,6 +6,11 @@ export {
 	mapJSONValueToAudioClips,
 	setAudioClips,
 } from "./audio-clips.js";
+export {
+	backgroundStorageKey,
+	getBackgroundColor,
+	setBackgroundColor,
+} from "./background.js";
 export type { Scripts } from "./scripts.js";
 export {
 	getScripts,
