@@ -357,7 +357,7 @@ export function createStandardLibrary(): Map<string, ExternalFunction> {
                 };
                 return result;
             }
-            if (minValue === null || arg.value100 < minIndex) {
+            if (minValue === null || arg.value100 < minValue) {
                 minIndex = i;
                 minIndex = arg.value100;
             }
