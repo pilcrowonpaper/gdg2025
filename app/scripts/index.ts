@@ -3,7 +3,7 @@ import * as storage from "@storage";
 
 const globalScripts = storage.getScripts();
 let globalTextHistoryIndex = 0;
-const globalTextHistory: HistoryRecord[] = [];
+let globalTextHistory: HistoryRecord[] = [];
 
 init();
 
@@ -49,6 +49,14 @@ function init(): void {
 		if (script === null) {
 			throw new Error(`Script ${scriptSelectorElement.value} not exists`);
 		}
+		globalTextHistory = [
+			{
+				value: script,
+				selectionStart: 0,
+				selectionEnd: 0,
+			},
+		];
+		globalTextHistoryIndex = 0;
 		updateTextEditor(script);
 		showScriptEditPage();
 	});

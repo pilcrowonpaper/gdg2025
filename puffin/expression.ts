@@ -124,7 +124,7 @@ export function parseExpression(chars: Uint32Array, start: number): ParseExpress
 			return result;
 		}
 
-		if (chars[start + resultSize + 1] === CODE_POINT_CLOSING_ANGLE_BRACKET) {
+		if (chars[start + resultSize] === CODE_POINT_CLOSING_ANGLE_BRACKET) {
 			if (start + resultSize + 1 >= chars.length) {
 				const result: ParseErrorResult = {
 					ok: false,

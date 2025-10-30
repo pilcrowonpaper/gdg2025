@@ -1,0 +1,12 @@
+* {
+	appearance: none;
+	margin: 0;
+	padding: 0;
+	border: none;
+	background-color: transparent;
+	font-family: inherit;
+	color: inherit;
+	font-size: inherit;
+	border-radius: 0;
+	font-weight: normal;
+}

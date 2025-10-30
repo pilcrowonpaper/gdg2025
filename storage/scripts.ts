@@ -1,53 +1,73 @@
 export const scriptsStorageKey = "scripts";
 
 export function setScripts(scripts: Scripts): void {
-    const recordsJSONArray: unknown[] = [];
-    for (const [scriptId, script] of scripts.entries()) {
-        recordsJSONArray.push({
-            id: scriptId,
-            script: script,
-        });
-    }
-    localStorage.setItem(scriptsStorageKey, JSON.stringify(recordsJSONArray));
+	const jsonArray = mapScriptsToJSONValue(scripts);
+	localStorage.setItem(scriptsStorageKey, JSON.stringify(jsonArray));
 }
 
 export function getScripts(): Scripts {
-    const storedScripts = new Map<string, string>();
+	const stored = localStorage.getItem(scriptsStorageKey);
+	if (stored === null) {
+		const scripts = new Map();
+		return scripts;
+	}
 
-    const storedJSON = localStorage.getItem(scriptsStorageKey);
-    if (storedJSON === null) {
-        return storedScripts;
-    }
-    let parsedJSON: unknown;
-    try {
-        parsedJSON = JSON.parse(storedJSON);
-    } catch {
-        console.error("Failed to parse stored item");
-        return storedScripts;
-    }
-    if (!Array.isArray(parsedJSON)) {
-        console.error("Not an array");
-        return storedScripts;
-    }
+	let jsonValue: unknown;
+	try {
+		jsonValue = JSON.parse(stored);
+	} catch {
+		console.error("Failed to parse stored item");
+		const scripts = new Map();
+		return scripts;
+	}
 
-    for (let i = 0; i < parsedJSON.length; i++) {
-        const item: unknown = parsedJSON[i];
-        if (typeof item !== "object" || item === null) {
-            console.error("Item not an object");
-            return storedScripts;
-        }
-        if (!("id" in item) || typeof item.id !== "string") {
-            console.error("'id' not defined or invalid in item");
-            return storedScripts;
-        }
-        if (!("script" in item) || typeof item.script !== "string") {
-            console.error("'id' not defined or invalid in item");
-            return storedScripts;
-        }
-        storedScripts.set(item.id, item.script);
-    }
+	let scripts: Scripts;
+	try {
+		scripts = mapJSONValueToScripts(jsonValue);
+	} catch (e) {
+		if (e instanceof Error) {
+			console.error(e.message);
+		}
+		const sprites = new Map();
+		return sprites;
+	}
 
-    return storedScripts;
+	return scripts;
+}
+
+export function mapJSONValueToScripts(jsonValue: unknown): Scripts {
+	const scripts = new Map<string, string>();
+
+	if (!Array.isArray(jsonValue)) {
+		throw new Error("Not an array");
+	}
+
+	for (let i = 0; i < jsonValue.length; i++) {
+		const item: unknown = jsonValue[i];
+		if (typeof item !== "object" || item === null) {
+			throw new Error("Item not an object");
+		}
+		if (!("id" in item) || typeof item.id !== "string") {
+			throw new Error("'id' not defined or invalid in item");
+		}
+		if (!("script" in item) || typeof item.script !== "string") {
+			throw new Error("'id' not defined or invalid in item");
+		}
+		scripts.set(item.id, item.script);
+	}
+
+	return scripts;
+}
+
+export function mapScriptsToJSONValue(scripts: Scripts): unknown {
+	const recordsJSONArray: unknown[] = [];
+	for (const [scriptId, script] of scripts.entries()) {
+		recordsJSONArray.push({
+			id: scriptId,
+			script: script,
+		});
+	}
+	return recordsJSONArray;
 }
 
 export type Scripts = Map<string, string>;

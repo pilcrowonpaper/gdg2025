@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "paths": {
-            "@lang": ["./lang/index.js"],
+            "@puffin": ["./puffin/index.js"],
             "@audio": ["./audio/index.js"],
             "@graphics": ["./graphics/index.js"],
             "@shared": ["./shared/index.js"],
@@ -31,5 +31,5 @@
         "noFallthroughCasesInSwitch": true,
         "noUncheckedSideEffectImports": true,
     },
-    "include": ["game", "playground", "lang", "audio", "shared", "graphics", "storage"]
+    "include": ["app", "puffin", "audio", "shared", "graphics", "storage"]
 }

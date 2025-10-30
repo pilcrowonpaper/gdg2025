@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<link rel="icon" type="image/svg+xml" href="/vite.svg">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Game</title>
+		<link rel="stylesheet" type="text/css" href="./style.css">
+	</head>
+
+	<body style="font-family: monospace; font-size: 1rem;">
+		<header
+			style="padding: 1rem 2rem; border-bottom: solid 1px black; display: flex; justify-content: space-between; align-items: center;"
+		>
+			<a>Game creator</a>
+			<div style="display: flex; align-items: center; gap: 2rem;">
+				<ul style="display: flex; gap: 2rem; list-style: none;">
+					<li>
+						<a href="/scripts/">Scripts</a>
+					</li>
+					<li>
+						<a href="/sprites/">Sprites</a>
+					</li>
+					<li>
+						<a href="/audio-clips/">Audio clips</a>
+					</li>
+					<li>
+						<a href="/files/">Files</a>
+					</li>
+				</ul>
+				<a href="/play/" target="_blank" class="button">Play</a>
+			</div>
+		</header>
+		<main style="padding: 1rem 2rem;">
+			<h1 style="padding: 2rem 0rem;">Edit audio clips</h1>
+			<div id="editor-body" hidden>
+				<div style="display: grid; grid-column: 1; gap: 1rem;">
+					<div style="display: flex; justify-content: space-between; align-items: center;">
+						<div>
+							<label>Select audio clip:</label>
+							<select id="audio-clip-selector"></select>
+						</div>
+						<div style="display: flex; gap: 1rem;">
+							<button id="new-audio-clip-button">New audio clip</button>
+						</div>
+					</div>
+					<div style="border: solid 1px black; ">
+						<div
+							style="padding: 1rem 2rem; border-bottom: solid 1px black; display: flex; justify-content: space-between; align-items: center;"
+						>
+							<ul style="display: flex; gap: 1rem; list-style: none;">
+								<button id="show-audio-clip-edit-page-button" class="link-like-button">Edit</button>
+								<button id="show-audio-clip-config-page-button" class="link-like-button">Config</button>
+							</ul>
+							<button id="play-button">Play</button>
+						</div>
+						<div style="padding: 2rem;">
+							<div id="audio-clip-edit-page">
+								<div style="display: grid; column-count: 1; gap: 2rem;">
+									<div style="display: flex; align-items: center; gap: 2rem;">
+										<div>
+											<label for="speed-slider">Speed:</label>
+											<input id="speed-slider" type="range" min="0" max="7">
+										</div>
+										<div>
+											<label for="note-type-selector">Audio type:</label>
+											<select id="note-type-selector">
+												<option value="0">Sawtooth</option>
+												<option value="1">Sine</option>
+												<option value="2">Square</option>
+												<option value="3">Triangle</option>
+											</select>
+										</div>
+									</div>
+
+									<table id="notes-table">
+										<tr style="text-align: left;">
+											<th style="width: 5rem;">Order</th>
+											<th>Volume</th>
+											<th>Pitch</th>
+										</tr>
+									</table>
+								</div>
+							</div>
+
+							<div id="audio-clip-config-page" hidden>
+								<div style="display: grid; column-count: 1; gap: 2rem">
+									<section>
+										<h2 style="margin-bottom: 1rem;">Rename audio clip</h2>
+										<form id="rename-audio-clip-id-form">
+											<input name="new_audio_clip_id">
+											<button>Rename</button>
+										</form>
+									</section>
+									<section>
+										<h2 style="margin-bottom: 1rem;">Delete audio clip</h2>
+										<button id="delete-audio-clip-button">Delete</button>
+									</section>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+	</body>
+
+	<script type="module" src="./index.ts"></script>
+</html>

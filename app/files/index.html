@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<link rel="icon" type="image/svg+xml" href="/vite.svg">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Game</title>
+		<link rel="stylesheet" type="text/css" href="./style.css">
+	</head>
+
+	<body style="font-family: monospace; font-size: 1rem;">
+		<header
+			style="padding: 1rem 2rem; border-bottom: solid 1px black; display: flex; justify-content: space-between; align-items: center;"
+		>
+			<a>Game creator</a>
+			<div style="display: flex; align-items: center; gap: 2rem;">
+				<ul style="display: flex; gap: 2rem; list-style: none;">
+					<li>
+						<a href="/scripts/">Scripts</a>
+					</li>
+					<li>
+						<a href="/sprites/">Sprites</a>
+					</li>
+					<li>
+						<a href="/audio-clips/">Audio clips</a>
+					</li>
+					<li>
+						<a href="/files/">Files</a>
+					</li>
+				</ul>
+				<a href="/play/" target="_blank" class="button">Play</a>
+			</div>
+		</header>
+		<main style="padding: 1rem 2rem;">
+			<h1 style="padding: 2rem 0rem;">Manage files</h1>
+			<div style="display: grid; columns: 1; gap: 2rem;">
+				<section>
+					<h2 style="margin-bottom: 1rem;">Import game file</h2>
+					<p>Import an existing .json game file.</p>
+					<label class="button" style="margin: 1rem 0">
+						Import
+						<input id="import-input" type="file" style="display: none;">
+					</label>
+					<p id="import-message"></p>
+				</section>
+				<section>
+					<h2 style="margin-bottom: 1rem;">Export game file</h2>
+					<p>Export the current game as a .json game file.</p>
+					<button id="export-button" style="margin: 1rem 0">Export</button>
+				</section>
+			</div>
+		</main>
+	</body>
+
+	<script type="module" src="./index.ts"></script>
+</html>

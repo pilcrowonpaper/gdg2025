@@ -10,9 +10,17 @@ export function executeInstructions(
 	if (!executeInstructionsResult.ok) {
 		return executeInstructionsResult;
 	}
+	let returnValue: Value;
+	if (executeInstructionsResult.returnValue !== null) {
+		returnValue = executeInstructionsResult.returnValue;
+	} else {
+		returnValue = {
+			type: "value.null",
+		};
+	}
 	const result: ExecuteInstructionSuccessResult = {
 		ok: true,
-		returnValue: executeInstructionsResult.returnValue,
+		returnValue: returnValue,
 	};
 	return result;
 }
@@ -21,7 +29,7 @@ export type ExecuteInstructionResult = ExecuteInstructionSuccessResult | Executi
 
 export interface ExecuteInstructionSuccessResult {
 	ok: true;
-	returnValue: Value | null;
+	returnValue: Value;
 }
 
 function executeInstructionsWithBreak(
@@ -313,10 +321,13 @@ function executeInstructionsWithBreak(
 						return executeInstructionsResult;
 					}
 					if (executeInstructionsResult.break) {
+						const returnValue: NullValue = {
+							type: "value.null",
+						};
 						const result: ExecuteInstructionsWithBreakResult = {
 							ok: true,
 							break: true,
-							returnValue: null,
+							returnValue: returnValue,
 						};
 						return result;
 					}
@@ -497,10 +508,13 @@ function executeInstructionsWithBreak(
 			}
 
 			case "instruction.break": {
+				const returnValue: NullValue = {
+					type: "value.null",
+				};
 				const result: ExecuteInstructionsWithBreakSuccessResult = {
 					ok: true,
 					break: true,
-					returnValue: null,
+					returnValue: returnValue,
 				};
 				return result;
 			}
@@ -954,7 +968,7 @@ function resolveExpression(
 			}
 			const value: NumberValue = {
 				type: "value.number",
-				value100: Math.floor(leftValue.value100 / rightValue.value100),
+				value100: Math.floor(leftValue.value100 / rightValue.value100) * 100,
 			};
 			const result: ResolveExpressionSuccessResult = {
 				ok: true,

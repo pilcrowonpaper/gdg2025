@@ -1,4 +1,4 @@
-# LANGUAGE.md
+# Puffin language
 
 Use the `set` instruction to set a variable value. Variable names can be A-Z, a-z, \_, 0-9 (not prefix).
 

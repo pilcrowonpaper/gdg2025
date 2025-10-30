@@ -1,138 +1,104 @@
-import type * as audio from "@audio";
+import * as audio from "@audio";
+import * as encoding from "@oslojs/encoding";
 
 export const audioClipsStorageKey = "audio_clips";
 
 export function getAudioClips(): AudioClips {
-    const storedAudioClips: AudioClips = new Map();
-    const stored = window.localStorage.getItem(audioClipsStorageKey);
-    if (stored === null) {
-        return storedAudioClips;
-    }
-    let parsedJSON: unknown;
-    try {
-        parsedJSON = JSON.parse(stored);
-    } catch {
-        console.error("Failed to parse stored item");
-        return storedAudioClips;
-    }
-    if (!Array.isArray(parsedJSON)) {
-        console.error("Not an array");
-        return storedAudioClips;
-    }
+	const stored = window.localStorage.getItem(audioClipsStorageKey);
+	if (stored === null) {
+		const audioClips = new Map();
+		return audioClips;
+	}
 
-    for (let i = 0; i < parsedJSON.length; i++) {
-        const item: unknown = parsedJSON[i];
-        if (typeof item !== "object" || item === null) {
-            console.error("Not an object");
-            return storedAudioClips;
-        }
+	let jsonValue: unknown;
+	try {
+		jsonValue = JSON.parse(stored);
+	} catch {
+		console.error("Failed to parse stored item");
+		const audioClips = new Map();
+		return audioClips;
+	}
 
-        if (!("id" in item) || typeof item.id !== "string") {
-            console.error("'id' not defined or invalid in object");
-            return storedAudioClips;
-        }
-        if (
-            !("speed" in item) ||
-            typeof item.speed !== "number" ||
-            !Number.isInteger(item.speed) ||
-            item.speed < 0 ||
-            item.speed > 9
-        ) {
-            console.error("'speed' not defined or invalid in object");
-            return storedAudioClips;
-        }
-        const speed = item.speed;
+	let audioClips: AudioClips;
+	try {
+		audioClips = mapJSONValueToAudioClips(jsonValue);
+	} catch (e) {
+		if (e instanceof Error) {
+			console.error(e.message);
+		}
+		const audioClips = new Map();
+		return audioClips;
+	}
 
-        if (!("notes" in item) || !Array.isArray(item.notes)) {
-            console.error("'notes' not defined or invalid in object");
-            return storedAudioClips;
-        }
-        const notes: audio.Note[] = [];
-        for (let j = 0; j < item.notes.length; j++) {
-            const notesItem: unknown = item.notes[j];
-            if (typeof notesItem !== "object" || notesItem === null) {
-                console.error("Not an object");
-                return storedAudioClips;
-            }
-            if (
-                !("volume" in notesItem) ||
-                typeof notesItem.volume !== "number" ||
-                notesItem.volume < 0 ||
-                notesItem.volume > 10
-            ) {
-                console.error("'volume' not defined or invalid in object");
-                return storedAudioClips;
-            }
-            const noteVolume = notesItem.volume;
-
-            if (
-                !("pitch" in notesItem) ||
-                typeof notesItem.pitch !== "number" ||
-                !Number.isInteger(notesItem.pitch) ||
-                notesItem.pitch < 0 ||
-                notesItem.pitch > 34
-            ) {
-                console.error("'volume' not defined or invalid in object");
-                return storedAudioClips;
-            }
-            const notePitch = notesItem.pitch;
-
-            if (!("type" in notesItem) || typeof notesItem.type !== "string") {
-                console.error("'type' not defined or invalid in object");
-                return storedAudioClips;
-            }
-            let noteType: audio.NoteType;
-            if (notesItem.type === "sawtooth") {
-                noteType = "sawtooth";
-            } else if (notesItem.type === "sine") {
-                noteType = "sine";
-            } else if (notesItem.type === "square") {
-                noteType = "square";
-            } else if (notesItem.type === "triangle") {
-                noteType = "triangle";
-            } else {
-                console.error("'type' not defined or invalid in object");
-                return storedAudioClips;
-            }
-
-            const note: audio.Note = {
-                pitch: notePitch,
-                volume: noteVolume,
-                type: noteType,
-            };
-            notes.push(note);
-        }
-        const audioClip: audio.Clip = {
-            speed: speed,
-            notes,
-        };
-        storedAudioClips.set(item.id, audioClip);
-    }
-
-    return storedAudioClips;
+	return audioClips;
 }
 
 export function setAudioClips(audioClips: AudioClips): void {
-    const recordsJSONArray: unknown[] = [];
-    for (const [audioClipId, audioClip] of audioClips.entries()) {
-        const notesJSONArray: unknown[] = [];
-        for (let i = 0; i < audioClip.notes.length; i++) {
-            notesJSONArray.push({
-                type: audioClip.notes[i].type,
-                pitch: audioClip.notes[i].pitch,
-                volume: audioClip.notes[i].volume,
-            });
-        }
-        recordsJSONArray.push({
-            id: audioClipId,
-            speed: audioClip.speed,
-            notes: notesJSONArray,
-        });
-    }
-    localStorage.setItem(
-        audioClipsStorageKey,
-        JSON.stringify(recordsJSONArray)
-    );
+	const jsonValue = mapAudioClipsToJSONValue(audioClips);
+	localStorage.setItem(audioClipsStorageKey, JSON.stringify(jsonValue));
+}
+
+export function mapJSONValueToAudioClips(jsonValue: unknown): AudioClips {
+	const audioClips: AudioClips = new Map();
+
+	if (!Array.isArray(jsonValue)) {
+		throw new Error("Not an array");
+	}
+
+	for (let i = 0; i < jsonValue.length; i++) {
+		const item: unknown = jsonValue[i];
+		if (typeof item !== "object" || item === null) {
+			throw new Error("Not an object");
+		}
+
+		if (!("id" in item) || typeof item.id !== "string") {
+			throw new Error("'id' not defined or invalid in object");
+		}
+		if (
+			!("speed" in item) ||
+			typeof item.speed !== "number" ||
+			!Number.isInteger(item.speed) ||
+			item.speed < 0 ||
+			item.speed > 9
+		) {
+			throw new Error("'speed' not defined or invalid in object");
+		}
+		const speed = item.speed;
+
+		if (!("notes" in item) || typeof item.notes !== "string") {
+			throw new Error("'notes' not defined or invalid in object");
+		}
+		let notes: Uint8Array;
+		try {
+			notes = encoding.decodeBase64(item.notes);
+		} catch {
+			throw new Error("'pixels' not defined or invalid in object");
+		}
+		if (notes.length !== audio.clipNotesByteSize) {
+			throw new Error("'pixels' not defined or invalid in object");
+		}
+
+		const audioClip: audio.Clip = {
+			speed: speed,
+			notes,
+		};
+		audioClips.set(item.id, audioClip);
+	}
+
+	return audioClips;
+}
+
+export function mapAudioClipsToJSONValue(audioClips: AudioClips): unknown {
+	const jsonArray: unknown[] = [];
+	for (const [audioClipId, audioClip] of audioClips.entries()) {
+		const encodedNotes = encoding.encodeBase64(audioClip.notes);
+		jsonArray.push({
+			id: audioClipId,
+			speed: audioClip.speed,
+			notes: encodedNotes,
+		});
+	}
+	return jsonArray;
 }
 
 export type AudioClips = Map<string, audio.Clip>;

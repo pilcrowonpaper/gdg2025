@@ -193,7 +193,7 @@ export function createStandardLibrary(): Map<string, ExternalFunction> {
 		if (args.length !== 1) {
 			const result: ExternalFunctionErrorResult = {
 				ok: false,
-				message: "Not a number",
+				message: "Expected 1 argument",
 			};
 			return result;
 		}
