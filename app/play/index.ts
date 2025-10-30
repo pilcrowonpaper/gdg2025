@@ -7,16 +7,6 @@ import { AudioPlayer, Renderer } from "./utils.js";
 init();
 
 async function init(): Promise<void> {
-	const _sprites: storage.Sprites = new Map();
-	const pixels = new Uint8Array(graphics.spritePixelCount);
-	crypto.getRandomValues(pixels);
-	for (let i = 0; i < pixels.byteLength; i++) {
-		pixels[i] |= 0b11000000;
-	}
-
-	_sprites.set("dino-1", pixels);
-	storage.setSprites(_sprites);
-
 	const inputs: Inputs = new Set();
 
 	window.addEventListener("keydown", (e) => {
