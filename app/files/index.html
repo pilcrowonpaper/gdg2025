@@ -18,27 +18,27 @@
 			<div style="display: flex; align-items: center; gap: 2rem;">
 				<ul style="display: flex; gap: 2rem; list-style: none;">
 					<li>
-						<a href="/scripts/">Scripts</a>
+						<a href="/scripts/">プログラム</a>
 					</li>
 					<li>
-						<a href="/sprites/">Sprites</a>
+						<a href="/sprites/">イラスト</a>
 					</li>
 					<li>
-						<a href="/audio-clips/">Audio clips</a>
+						<a href="/audio-clips/">効果音</a>
 					</li>
 					<li>
-						<a href="/files/">Files</a>
+						<a href="/files/">ファイル</a>
 					</li>
 				</ul>
-				<a href="/play/" target="_blank" class="button">Play</a>
+				<a href="/play/" target="_blank" class="button">遊ぶ</a>
 			</div>
 		</header>
 		<main style="padding: 1rem 2rem;">
-			<h1 style="padding: 2rem 0rem;">Manage files</h1>
+			<h1 style="padding: 2rem 0rem;">ファイルを管理</h1>
 			<div style="display: grid; columns: 1; gap: 2rem;">
 				<section>
-					<h2 style="margin-bottom: 1rem;">Import game file</h2>
-					<p>Import an existing .json game file.</p>
+					<h2 style="margin-bottom: 1rem;">ゲームファイルを読み込む</h2>
+					<p>ゲームファイルを読み込む (json形式である必要があります)</p>
 					<label class="button" style="margin: 1rem 0">
 						Import
 						<input id="import-input" type="file" style="display: none;">
@@ -46,9 +46,9 @@
 					<p id="import-message"></p>
 				</section>
 				<section>
-					<h2 style="margin-bottom: 1rem;">Export game file</h2>
-					<p>Export the current game as a .json game file.</p>
-					<button id="export-button" style="margin: 1rem 0">Export</button>
+					<h2 style="margin-bottom: 1rem;">ゲームファイルを書き出し</h2>
+					<p>現在のゲームファイルを書き出す</p>
+					<button id="export-button" style="margin: 1rem 0">書き出す</button>
 				</section>
 			</div>
 		</main>
