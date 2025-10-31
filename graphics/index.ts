@@ -1,3 +1,7 @@
+import * as encoding from "@oslojs/encoding";
+
+import characterSpritesJSONArray from "./characters.json";
+
 export const colors: Color[] = [
 	{ red: 0, green: 0, blue: 0 },
 	{ red: 224, green: 60, blue: 40 },
@@ -126,6 +130,17 @@ export function getSpriteCoordinatesFromPixelPosition(position: number): Coordin
 
 export function getSpritePixelPositionFromCoordinates(x: number, y: number): number {
 	return x + y * 16;
+}
+
+export function getCharacterSprites(): Map<string, Uint8Array> {
+	const sprites = new Map<string, Uint8Array>();
+
+	for (let i = 0; i < characterSpritesJSONArray.length; i++) {
+		const pixels = encoding.decodeBase64(characterSpritesJSONArray[i].pixels);
+		sprites.set(characterSpritesJSONArray[i].id, pixels);
+	}
+
+	return sprites;
 }
 
 export interface Coordinates {

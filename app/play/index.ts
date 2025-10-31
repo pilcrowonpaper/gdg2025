@@ -13,17 +13,17 @@ async function init(): Promise<void> {
 	window.addEventListener("keydown", (e) => {
 		if (e.key === " ") {
 			e.preventDefault();
-			if (!inputs.has("space")) {
-				immediateInputs.add("space");
+			if (!inputs.has("a")) {
+				immediateInputs.add("a");
 			}
-			inputs.add("space");
+			inputs.add("a");
 		}
-		if (e.key === "Enter") {
+		if (e.shiftKey) {
 			e.preventDefault();
-			if (!inputs.has("enter")) {
-				immediateInputs.add("enter");
+			if (!inputs.has("b")) {
+				immediateInputs.add("b");
 			}
-			inputs.add("enter");
+			inputs.add("b");
 		}
 		if (e.key === "ArrowDown") {
 			e.preventDefault();
@@ -55,14 +55,18 @@ async function init(): Promise<void> {
 		}
 	});
 
+	window.addEventListener("gamepadconnected", (e) => {
+		console.log("connected", e.gamepad.index);
+	});
+
 	window.addEventListener("keyup", (e) => {
 		if (e.key === " ") {
 			e.preventDefault();
-			inputs.delete("space");
+			inputs.delete("a");
 		}
-		if (e.key === "Enter") {
+		if (!e.shiftKey) {
 			e.preventDefault();
-			inputs.delete("enter");
+			inputs.delete("b");
 		}
 		if (e.key === "ArrowDown") {
 			e.preventDefault();
@@ -87,6 +91,8 @@ async function init(): Promise<void> {
 	const scripts = storage.getScripts();
 	const sprites = storage.getSprites();
 	const audioClips = storage.getAudioClips();
+
+	const characterSprites = graphics.getCharacterSprites();
 
 	const parsedScripts = new Map<string, ParsedScript>();
 	for (const [scriptId, script] of scripts) {
@@ -332,6 +338,115 @@ async function init(): Promise<void> {
 		return result;
 	});
 
+	updateInstructionsExternalFunctions.set("fill_character", (args) => {
+		if (args.length !== 7) {
+			const result: puffin.ExternalFunctionErrorResult = {
+				ok: false,
+				message: "Expected 7 arguments",
+			};
+			return result;
+		}
+
+		const characterValue = args[0];
+		const pixelFullColorValue = args[1];
+		const pixelColorIdValue = args[2];
+		const spriteXPositionValue = args[3];
+		const spriteYPositionValue = args[4];
+		const flipXValue = args[5];
+		const flipYValue = args[6];
+
+		if (characterValue.type !== "value.string") {
+			const result: puffin.ExternalFunctionErrorResult = {
+				ok: false,
+				message: "Not a string",
+			};
+			return result;
+		}
+		let fullColor: boolean;
+		if (pixelFullColorValue.type === "value.true") {
+			fullColor = true;
+		} else if (pixelFullColorValue.type === "value.false") {
+			fullColor = false;
+		} else {
+			const result: puffin.ExternalFunctionErrorResult = {
+				ok: false,
+				message: "Not true or false",
+			};
+			return result;
+		}
+		if (pixelColorIdValue.type !== "value.number") {
+			const result: puffin.ExternalFunctionErrorResult = {
+				ok: false,
+				message: "Not a number",
+			};
+			return result;
+		}
+		if (spriteXPositionValue.type !== "value.number") {
+			const result: puffin.ExternalFunctionErrorResult = {
+				ok: false,
+				message: "Not a number",
+			};
+			return result;
+		}
+		if (spriteYPositionValue.type !== "value.number") {
+			const result: puffin.ExternalFunctionErrorResult = {
+				ok: false,
+				message: "Not a number",
+			};
+			return result;
+		}
+		let flipX: boolean;
+		if (flipXValue.type === "value.true") {
+			flipX = true;
+		} else if (flipXValue.type === "value.false") {
+			flipX = false;
+		} else {
+			const result: puffin.ExternalFunctionErrorResult = {
+				ok: false,
+				message: "Not true or false",
+			};
+			return result;
+		}
+		let flipY: boolean;
+		if (flipYValue.type === "value.true") {
+			flipY = true;
+		} else if (flipYValue.type === "value.false") {
+			flipY = false;
+		} else {
+			const result: puffin.ExternalFunctionErrorResult = {
+				ok: false,
+				message: "Not true or false",
+			};
+			return result;
+		}
+
+		const sprite = characterSprites.get(characterValue.string) ?? null;
+		if (sprite === null) {
+			const result: puffin.ExternalFunctionErrorResult = {
+				ok: false,
+				message: `Character ${characterValue.string} does not exist`,
+			};
+			return result;
+		}
+
+		renderer.pushSpriteFill(
+			sprite,
+			fullColor,
+			Math.trunc(pixelColorIdValue.value100 / 100),
+			Math.trunc(spriteXPositionValue.value100 / 100),
+			Math.trunc(spriteYPositionValue.value100 / 100),
+			flipX,
+			flipY,
+		);
+
+		const returnValue: puffin.NullValue = { type: "value.null" };
+		const result: puffin.ExternalFunctionSuccessResult = {
+			ok: true,
+			returnValue: returnValue,
+		};
+		return result;
+	});
+
 	updateInstructionsExternalFunctions.set("fill_background", (args) => {
 		if (args.length !== 3) {
 			const result: puffin.ExternalFunctionErrorResult = {
@@ -429,7 +544,7 @@ async function init(): Promise<void> {
 		return result;
 	});
 
-	updateInstructionsExternalFunctions.set("check_immediate_input", (args) => {
+	updateInstructionsExternalFunctions.set("check_frame_input", (args) => {
 		if (args.length !== 1) {
 			const result: puffin.ExternalFunctionErrorResult = {
 				ok: false,
@@ -628,6 +743,7 @@ async function init(): Promise<void> {
 		initialStateValue,
 		renderer,
 		audioPlayer,
+		inputs,
 		immediateInputs,
 	);
 }
@@ -645,9 +761,71 @@ async function executeUpdateInstructions(
 	state: puffin.Value,
 	renderer: Renderer,
 	audioPlayer: AudioPlayer,
+	inputs: Inputs,
 	immediateInputs: Inputs,
 ): Promise<void> {
 	const startMS = performance.now();
+
+	const gamepads = navigator.getGamepads();
+	if (gamepads.length > 0) {
+		const gamepad = gamepads[0];
+		if (gamepad !== null) {
+			const aButtonPressed = gamepad.buttons[0].pressed || gamepad.buttons[1].pressed;
+			if (aButtonPressed) {
+				if (!inputs.has("a")) {
+					immediateInputs.add("a");
+				}
+				inputs.add("a");
+			} else {
+				inputs.delete("a");
+			}
+			const bButtonPressed = gamepad.buttons[2].pressed || gamepad.buttons[3].pressed;
+			if (bButtonPressed) {
+				if (!inputs.has("b")) {
+					immediateInputs.add("b");
+				}
+				inputs.add("b");
+			} else {
+				inputs.delete("b");
+			}
+			const upButtonPressed = gamepad.buttons[12].pressed;
+			if (upButtonPressed) {
+				if (!inputs.has("up")) {
+					immediateInputs.add("up");
+				}
+				inputs.add("up");
+			} else {
+				inputs.delete("up");
+			}
+			const downButtonPressed = gamepad.buttons[13].pressed;
+			if (downButtonPressed) {
+				if (!inputs.has("down")) {
+					immediateInputs.add("down");
+				}
+				inputs.add("down");
+			} else {
+				inputs.delete("down");
+			}
+			const leftButtonPressed = gamepad.buttons[14].pressed;
+			if (leftButtonPressed) {
+				if (!inputs.has("left")) {
+					immediateInputs.add("left");
+				}
+				inputs.add("left");
+			} else {
+				inputs.delete("left");
+			}
+			const rightButtonPressed = gamepad.buttons[15].pressed;
+			if (rightButtonPressed) {
+				if (!inputs.has("right")) {
+					immediateInputs.add("right");
+				}
+				inputs.add("right");
+			} else {
+				inputs.delete("right");
+			}
+		}
+	}
 
 	const executeResult = puffin.executeInstructions(parsedUpdateScript.instructions, state, externalFunctions);
 	if (!executeResult.ok) {
@@ -667,7 +845,15 @@ async function executeUpdateInstructions(
 
 	await new Promise((r) => setTimeout(r, 10 - durationMS));
 
-	executeUpdateInstructions(parsedUpdateScript, externalFunctions, nextState, renderer, audioPlayer, immediateInputs);
+	executeUpdateInstructions(
+		parsedUpdateScript,
+		externalFunctions,
+		nextState,
+		renderer,
+		audioPlayer,
+		inputs,
+		immediateInputs,
+	);
 }
 
 function getGameElement(): HTMLCanvasElement {
