@@ -4,7 +4,7 @@
 		<meta charset="UTF-8">
 		<link rel="icon" type="image/svg+xml" href="/vite.svg">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Sprites | LAV DEVKIT</title>
+		<title>イラスト | LAV DEVKIT</title>
 		<link rel="stylesheet" type="text/css" href="./style.css">
 	</head>
 
@@ -18,33 +18,33 @@
 			<div style="display: flex; align-items: center; gap: 2rem;">
 				<ul style="display: flex; gap: 2rem; list-style: none;">
 					<li>
-						<a href="/scripts/">Scripts</a>
+						<a href="/scripts/">プログラム</a>
 					</li>
 					<li>
-						<a href="/sprites/">Sprites</a>
+						<a href="/sprites/">イラスト</a>
 					</li>
 					<li>
-						<a href="/audio-clips/">Audio clips</a>
+						<a href="/audio-clips/">効果音</a>
 					</li>
 					<li>
-						<a href="/files/">Files</a>
+						<a href="/files/">ファイル</a>
 					</li>
 				</ul>
-				<a href="/play/" target="_blank" class="button">Play</a>
+				<a href="/play/" target="_blank" class="button">遊ぶ</a>
 			</div>
 		</header>
 		<main style="padding: 1rem 2rem;">
-			<h1 style="padding: 2rem 0rem;">Edit sprites</h1>
+			<h1 style="padding: 2rem 0rem;">イラストを描く</h1>
 			<div id="editor-body" hidden>
 				<div style="display: grid; grid-column: 1; gap: 1rem;">
 					<div style="display: flex; justify-content: space-between; align-items: center;">
 						<div>
-							<label>Select sprite:</label>
+							<label>イラストを選択:</label>
 							<select id="sprite-selector"></select>
 						</div>
 						<div style="display: flex; gap: 1rem;">
-							<button id="new-sprite-button">New sprite</button>
-							<button id="clear-all-button">Clear All</button>
+							<button id="new-sprite-button">新しいイラストを作成</button>
+							<button id="clear-all-button">全消し</button>
 						</div>
 					</div>
 					<div id="log-area" style="color: black; font-size: 14px; margin-top: 4px;"></div>
@@ -53,8 +53,8 @@
 							style="padding: 1rem 2rem; border-bottom: solid 1px black; display: flex; justify-content: space-between; align-items: center;"
 						>
 							<ul style="display: flex; gap: 1rem; list-style: none;">
-								<button id="show-sprite-edit-page-button" class="link-like-button">Edit</button>
-								<button id="show-sprite-config-page-button" class="link-like-button">Config</button>
+								<button id="show-sprite-edit-page-button" class="link-like-button">編集</button>
+								<button id="show-sprite-config-page-button" class="link-like-button">設定</button>
 							</ul>
 						</div>
 						<div style="padding: 2rem;">
@@ -62,15 +62,15 @@
 								<div style="display: grid; column-count: 1; gap: 2rem;">
 									<div style="display: flex; align-items: center; gap: 2rem;">
 										<div>
-											<label for="tool-type-selector">Tool:</label>
+											<label for="tool-type-selector">ツール:</label>
 											<select id="tool-type-selector">
-												<option value="pen">Pen</option>
-												<option value="eraser">Eraser</option>
-												<option value="bucket">Bucket</option>
+												<option value="pen">ペン</option>
+												<option value="eraser">消しゴム</option>
+												<option value="bucket">バケツ</option>
 											</select>
 										</div>
 										<div>
-											<label for="background-color-slider">Background color:</label>
+											<label for="background-color-slider">背景の色:</label>
 											<input id="background-color-slider" type="range" min="0" max="255" value="0">
 										</div>
 									</div>
@@ -84,7 +84,7 @@
 										></canvas>
 										<div style="flex-grow: 1;">
 											<fieldset id="color-picker">
-												<legend>Pen color</legend>
+												<legend>ペンの色</legend>
 											</fieldset>
 										</div>
 									</div>
@@ -94,15 +94,15 @@
 							<div id="sprite-config-page" hidden>
 								<div style="display: grid; column-count: 1; gap: 2rem">
 									<section>
-										<h2 style="margin-bottom: 1rem;">Rename sprite</h2>
+										<h2 style="margin-bottom: 1rem;">イラストの名前を変える</h2>
 										<form id="rename-sprite-id-form">
 											<input name="new_sprite_id">
-											<button>Rename</button>
+											<button>名前を変える</button>
 										</form>
 									</section>
 									<section>
-										<h2 style="margin-bottom: 1rem;">Delete sprite</h2>
-										<button id="delete-sprite-button">Delete</button>
+										<h2 style="margin-bottom: 1rem;">イラストを削除</h2>
+										<button id="delete-sprite-button">削除</button>
 									</section>
 								</div>
 							</div>

@@ -18,32 +18,32 @@
 			<div style="display: flex; align-items: center; gap: 2rem;">
 				<ul style="display: flex; gap: 2rem; list-style: none;">
 					<li>
-						<a href="/scripts/">Scripts</a>
+						<a href="/scripts/">プログラム</a>
 					</li>
 					<li>
-						<a href="/sprites/">Sprites</a>
+						<a href="/sprites/">イラスト</a>
 					</li>
 					<li>
-						<a href="/audio-clips/">Audio clips</a>
+						<a href="/audio-clips/">効果音</a>
 					</li>
 					<li>
-						<a href="/files/">Files</a>
+						<a href="/files/">ファイル</a>
 					</li>
 				</ul>
-				<a href="/play/" target="_blank" class="button">Play</a>
+				<a href="/play/" target="_blank" class="button">遊ぶ</a>
 			</div>
 		</header>
 		<main style="padding: 1rem 2rem;">
-			<h1 style="padding: 2rem 0rem;">Edit audio clips</h1>
+			<h1 style="padding: 2rem 0rem;">効果音を編集する</h1>
 			<div id="editor-body" hidden>
 				<div style="display: grid; grid-column: 1; gap: 1rem;">
 					<div style="display: flex; justify-content: space-between; align-items: center;">
 						<div>
-							<label>Select audio clip:</label>
+							<label>効果音を選択する</label>
 							<select id="audio-clip-selector"></select>
 						</div>
 						<div style="display: flex; gap: 1rem;">
-							<button id="new-audio-clip-button">New audio clip</button>
+							<button id="new-audio-clip-button">新しい効果音を作成</button>
 						</div>
 					</div>
 					<div style="border: solid 1px black; ">
@@ -51,35 +51,35 @@
 							style="padding: 1rem 2rem; border-bottom: solid 1px black; display: flex; justify-content: space-between; align-items: center;"
 						>
 							<ul style="display: flex; gap: 1rem; list-style: none;">
-								<button id="show-audio-clip-edit-page-button" class="link-like-button">Edit</button>
-								<button id="show-audio-clip-config-page-button" class="link-like-button">Config</button>
+								<button id="show-audio-clip-edit-page-button" class="link-like-button">編集</button>
+								<button id="show-audio-clip-config-page-button" class="link-like-button">設定</button>
 							</ul>
-							<button id="play-button">Play</button>
+							<button id="play-button">遊ぶ</button>
 						</div>
 						<div style="padding: 2rem;">
 							<div id="audio-clip-edit-page">
 								<div style="display: grid; column-count: 1; gap: 2rem;">
 									<div style="display: flex; align-items: center; gap: 2rem;">
 										<div>
-											<label for="speed-slider">Speed:</label>
+											<label for="speed-slider">速度:</label>
 											<input id="speed-slider" type="range" min="0" max="7">
 										</div>
 										<div>
-											<label for="note-type-selector">Audio type:</label>
+											<label for="note-type-selector">効果音</label>
 											<select id="note-type-selector">
-												<option value="0">Sawtooth</option>
-												<option value="1">Sine</option>
-												<option value="2">Square</option>
-												<option value="3">Triangle</option>
+												<option value="0">のこぎり波</option>
+												<option value="1">正弦波</option>
+												<option value="2">矩形波</option>
+												<option value="3">三角波</option>
 											</select>
 										</div>
 									</div>
 
 									<table id="notes-table">
 										<tr style="text-align: left;">
-											<th style="width: 5rem;">Order</th>
-											<th>Volume</th>
-											<th>Pitch</th>
+											<th style="width: 5rem;">順番</th>
+											<th>音量</th>
+											<th>音階</th>
 										</tr>
 									</table>
 								</div>
@@ -88,15 +88,15 @@
 							<div id="audio-clip-config-page" hidden>
 								<div style="display: grid; column-count: 1; gap: 2rem">
 									<section>
-										<h2 style="margin-bottom: 1rem;">Rename audio clip</h2>
+										<h2 style="margin-bottom: 1rem;">効果音の名前を変更</h2>
 										<form id="rename-audio-clip-id-form">
 											<input name="new_audio_clip_id">
-											<button>Rename</button>
+											<button>名前を変更</button>
 										</form>
 									</section>
 									<section>
-										<h2 style="margin-bottom: 1rem;">Delete audio clip</h2>
-										<button id="delete-audio-clip-button">Delete</button>
+										<h2 style="margin-bottom: 1rem;">効果音を削除</h2>
+										<button id="delete-audio-clip-button">削除</button>
 									</section>
 								</div>
 							</div>
