@@ -68,7 +68,7 @@ export function createStandardLibrary(): Map<string, ExternalFunction> {
                 };
                 return result;
             }
-            if (args[i].type === "value.true") {
+            if (args[i].type === "value.false") {
                 continue;
             }
             const result: ExternalFunctionErrorResult = {
