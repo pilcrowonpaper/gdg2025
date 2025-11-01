@@ -10,3 +10,9 @@
 	border-radius: 0;
 	font-weight: normal;
 }
+
+html {
+	font-family: "SF Mono", "Operator Mono", "Roboto Mono", "Menlo", "Monaco", "Consolas", monospace;
+	font-size: 1rem;
+	--accent-color: #cf0100;
+}

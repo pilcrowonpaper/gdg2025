@@ -125,3 +125,9 @@ a:hover {
 .link-like-button:hover {
 	text-decoration: underline;
 }
+
+html {
+	font-family: "SF Mono", "Operator Mono", "Roboto Mono", "Menlo", "Monaco", "Consolas", monospace;
+	font-size: 1rem;
+	--accent-color: #cf0100;
+}
