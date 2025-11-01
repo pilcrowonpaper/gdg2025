@@ -2,7 +2,9 @@ export const backgroundStorageKey = "sprite_editor.background";
 
 export function getBackgroundColor(): number {
 	const stored = localStorage.getItem(backgroundStorageKey);
-	if (stored === null) return 255;
+	if (stored === null) {
+		return 255;
+	}
 	const parsed = Number(stored);
 	return Number.isFinite(parsed) ? parsed : 255;
 }

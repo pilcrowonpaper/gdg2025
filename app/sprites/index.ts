@@ -425,8 +425,10 @@ function setupConfigActions(): void {
 
 	duplicateBtn.addEventListener("click", () => {
 		const oldId = getSelectedSpriteId();
-		const original = sprites.get(oldId);
-		if (!original) return;
+		const original = sprites.get(oldId) ?? null;
+		if (original === null) {
+			return;
+		}
 
 		const base = `${oldId}-copy`;
 		let index = 1;
