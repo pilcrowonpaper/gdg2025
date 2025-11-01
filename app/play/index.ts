@@ -769,15 +769,18 @@ async function init(): Promise<void> {
 
 	const playScreenOpenedValue = sessionStorage.getItem("play_screen_opened");
 	if (playScreenOpenedValue !== "true") {
-		await new Promise((r) => setTimeout(r, 200));
-
-		drawLogoScreen(gameElementCanvasContext);
 		const jingleNotes = encoding.decodeBase64("PtQ+3DAAMAA+zD7APtw66DboMugw6DAAMAAwADAAMAA=");
 		await new Promise((r) => setTimeout(r, 200));
+
 		audio.playClip({
 			speed: 5,
 			notes: jingleNotes,
 		});
+
+		for (let i = 0; i < 255; i++) {
+			drawLogoScreen(gameElementCanvasContext, i);
+			await new Promise((r) => setTimeout(r, 1));
+		}
 
 		await new Promise((r) => setTimeout(r, 800));
 
@@ -1128,16 +1131,16 @@ function getOutputElement(): HTMLDivElement {
 	return element;
 }
 
-function drawLogoScreen(canvasContext: CanvasRenderingContext2D): void {
+function drawLogoScreen(canvasContext: CanvasRenderingContext2D, brightness: number): void {
 	const imageData = canvasContext.getImageData(16 * 4, 16 * 3, 16 * 4, 16 * 2);
 
 	for (let i = 0; i < imageData.data.length / 4; i++) {
 		const byte = logo[Math.floor(i / 8)];
 		const shift = 7 - (i % 8);
 		if (((byte >> shift) & 0x01) === 1) {
-			imageData.data[4 * i] = 255;
-			imageData.data[4 * i + 1] = 255;
-			imageData.data[4 * i + 2] = 255;
+			imageData.data[4 * i] = brightness;
+			imageData.data[4 * i + 1] = brightness;
+			imageData.data[4 * i + 2] = brightness;
 			imageData.data[4 * i + 3] = 255;
 		} else {
 			imageData.data[4 * i] = 0;
