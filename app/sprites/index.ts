@@ -435,7 +435,7 @@ function setupConfigActions(): void {
 			newId = `${base}-${index++}`;
 		}
 
-		const copy = new Uint8Array(original); 
+		const copy = new Uint8Array(original);
 		sprites.set(newId, copy);
 
 		saveSprites();
@@ -447,7 +447,6 @@ function setupConfigActions(): void {
 		redrawCurrentSprite();
 		showEditPage();
 	});
-
 }
 function setupClearAllButton(): void {
 	const btn = document.getElementById("clear-all-button") as HTMLButtonElement;

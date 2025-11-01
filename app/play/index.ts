@@ -1,8 +1,38 @@
+import * as audio from "@audio";
 import * as graphics from "@graphics";
+import * as encoding from "@oslojs/encoding";
 import * as puffin from "@puffin";
 import * as storage from "@storage";
 
 import { AudioPlayer, Renderer } from "./utils.js";
+
+const logo = new Uint8Array([
+	0, 0, 0, 0, 0, 0, 0, 0.0, 0, 0, 0, 0, 0, 0, 0, 0.0, 0, 0, 0, 0, 0, 0, 0, 0.0, 0, 0, 0, 0, 0, 0, 0, 0.0,
+
+	0, 0, 0, 0, 0, 0, 0, 0.0, 0, 0b00001100, 0, 0, 0b00011001, 0b10000000, 0, 0b11000000, 0, 0b00001100, 0, 0, 0b00011001,
+	0b10000000, 0, 0b11000000, 0, 0, 0, 0, 0b00011001, 0b10000000, 1, 0b10000000,
+
+	0, 0, 0, 0, 0b1001000, 0b10000000, 1, 0, 0, 0b00011000, 0, 0, 0b01001000, 0b10000000, 0b00000011, 0, 0, 0b00011000, 0,
+	0, 0b11001000, 0b11000000, 0b00000010, 0, 0, 0b00011000, 0, 1, 0b11001100, 0b11000000, 0b00000110, 0,
+
+	0, 0, 0, 1, 0b10001100, 0b11000000, 0b00001100, 0, 0, 0, 0, 0b00000011, 0b00000100, 0b1000000, 0b00001000, 0, 0,
+	0b00110000, 0, 0b00000111, 0b00000100, 0b01000000, 0b00011000, 0, 0, 0b00110000, 0, 0b00000110, 0b00000100,
+	0b01100000, 0b00110000, 0,
+
+	0, 0b00110000, 0, 0b00001100, 0b00000110, 0b01100000, 0b00100000, 0, 0, 0b01100000, 0, 0b00011100, 0b00000110,
+	0b00100000, 0b01100000, 0, 0, 0b01100000, 0, 0b00011111, 0b11110010, 0b00100000, 0b11000000, 0, 0, 0b01100000, 0,
+	0b00111111, 0b11100010, 0b00100000, 0b110000000, 0,
+
+	0, 0b01100000, 0, 0b01110000, 0b00000010, 0b00100001, 0b10000000, 0, 0, 0b01100000, 0, 0b01100000, 0b00000010,
+	0b00110011, 0, 0, 0, 0b11000000, 0, 0b11000000, 0b00000011, 0b00111110, 0, 0, 0, 0b11000000, 0, 0b11000000,
+	0b00000011, 0b00011110, 0, 0,
+
+	0, 0b11000000, 0b00000001, 0b10000000, 1, 0b10011100, 0, 0, 0, 0b11100000, 0b00000011, 0, 1, 0b10011100, 0, 0, 0,
+	0xff, 0b11111111, 0, 1, 0b10011000, 0, 0, 0, 0b01111111, 0b11111110, 0, 1, 0b10011000, 0, 0,
+
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+]);
 
 init();
 
@@ -737,6 +767,27 @@ async function init(): Promise<void> {
 		return result;
 	});
 
+	const playScreenOpenedValue = sessionStorage.getItem("play_screen_opened");
+	if (playScreenOpenedValue !== "true") {
+		await new Promise((r) => setTimeout(r, 200));
+
+		drawLogoScreen(gameElementCanvasContext);
+		const jingleNotes = encoding.decodeBase64("PtQ+3DAAMAA+zD7APtw66DboMugw6DAAMAAwADAAMAA=");
+		await new Promise((r) => setTimeout(r, 200));
+		audio.playClip({
+			speed: 5,
+			notes: jingleNotes,
+		});
+
+		await new Promise((r) => setTimeout(r, 800));
+
+		clearScreen(gameElementCanvasContext);
+
+		await new Promise((r) => setTimeout(r, 400));
+
+		sessionStorage.setItem("play_screen_opened", "true");
+	}
+
 	await executeUpdateInstructions(
 		updateInstructions,
 		updateInstructionsExternalFunctions,
@@ -1075,4 +1126,39 @@ function getOutputElement(): HTMLDivElement {
 		throw new Error(`${element} not a dive element`);
 	}
 	return element;
+}
+
+function drawLogoScreen(canvasContext: CanvasRenderingContext2D): void {
+	const imageData = canvasContext.getImageData(16 * 4, 16 * 3, 16 * 4, 16 * 2);
+
+	for (let i = 0; i < imageData.data.length / 4; i++) {
+		const byte = logo[Math.floor(i / 8)];
+		const shift = 7 - (i % 8);
+		if (((byte >> shift) & 0x01) === 1) {
+			imageData.data[4 * i] = 255;
+			imageData.data[4 * i + 1] = 255;
+			imageData.data[4 * i + 2] = 255;
+			imageData.data[4 * i + 3] = 255;
+		} else {
+			imageData.data[4 * i] = 0;
+			imageData.data[4 * i + 1] = 0;
+			imageData.data[4 * i + 2] = 0;
+			imageData.data[4 * i + 3] = 0;
+		}
+	}
+
+	canvasContext.putImageData(imageData, 16 * 4, 16 * 3);
+}
+
+function clearScreen(canvasContext: CanvasRenderingContext2D): void {
+	const imageData = canvasContext.getImageData(0, 0, canvasContext.canvas.width, canvasContext.canvas.height);
+
+	for (let i = 0; i < imageData.data.length / 4; i++) {
+		imageData.data[4 * i] = 0;
+		imageData.data[4 * i + 1] = 0;
+		imageData.data[4 * i + 2] = 0;
+		imageData.data[4 * i + 3] = 0;
+	}
+
+	canvasContext.putImageData(imageData, 0, 0);
 }
