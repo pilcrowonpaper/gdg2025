@@ -420,6 +420,34 @@ function setupConfigActions(): void {
 
 		showEditPage();
 	});
+
+	const duplicateBtn = document.getElementById("duplicate-sprite-button") as HTMLButtonElement;
+
+	duplicateBtn.addEventListener("click", () => {
+		const oldId = getSelectedSpriteId();
+		const original = sprites.get(oldId);
+		if (!original) return;
+
+		const base = `${oldId}-copy`;
+		let index = 1;
+		let newId = base;
+		while (sprites.has(newId)) {
+			newId = `${base}-${index++}`;
+		}
+
+		const copy = new Uint8Array(original); 
+		sprites.set(newId, copy);
+
+		saveSprites();
+		updateSpriteSelectorOptions();
+		getSpriteSelectorElement().value = newId;
+		undoStack.splice(0);
+		redoStack.splice(0);
+
+		redrawCurrentSprite();
+		showEditPage();
+	});
+
 }
 function setupClearAllButton(): void {
 	const btn = document.getElementById("clear-all-button") as HTMLButtonElement;
