@@ -216,6 +216,33 @@ export function createStandardLibrary(): Map<string, ExternalFunction> {
         };
         return result;
     });
+    functions.set("ceil", (args) => {
+        if (args.length !== 1) {
+            const result: ExternalFunctionErrorResult = {
+                ok: false,
+                message: "Expected 1 argument",
+            };
+            return result;
+        }
+        const arg = args[0];
+        if (arg.type !== "value.number") {
+            const result: ExternalFunctionErrorResult = {
+                ok: false,
+                message: "Not a number",
+            };
+            return result;
+        }
+        const value100 = Math.ceil(arg.value100 / 100) * 100;
+        const returnValue: NumberValue = {
+            type: "value.number",
+            value100: value100,
+        };
+        const result: ExternalFunctionSuccessResult = {
+            ok: true,
+            returnValue: returnValue,
+        };
+        return result;
+    });
     functions.set("abs", (args) => {
         if (args.length !== 1) {
             const result: ExternalFunctionErrorResult = {

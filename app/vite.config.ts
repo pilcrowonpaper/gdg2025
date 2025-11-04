@@ -22,5 +22,6 @@ export default vite.defineConfig({
 				path.resolve(import.meta.dirname, "files/index.html"),
 			],
 		},
+		outDir: path.resolve(import.meta.dirname, "../dist"),
 	},
 });

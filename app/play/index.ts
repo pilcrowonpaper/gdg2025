@@ -755,7 +755,9 @@ async function init(): Promise<void> {
 	});
 
 	updateInstructionsExternalFunctions.set("log", (args) => {
-		console.log(args);
+		for (let i = 0; i < args.length; i++) {
+			console.log(puffin.stringifyValue(args[i]));
+		}
 
 		const returnValue: puffin.NullValue = {
 			type: "value.null",

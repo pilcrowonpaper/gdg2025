@@ -1,8 +1,12 @@
 # LAV DevKit
 
-A development hardware for the LAV fantasy console.
+**[lav.gdgoc-chuo.com](https://lav.gdgoc-chuo.com)**
 
-## Setup
+The LAV fantasy console and its development kit.
+
+Check the `documentation` directory for documentation on the Puffin language and graphics API.
+
+## Development
 
 Install dependencies:
 
@@ -16,8 +20,18 @@ Start dev server:
 pnpm dev
 ```
 
-Build:
+Format:
 
 ```
+pnpm check
+```
+
+## Build
+
+```
+pnpm install
+
 pnpm build
 ```
+
+Generated assets will be located at `/dist`.

@@ -16,6 +16,6 @@
 		}
 	},
 	"files": {
-		"includes": ["app/**", "audio/**", "graphics/**", "lang/**", "shared/**", "storage/**", "!app/dist"]
+		"includes": ["app/**", "audio/**", "graphics/**", "lang/**", "shared/**", "storage/**"]
 	}
 }

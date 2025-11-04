@@ -2,7 +2,7 @@
 
 Use the `set` instruction to set a variable value. Variable names can be A-Z, a-z, \_, 0-9 (not prefix).
 
-Basic types are numbers (0.01 precision), strings (only ASCII, `\t`, `\\`, `\"`, `\n' supported), true, false, null, lists, and objects.
+Basic types are numbers (0.01 precision - i.e. decimal types), strings (Unicode characters + `\t`, `\\`, `\"`, `\n'), true, false, null, lists, and objects.
 
 ```
 set foo, 1
@@ -91,11 +91,16 @@ Included functions:
 -   `size(list_or_object_value)`
 -   `and(boolean_value1, boolean_value2, ...)`
 -   `or(boolean_value1, boolean_value2, ...)`
--   `random()`: Returns number between 0 (inclusive) and 1 (exclusive).
+-   `random()`: Returns a random number between 0 (inclusive) and 1 (exclusive).
 -   `sqrt()`
--   `stringify(value)`
+-   `stringify(value)`: Serializes values into strings for logging.
 -   `trunc(number_value)`
--   `format_int()`
+-   `format_int(number_value)`
+-   `abs(number_value)`
+-   `floor(number_value)`:
+-   `ceil(number_value)`:
+-   `max(number_value1, number_value2, ...)`
+-   `min(number_value1, number_value2, ...)`
 
 Use `#` instruction as a comment.
 
