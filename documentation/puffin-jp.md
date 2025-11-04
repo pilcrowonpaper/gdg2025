@@ -113,8 +113,13 @@ add list, "foo"
 | `>>` | より大きい |
 | `>=` | 以上 |
 
-`set check1, 1 == 1   # true`  
-`set check2, 2 >> 1   # true`
+```
+# true
+set check1, 1 == 1
+
+# true
+set check2, 2 >> 1
+```
 
 Puffinの比較演算子は、すべて文字を2つ使うことに注意してください。
 
