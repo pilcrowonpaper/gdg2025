@@ -24,6 +24,24 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Install PNPM
+        run: npm i -g pnpm
+
+      - name: Install wrangler
+        run: npm i -g wrangler
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        run: pnpm build
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
